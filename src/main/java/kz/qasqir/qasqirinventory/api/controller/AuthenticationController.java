@@ -1,5 +1,6 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
+import kz.qasqir.qasqirinventory.api.model.entity.Invite;
 import kz.qasqir.qasqirinventory.api.model.entity.Session;
 import kz.qasqir.qasqirinventory.api.model.request.LoginRequest;
 import kz.qasqir.qasqirinventory.api.model.request.RegisterRequest;
@@ -16,6 +17,11 @@ public class AuthenticationController {
     private AuthenticationService authenticationService;
 
     //регистрация
+    public @PostMapping("/invite-sign-up")
+    MessageResponse<Invite> inviteRegister(@RequestBody RegisterRequest registerRequest) {
+        return MessageResponse.of(authenticationService.inviteRegister(registerRequest.getUserName(),registerRequest.getEmail() , registerRequest.getPassword()));
+    }
+
     @PostMapping("/sign-up")
     public MessageResponse<String> register(@RequestBody RegisterRequest registerRequest) {
         return MessageResponse.empty(authenticationService.register(registerRequest.getUserName(),registerRequest.getEmail() , registerRequest.getPassword()));

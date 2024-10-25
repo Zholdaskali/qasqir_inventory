@@ -1,7 +1,6 @@
 package kz.qasqir.qasqirinventory.api.model.request;
 
 public class PasswordResetRequest {
-    private String oldPassword;
     private String newPassword;
 
     public String getNewPassword() {
@@ -10,13 +9,5 @@ public class PasswordResetRequest {
 
     public void setNewPassword(String newPassword) {
         this.newPassword = newPassword;
-    }
-
-    public String getOldPassword() {
-        return oldPassword;
-    }
-
-    public void setOldPassword(String oldPassword) {
-        this.oldPassword = oldPassword;
     }
 }

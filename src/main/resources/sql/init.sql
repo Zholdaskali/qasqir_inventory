@@ -69,6 +69,17 @@ CREATE TABLE t_mail_verifications
     PRIMARY KEY(id)
 );
 
+CREATE TABLE t_invites
+(
+    id              SERIAL              NOT NULL,
+    token           VARCHAR(256)        NOT NULL,
+    link            VARCHAR(255)        NOT NULL,
+    date_create     TIMESTAMP           NOT NULL,
+    expiration      TIMESTAMP           NOT NULL,
+    user_id         INT                 NOT NULL,
+    PRIMARY KEY(id),
+    FOREIGN KEY (user_id) REFERENCES t_users (id)
+);
 
 --############################## Test data ##############################
 INSERT INTO t_organizations (id, organization_name, admin_mail)

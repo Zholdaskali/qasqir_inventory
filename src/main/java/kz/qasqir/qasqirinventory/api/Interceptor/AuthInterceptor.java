@@ -1,10 +1,13 @@
 package kz.qasqir.qasqirinventory.api.Interceptor;
 
+import kz.qasqir.qasqirinventory.api.model.entity.Invite;
 import kz.qasqir.qasqirinventory.api.model.entity.Role;
 import kz.qasqir.qasqirinventory.api.model.entity.Session;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
+import kz.qasqir.qasqirinventory.api.repository.InviteRepository;
 import kz.qasqir.qasqirinventory.api.repository.RoleRepository;
 import kz.qasqir.qasqirinventory.api.repository.SessionRepository;
+import kz.qasqir.qasqirinventory.api.service.InviteService;
 import kz.qasqir.qasqirinventory.api.service.SessionService;
 import kz.qasqir.qasqirinventory.api.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,12 +27,28 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Autowired
     private SessionService sessionService;
     @Autowired
+    private InviteRepository inviteRepository;
+    @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private InviteService inviteService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
+        String invitationToken = request.getParameter("Invite-token");
+        Optional<Invite> invite = inviteRepository.findByToken(invitationToken);
+
         String authToken = request.getHeader("Auth-token");
         Optional<Session> session = sessionRepository.findByToken(authToken);
+
+        if (invite.isPresent()) {
+            if (LocalDateTime.now().isAfter(invite.get().getExpiration())) {
+                inviteService.invalidate(invite.get().getToken());
+                return true;
+            }
+        }
+
         if (session.isPresent()) {
             System.out.println("Session found: " + session.get());
             if (LocalDateTime.now().isAfter(session.get().getExpiration())) {

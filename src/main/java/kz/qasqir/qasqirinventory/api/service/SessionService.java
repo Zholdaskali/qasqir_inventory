@@ -32,15 +32,6 @@ public class SessionService {
         return sessionRepository.save(session);
     }
 
-    public boolean checkSession(String token) {
-        Optional <Session> sessionCheck = sessionRepository.findByToken(token);
-        if (sessionCheck.isPresent()) {
-            return true;
-        } else {
-            throw new SessionNotFoundException();
-        }
-    }
-
     public User getTokenForUser(String token) {
         return sessionRepository.findByToken(token)
                 .map(session -> userService.getByUserId(session.getUserId()))

@@ -4,7 +4,7 @@ import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.AuthenticationErrorException;
 import kz.qasqir.qasqirinventory.api.exception.EmailIsAlreadyRegisteredException;
 import kz.qasqir.qasqirinventory.api.exception.InvalidPasswordException;
-import kz.qasqir.qasqirinventory.api.exception.UserAlreadyExistsException;
+import kz.qasqir.qasqirinventory.api.model.entity.Invite;
 import kz.qasqir.qasqirinventory.api.model.entity.Session;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
 import kz.qasqir.qasqirinventory.api.repository.MailVerificationRepository;
@@ -31,6 +31,19 @@ public class AuthenticationService {
     private MailVerificationRepository mailVerificationRepository;
     @Autowired
     private RoleService roleService;
+    @Autowired
+    private InviteService inviteService;
+
+    @Transactional
+    public Invite inviteRegister(String userName, String email, String password) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new EmailIsAlreadyRegisteredException();
+        }
+        User user = new User(userName, email, passwordEncoder.hash(password), 1);
+        userService.saveUser(user);
+        roleService.addForUser(user.getId(), 1L);
+        return inviteService.generate("/api/v1/password", user.getId());
+    }
 
     @Transactional
     public String register(String userName, String email, String password) {

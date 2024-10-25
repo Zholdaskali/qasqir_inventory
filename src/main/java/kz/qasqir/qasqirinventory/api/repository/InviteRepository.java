@@ -1,23 +1,19 @@
 package kz.qasqir.qasqirinventory.api.repository;
 
-import kz.qasqir.qasqirinventory.api.model.entity.Role;
+import kz.qasqir.qasqirinventory.api.model.entity.Invite;
+import kz.qasqir.qasqirinventory.api.model.entity.Session;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface RoleRepository extends CrudRepository<Role, Long> {
-    @Query(value = """
-        SELECT r.id, r.role_name
-        FROM t_roles r
-        JOIN t_user_roles ur ON r.id = ur.role_id
-        WHERE ur.user_id = :userId
-    """, nativeQuery = true)
-    List<Role> getAllForUserId(@Param("userId") Long userId);
+public interface InviteRepository extends CrudRepository<Invite, Long> {
+    Optional<Invite> findByToken(String token);
+    int deleteByToken(String token);
 
     @Modifying
     @Query(value = """
