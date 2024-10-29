@@ -1,7 +1,6 @@
 --##############################  INIT DATABASE ##############################
-
-DROP DATABASE IF EXISTS qasqir_inventory;
-CREATE DATABASE qasqir_inventory;
+--DROP DATABASE IF EXISTS qasqir_inventory;
+--CREATE DATABASE qasqir_inventory;
 
 \connect qasqir_inventory;
 
@@ -51,16 +50,6 @@ CREATE TABLE t_user_roles
     FOREIGN KEY (role_id) REFERENCES t_roles (id)
 );
 
-CREATE TABLE t_organization_users
-(
-    id              SERIAL              NOT NULL,
-    user_id         INT                 NOT NULL,
-    organization_id INT                 NOT NULL,
-    PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES t_users (id),
-    FOREIGN KEY (organization_id) REFERENCES t_organizations (id)
-);
-
 CREATE TABLE t_mail_verifications
 (
     id              SERIAL              NOT NULL,
@@ -92,3 +81,28 @@ VALUES
     (2, 'company_admin'),
     (3, 'super_admin');
 
+
+SELECT i.id AS id, u.user_name AS userName, u.email AS email
+        FROM t_invites i
+                JOIN t_users u ON i.user_id = u.id
+
+
+--############################## SELECT ##############################
+SELECT * FROM t_invites;
+
+SELECT * FROM t_mail_verifications;
+
+SELECT * FROM t_user_roles;
+
+SELECT * FROM t_roles;
+
+SELECT * FROM t_sessions;
+
+SELECT * FROM t_users;
+
+SELECT * FROM t_organizations;
+
+--  Вывод всех действуюших приглашений пользователей
+SELECT i.id, u.user_name AS userName, u.email
+        FROM t_invites i
+        JOIN t_users u ON i.user_id = u.id

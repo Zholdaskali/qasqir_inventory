@@ -1,6 +1,6 @@
 package kz.qasqir.qasqirinventory.api.model.request;
 
-public class PasswordResetRequest {
+public class PasswordResetInviteUserRequest {
     private String newPassword;
 
     public String getNewPassword() {

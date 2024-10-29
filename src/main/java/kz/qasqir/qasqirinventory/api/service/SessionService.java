@@ -44,6 +44,7 @@ public class SessionService {
     public boolean invalidate(String token) {
         return sessionRepository.deleteByToken(token) > 0;
     }
+
     public void manageCountSession(Long userId) {
         List<Session> activeSessions = sessionRepository.findByUserId(userId);
         int maxCountActiveSessions = 2;

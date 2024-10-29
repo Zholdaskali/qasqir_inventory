@@ -1,7 +1,8 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import kz.qasqir.qasqirinventory.api.model.request.PasswordResetRequest;
+import kz.qasqir.qasqirinventory.api.model.request.PasswordResetInviteUserRequest;
+import kz.qasqir.qasqirinventory.api.model.request.PasswordResetUserRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.service.PasswordResetService;
 import kz.qasqir.qasqirinventory.api.service.SessionService;
@@ -22,8 +23,13 @@ public class PasswordResetController {
     @Autowired
     private PasswordResetService passwordResetService;
 
+    @PutMapping("/reset-invite")
+    public MessageResponse<String> editPasswordInviteUser(HttpServletRequest request, @RequestBody PasswordResetInviteUserRequest passwordResetRequest) {
+            return MessageResponse.empty(passwordResetService.editPasswordInviteUser(request, passwordResetRequest));
+    }
+
     @PutMapping("/reset")
-    public MessageResponse<String> editPasswordUser(HttpServletRequest request, @RequestBody PasswordResetRequest passwordResetRequest) {
-            return MessageResponse.empty(passwordResetService.editPasswordUser(request, passwordResetRequest));
+    public MessageResponse<String> editPasswordUser(HttpServletRequest request, @RequestBody PasswordResetUserRequest passwordResetRequest) {
+        return MessageResponse.empty(passwordResetService.editPasswordUser(request, passwordResetRequest));
     }
 }

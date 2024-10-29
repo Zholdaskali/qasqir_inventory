@@ -11,7 +11,7 @@ public class Organization {
 
     @Column(name = "organization_name", nullable = false)
     private String name;
-    @Column(name = "admin_email", nullable = false)
+    @Column(name = "admin_mail", nullable = false)
     private String AdminEmail;
 
     public Long getId() {

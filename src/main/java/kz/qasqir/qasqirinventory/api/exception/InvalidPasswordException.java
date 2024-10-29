@@ -2,6 +2,6 @@ package kz.qasqir.qasqirinventory.api.exception;
 
 public class InvalidPasswordException extends RuntimeException {
     public InvalidPasswordException() {
-        super("Invalid password");
+        super("Неверный пароль");
     }
 }

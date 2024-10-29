@@ -1,32 +1,34 @@
 #server:
 #  port: 8081
 #spring:
+#  application:
+#    name: qasqir-inventory-api
 #  datasource:
-#    url: jdbc:mysql://localhost:3306/eco_almaty?useUnicode=true&characterEncoding=UTF-8
-#    username: root
-#    password: 07071978Welstem
-#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:postgresql://localhost:5432/qasqir_inventory?useUnicode=true&characterEncoding=UTF-8
+#    username: postgres
+#    password: erke
+#    driver-class-name: org.postgresql.Driver
 #  jpa:
 #    hibernate:
-#      ddl-auto: update
-#    jpa:
+#      ddl-auto: none
+#    show-sql: true
+#    mail:
+#      host: smtp.gmail.com
+#      port: 25
+#      username: eco.almaty.noreply@gmail.com
+#      password: xkoukrglexkowmbh
 #      properties:
-#        hibernate:
-#          dialect: org.hibernate.dialect.MySQLDialect
-#  mail:
-#    host: smtp.gmail.com
-#    port: 25
-#    username: eco.almaty.noreply@gmail.com
-#    password: xkoukrglexkowmbh
-#    properties:
-#      mail:
-#        smtp:
-#          auth: true
-#          starttls:
-#            enable: true
-#app:
-#  security:
-#    salt-rounds: 12
+#        mail:
+#          smtp:
+#            auth: true
+#            starttls:
+#              enable: true
+#    app:
+#    security:
+#      salt-rounds: 12
+
+
+
 server:
   port: 8081
 spring:
@@ -41,17 +43,24 @@ spring:
     hibernate:
       ddl-auto: none
     show-sql: true
-    mail:
-      host: smtp.gmail.com
-      port: 25
-      username: eco.almaty.noreply@gmail.com
-      password: xkoukrglexkowmbh
-      properties:
-        mail:
-          smtp:
-            auth: true
-            starttls:
-              enable: true
-    app:
-    security:
-      salt-rounds: 12
+  mail:
+    host: smtp.gmail.com
+    port: 25
+    username: eco.almaty.noreply@gmail.com
+    password: xkoukrglexkowmbh
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+app:
+  security:
+    salt-rounds: 12
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html

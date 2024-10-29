@@ -1,5 +1,6 @@
 package kz.qasqir.qasqirinventory.api.service;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
 import kz.qasqir.qasqirinventory.api.exception.InviteNotFoundException;
 import kz.qasqir.qasqirinventory.api.exception.UserNotFoundException;
 import kz.qasqir.qasqirinventory.api.model.entity.Invite;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class InviteService {
@@ -39,6 +42,10 @@ public class InviteService {
         return inviteRepository.findByToken(token)
                 .map(invite -> userService.getByUserId(invite.getUserId()))
                 .orElseThrow(InviteNotFoundException::new);
+    }
+
+    public Optional<Invite> getByToken(String token) {
+        return inviteRepository.findByToken(token);
     }
 
     @Transactional

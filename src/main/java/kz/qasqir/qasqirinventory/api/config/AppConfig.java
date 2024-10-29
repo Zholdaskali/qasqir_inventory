@@ -9,9 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
-import javax.swing.plaf.PanelUI;
-import java.util.Properties;
-
 @Configuration
 public class AppConfig {
 

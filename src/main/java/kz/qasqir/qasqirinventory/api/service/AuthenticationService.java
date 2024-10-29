@@ -42,7 +42,7 @@ public class AuthenticationService {
         User user = new User(userName, email, passwordEncoder.hash(password), 1);
         userService.saveUser(user);
         roleService.addForUser(user.getId(), 1L);
-        return inviteService.generate("/api/v1/password", user.getId());
+        return inviteService.generate("http://localhost:5173/recover-password", user.getId());
     }
 
     @Transactional
@@ -53,7 +53,7 @@ public class AuthenticationService {
 
         User user = new User(userName, email, passwordEncoder.hash(password), 1);
         userService.saveUser(user);
-        roleService.addForUser(user.getId(), 1L);
+        roleService.addForUser(user.getId(), 3L);
         return "Пользователь успешно создан";
     }
 
