@@ -1,5 +1,7 @@
 package kz.qasqir.qasqirinventory.api.Interceptor;
 
+import kz.qasqir.qasqirinventory.api.exception.SessionHasExpiredException;
+import kz.qasqir.qasqirinventory.api.exception.SessionNotFoundException;
 import kz.qasqir.qasqirinventory.api.model.entity.Role;
 import kz.qasqir.qasqirinventory.api.model.entity.Session;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
@@ -10,6 +12,7 @@ import kz.qasqir.qasqirinventory.api.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -17,22 +20,36 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Component
 public class AuthInterceptor implements HandlerInterceptor {
 
     @Autowired
-    private SessionRepository sessionRepository;
-    @Autowired
     private UserService userService;
+
     @Autowired
     private SessionService sessionService;
+
     @Autowired
     private RoleRepository roleRepository;
 
-    private static final String ROLE_COMPANY_ADMIN = "company_admin";
-    private static final String ROLE_SUPER_ADMIN = "super_admin";
-    private static final String ADMIN_API_PATH = "/api/v1/admin";
-    private static final String SUPER_ADMIN_API_PATH = "/api/v1/super-admin";
+
+
+    @Value("${roles.company_admin}")
+    private String ROLE_COMPANY_ADMIN;
+
+    @Value("${roles.super_admin}")
+    private String ROLE_SUPER_ADMIN;
+
+    @Value("${api.path.admin}")
+    private String ADMIN_API_PATH;
+
+    @Value("${api.path.super_admin}")
+    private String SUPER_ADMIN_API_PATH;
+
+
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -50,34 +67,36 @@ public class AuthInterceptor implements HandlerInterceptor {
                     System.out.println(request.getRequestURI());
                     return true;
                 }
-                sendAccessDeniedResponse(response, "Access denied: insufficient permissions");
+                sendAccessDeniedResponse(response, "Доступ запрещен: недостаточно прав");
                 return false;
             }
         }
 
-        sendAccessDeniedResponse(response, "Access denied: invalid token");
+        sendAccessDeniedResponse(response, "Доступ запрещен: недействительный токен");
         return false;
     }
 
     private Optional<Session> validateSession(String authToken, HttpServletResponse response) throws IOException {
-        Optional<Session> sessionOpt = sessionRepository.findByToken(authToken);
+        Optional<Session> sessionOpt = sessionService.getSessionByToken(authToken);
         if (sessionOpt.isPresent()) {
             if (LocalDateTime.now().isAfter(sessionOpt.get().getExpiration())) {
                 sessionService.invalidate(sessionOpt.get().getToken());
-                sendAccessDeniedResponse(response, "Access denied: session expired");
-                return Optional.empty();
+                throw new SessionHasExpiredException();
             }
+            throw new SessionNotFoundException();
         }
         return sessionOpt;
     }
 
     private boolean hasAccess(String requestPath, List<Role> roles) {
-        if (requestPath.startsWith(ADMIN_API_PATH)) {
-            return roles.stream().anyMatch(role -> ROLE_COMPANY_ADMIN.equals(role.getRoleName()));
-        } else if (requestPath.startsWith(SUPER_ADMIN_API_PATH)) {
-            return roles.stream().anyMatch(role -> ROLE_SUPER_ADMIN.equals(role.getRoleName()));
+        Set<String> roleNames = roles.stream().map(Role::getRoleName).collect(Collectors.toSet());
+
+        if (requestPath.startsWith(ADMIN_API_PATH) && roleNames.contains(ROLE_COMPANY_ADMIN)) {
+            return true;
+        } else if (requestPath.startsWith(SUPER_ADMIN_API_PATH) && roleNames.contains(ROLE_SUPER_ADMIN)) {
+            return true;
         }
-        return true;
+        return !requestPath.startsWith(ADMIN_API_PATH) && !requestPath.startsWith(SUPER_ADMIN_API_PATH);
     }
 
     private void sendAccessDeniedResponse(HttpServletResponse response, String message) throws IOException {

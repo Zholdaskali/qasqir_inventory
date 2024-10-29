@@ -1,10 +1,9 @@
 package kz.qasqir.qasqirinventory.api.model.request;
 
-public class RegisterRequest {
+public class RegisterInviteRequest {
     private String userName;
     private String password;
     private String email;
-    private Long organizationId;
 
     public String getEmail() {
         return email;
@@ -30,12 +29,4 @@ public class RegisterRequest {
         this.password = password;
     }
 
-    public Long getOrganizationId() {
-        return organizationId;
-    }
-
-    public void setOrganizationId(Long organizationId) {
-        this.organizationId = organizationId;
-    }
 }
-

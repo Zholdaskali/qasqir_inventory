@@ -1,36 +1,9 @@
-#server:
-#  port: 8081
-#spring:
-#  application:
-#    name: qasqir-inventory-api
-#  datasource:
-#    url: jdbc:postgresql://localhost:5432/qasqir_inventory?useUnicode=true&characterEncoding=UTF-8
-#    username: postgres
-#    password: erke
-#    driver-class-name: org.postgresql.Driver
-#  jpa:
-#    hibernate:
-#      ddl-auto: none
-#    show-sql: true
-#    mail:
-#      host: smtp.gmail.com
-#      port: 25
-#      username: eco.almaty.noreply@gmail.com
-#      password: xkoukrglexkowmbh
-#      properties:
-#        mail:
-#          smtp:
-#            auth: true
-#            starttls:
-#              enable: true
-#    app:
-#    security:
-#      salt-rounds: 12
-
-
-
+# Конфигурация сервера
 server:
   port: 8081
+
+
+# Конфигурация Spring Boot
 spring:
   application:
     name: qasqir-inventory-api
@@ -46,8 +19,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 25
-    username: eco.almaty.noreply@gmail.com
-    password: xkoukrglexkowmbh
+    username: qasqir.inventory.noreply@gmail.com
+    password: password_for_the_application
     properties:
       mail:
         smtp:
@@ -55,12 +28,29 @@ spring:
           starttls:
             enable: true
 
+
+# Настройки безопасности приложения
 app:
   security:
     salt-rounds: 12
 
+
+# Настройки документации API
 springdoc:
   api-docs:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+
+# Роли пользователей
+roles:
+  company_admin: company_admin
+  super_admin: super_admin
+
+
+# API
+api:
+  path:
+    admin: /api/v1/admin
+    super_admin: /api/v1/super-admin

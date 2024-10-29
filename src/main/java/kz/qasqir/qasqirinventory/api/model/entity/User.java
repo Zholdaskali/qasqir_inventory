@@ -16,14 +16,14 @@ public class User {
     private boolean emailVerified = false;
     @Column(name = "password", nullable = false)
     private String password;
-    @Column(name = "organization_id", nullable = false)
-    private Integer organizationId;
+    @Column(name = "organization_id")
+    private Long organizationId;
 
     public User() {
 
     }
     public User(String userName,
-                String email,String password, int organizationId) {
+                String email,String password, Long organizationId) {
         this.userName = userName;
         this.email = email;
         this.password = password;
@@ -70,11 +70,11 @@ public class User {
         this.password = password;
     }
 
-    public Integer getOrganizationId() {
+    public Long getOrganizationId() {
         return organizationId;
     }
 
-    public void setOrganizationId(Integer organizationId) {
+    public void setOrganizationId(Long organizationId) {
         this.organizationId = organizationId;
     }
 }

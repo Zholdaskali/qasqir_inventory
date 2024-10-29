@@ -11,8 +11,6 @@ public class Organization {
 
     @Column(name = "organization_name", nullable = false)
     private String name;
-    @Column(name = "admin_mail", nullable = false)
-    private String AdminEmail;
 
     public Long getId() {
         return id;
@@ -28,13 +26,5 @@ public class Organization {
 
     public void setName(String name)  {
         this.name = name;
-    }
-
-    public String getAdminEmail() {
-        return AdminEmail;
-    }
-
-    public void setAdminEmail(String adminEmail) {
-        AdminEmail = adminEmail;
     }
 }

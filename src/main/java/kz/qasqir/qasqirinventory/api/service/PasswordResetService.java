@@ -14,25 +14,36 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
 public class PasswordResetService {
+
+    private final InviteService inviteService;
+    private final SessionService sessionService;
+    private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
-    private InviteService inviteService;
-    @Autowired
-    private SessionService sessionService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public PasswordResetService (InviteService inviteService,
+                                 SessionService sessionService,
+                                 UserService userService,
+                                 PasswordEncoder passwordEncoder)
+    {
+        this.inviteService = inviteService;
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+        this.sessionService = sessionService;
+    }
+
+
     @Transactional
     public String editPasswordInviteUser(HttpServletRequest request,
                                             @RequestBody PasswordResetInviteUserRequest passwordResetRequest
     ) {
         String inviteToken = request.getParameter("Invite-token");
         if (inviteService.getByToken(inviteToken).isPresent()) {
-            User editUser = inviteService.getTokenForUser(request.getParameter("Invite-token"));
+            User editUser = inviteService.getTokenForUser(inviteToken);
             String hashNewPassword = passwordEncoder.hash(passwordResetRequest.getNewPassword());
             editUser.setPassword(hashNewPassword);
             userService.saveUser(editUser);
-            inviteService.invalidate(request.getParameter("Invite-token"));
+            inviteService.invalidate(inviteToken);
             return "Пароль успешно изменен";
         }
         else {
@@ -44,14 +55,18 @@ public class PasswordResetService {
     public String editPasswordUser(HttpServletRequest request,
                                    @RequestBody PasswordResetUserRequest passwordResetRequest
     ) {
-        User editUser = sessionService.getTokenForUser(request.getHeader("Auth-token"));
+        String token = request.getHeader("Auth-token");
+        User editUser = sessionService.getTokenForUser(token);
         if(passwordEncoder.check(passwordResetRequest.getOldPassword(), editUser.getPassword())) {
             String hashNewPassword = passwordEncoder.hash(passwordResetRequest.getNewPassword());
             editUser.setPassword(hashNewPassword);
             userService.saveUser(editUser);
-            sessionService.invalidate(request.getHeader("Auth-token"));
+            sessionService.invalidate(token);
             return "Пароль успешно изменен";
         }
         throw new InvalidPasswordException();
     }
+
+
+
 }

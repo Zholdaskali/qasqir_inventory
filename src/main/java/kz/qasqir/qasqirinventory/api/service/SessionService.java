@@ -16,12 +16,21 @@ import java.util.Optional;
 
 @Service
 public class SessionService {
+
+    private final SessionRepository sessionRepository;
+    private final TokenGenerator tokenGenerator;
+    private final UserService userService;
+
     @Autowired
-    private SessionRepository sessionRepository;
-    @Autowired
-    private TokenGenerator tokenGenerator;
-    @Autowired
-    private UserService userService;
+    public SessionService(SessionRepository sessionRepository,
+                          TokenGenerator tokenGenerator,
+                          UserService userService)
+    {
+        this.sessionRepository = sessionRepository;
+        this.tokenGenerator = tokenGenerator;
+        this.userService = userService;
+    }
+
     @Transactional
     public Session generateForUser(Long userId) {
         Session session = new Session();
@@ -38,8 +47,6 @@ public class SessionService {
                 .orElseThrow(SessionNotFoundException::new);
     }
 
-
-
     @Transactional
     public boolean invalidate(String token) {
         return sessionRepository.deleteByToken(token) > 0;
@@ -54,5 +61,14 @@ public class SessionService {
         }
     }
 
+    public Optional<Session> getSessionByToken(String token) {
+        Optional<Session> sessionOpt = sessionRepository.findByToken(token);
+        if (sessionOpt.isPresent()) {
+            return sessionOpt;
+        }
+        else{
+            throw new SessionNotFoundException();
+        }
+    }
 
 }

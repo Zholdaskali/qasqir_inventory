@@ -15,14 +15,24 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class MailVerificationService {
+        private final MailService mailService;
+        private final MailVerificationRepository mailVerificationRepository;
+        private final MailVerificationCodeGenerate codeGenerate;
+        private final UserRepository userRepository;
+
         @Autowired
-        private MailService mailService;
-        @Autowired
-        private MailVerificationRepository mailVerificationRepository;
-        @Autowired
-        private MailVerificationCodeGenerate codeGenerate;
-        @Autowired
-        private UserRepository userRepository;
+        public MailVerificationService(MailService mailService,
+                                       MailVerificationRepository mailVerificationRepository,
+                                       MailVerificationCodeGenerate codeGenerate,
+                                       UserRepository userRepository)
+        {
+                this.mailService = mailService;
+                this.mailVerificationRepository = mailVerificationRepository;
+                this.codeGenerate = codeGenerate;
+                this.userRepository = userRepository;
+        }
+
+
 
         @Transactional
         public boolean generate(MailVerificationSendRequest request) {
@@ -32,6 +42,8 @@ public class MailVerificationService {
                 return true;
         }
 
+
+        @Transactional
         public boolean verify(MailVerificationCheckRequest request) {
                 System.out.println(request.getEmail() + "  " + request.getCode());
                 MailVerification mailVerification = mailVerificationRepository.findByCodeAndEmail(request.getCode(), request.getEmail()).orElseThrow(InvalidVerificationCodeException::new);

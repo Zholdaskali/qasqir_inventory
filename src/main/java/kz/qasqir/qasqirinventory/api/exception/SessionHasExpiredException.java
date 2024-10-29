@@ -2,6 +2,6 @@ package kz.qasqir.qasqirinventory.api.exception;
 
 public class SessionHasExpiredException extends RuntimeException {
     public SessionHasExpiredException() {
-        super ("Срок действия сесси истек");
+        super ("Срок действия сессии истекла");
     }
 }

@@ -7,8 +7,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RoleService {
+
+    private final RoleRepository roleRepository;
+
     @Autowired
-    private RoleRepository roleRepository;
+    public RoleService(RoleRepository roleRepository)
+    {
+        this.roleRepository = roleRepository;
+    }
 
     @Transactional
     public void addForUser(Long userId, Long roleId) {

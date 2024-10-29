@@ -1,6 +1,8 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import kz.qasqir.qasqirinventory.api.model.entity.Invite;
+import kz.qasqir.qasqirinventory.api.model.request.RegisterInviteRequest;
 import kz.qasqir.qasqirinventory.api.model.request.RegisterRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.service.AuthenticationService;
@@ -18,7 +20,7 @@ public class SignUpInviteController {
     private AuthenticationService authenticationService;
 
     public @PostMapping("/sign-up-invite")
-    MessageResponse<Invite> inviteRegister(@RequestBody RegisterRequest registerRequest) {
-        return MessageResponse.of(authenticationService.inviteRegister(registerRequest.getUserName(),registerRequest.getEmail() , registerRequest.getPassword()));
+    MessageResponse<Invite> inviteRegister(HttpServletRequest request, @RequestBody RegisterInviteRequest registerInviteRequest) {
+        return MessageResponse.of(authenticationService.registerInvite(request ,registerInviteRequest.getUserName(),registerInviteRequest.getEmail() , registerInviteRequest.getPassword()));
     }
 }

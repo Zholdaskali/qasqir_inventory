@@ -7,14 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/admin")
+@RequestMapping("/api/v1/super-admin/sign-up")
 public class SignUpController {
 
     @Autowired
     private AuthenticationService authenticationService;
 
-    @PostMapping("/sign-up")
+    @PostMapping
     public MessageResponse<String> register(@RequestBody RegisterRequest registerRequest) {
-        return MessageResponse.empty(authenticationService.register(registerRequest.getUserName(),registerRequest.getEmail() , registerRequest.getPassword()));
+        return MessageResponse.empty( authenticationService.register( registerRequest.getUserName(),registerRequest.getEmail() , registerRequest.getPassword() , registerRequest.getOrganizationId() ) );
     }
 }

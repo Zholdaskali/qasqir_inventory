@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/verification")
-public class EmailVerificationController {
+public class MailVerificationController {
     @Autowired
     private MailVerificationService mailVerificationService;
     @PostMapping("/generate")

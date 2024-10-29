@@ -18,12 +18,21 @@ import java.util.Optional;
 
 @Service
 public class InviteService {
+
+    private final InviteRepository inviteRepository;
+    private final TokenGenerator tokenGenerator;
+    private final UserService userService;
+
     @Autowired
-    private InviteRepository inviteRepository;
-    @Autowired
-    private TokenGenerator tokenGenerator;
-    @Autowired
-    private UserService userService;
+    public InviteService(InviteRepository inviteRepository,
+                  TokenGenerator tokenGenerator,
+                  UserService userService)
+    {
+        this.inviteRepository = inviteRepository;
+        this.tokenGenerator = tokenGenerator;
+        this.userService = userService;
+    }
+
 
     @Transactional
     public Invite generate(String path,Long userId) {

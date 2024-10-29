@@ -1,5 +1,6 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
+import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.model.entity.Organization;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.service.OrganizationService;
@@ -17,7 +18,4 @@ public class OrganizationController {
     public MessageResponse<Iterable<Organization>> getAll() {
         return MessageResponse.of(organizationService.getAll());
     }
-
-
-
 }
