@@ -12,8 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/super-admin/organizations")
 public class OrganizationController {
+
+    private final OrganizationService organizationService;
+
     @Autowired
-    private OrganizationService organizationService;
+    public OrganizationController(OrganizationService organizationService) {
+        this.organizationService = organizationService;
+    }
 
     @GetMapping
     public MessageResponse<Iterable<Organization>> getAll() {

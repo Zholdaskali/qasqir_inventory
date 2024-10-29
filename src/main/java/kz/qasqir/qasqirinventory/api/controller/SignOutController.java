@@ -12,8 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/sign-out")
 public class SignOutController {
 
+    private final AuthenticationService authenticationService;
+
     @Autowired
-    private AuthenticationService authenticationService;
+    public SignOutController(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
+    }
+
 
     @PostMapping
     public MessageResponse<Boolean> logout(@RequestHeader("Auth-token") String token) {

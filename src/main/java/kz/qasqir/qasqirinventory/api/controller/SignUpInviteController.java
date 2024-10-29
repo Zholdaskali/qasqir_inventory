@@ -16,11 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/admin")
 public class SignUpInviteController {
 
-    @Autowired
-    private AuthenticationService authenticationService;
+    private final AuthenticationService authenticationService;
 
-    public @PostMapping("/sign-up-invite")
-    MessageResponse<Invite> inviteRegister(HttpServletRequest request, @RequestBody RegisterInviteRequest registerInviteRequest) {
+    @Autowired
+    public SignUpInviteController(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
+    }
+
+    @PostMapping("/sign-up-invite")
+    public MessageResponse<Invite> inviteRegister(HttpServletRequest request, @RequestBody RegisterInviteRequest registerInviteRequest) {
         return MessageResponse.of(authenticationService.registerInvite(request ,registerInviteRequest.getUserName(),registerInviteRequest.getEmail() , registerInviteRequest.getPassword()));
     }
 }

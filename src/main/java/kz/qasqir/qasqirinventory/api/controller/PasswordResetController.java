@@ -14,8 +14,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/password")
 public class PasswordResetController {
-    @Autowired
-    private PasswordResetService passwordResetService;
+
+    private final PasswordResetService passwordResetService;
+
+    public PasswordResetController(PasswordResetService passwordResetService) {
+        this.passwordResetService = passwordResetService;
+    }
 
     @PutMapping("/reset-invite")
     public MessageResponse<String> editPasswordInviteUser(HttpServletRequest request, @RequestBody PasswordResetInviteUserRequest passwordResetRequest) {
