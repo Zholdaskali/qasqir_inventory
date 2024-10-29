@@ -44,13 +44,26 @@ springdoc:
 
 
 # Роли пользователей
-roles:
+userRoles:
   company_admin: company_admin
   super_admin: super_admin
 
 
-# API
+# API пути
 api:
   path:
     admin: /api/v1/admin
     super_admin: /api/v1/super-admin
+
+# Роли пользователей с ID
+roleIds:
+  employee: 1
+  admin: 2
+
+# Ссылка для приглашений
+invite:
+  link: http://localhost:5173/recover-password
+
+logging:
+  level:
+    root: DEBUG

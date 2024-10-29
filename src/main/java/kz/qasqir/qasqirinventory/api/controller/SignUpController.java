@@ -9,12 +9,16 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/super-admin/sign-up")
 public class SignUpController {
+    private final AuthenticationService authenticationService;
 
     @Autowired
-    private AuthenticationService authenticationService;
+    public SignUpController(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
+    }
 
     @PostMapping
     public MessageResponse<String> register(@RequestBody RegisterRequest registerRequest) {
-        return MessageResponse.empty( authenticationService.register( registerRequest.getUserName(),registerRequest.getEmail() , registerRequest.getPassword() , registerRequest.getOrganizationId() ) );
+        return MessageResponse.empty(authenticationService.register(registerRequest.getUserName(), registerRequest.getEmail(), registerRequest.getPassword(), registerRequest.getOrganizationId()));
     }
 }
+

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrganizationController {
     @Autowired
     private OrganizationService organizationService;
+
     @GetMapping
     public MessageResponse<Iterable<Organization>> getAll() {
         return MessageResponse.of(organizationService.getAll());

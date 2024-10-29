@@ -15,12 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/password")
 public class PasswordResetController {
     @Autowired
-    private SessionService sessionService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
     private PasswordResetService passwordResetService;
 
     @PutMapping("/reset-invite")

@@ -14,8 +14,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/admin")
 public class InviteController {
+
+    private final InviteRepository inviteRepository;
+
     @Autowired
-    private InviteRepository inviteRepository;
+    public InviteController(InviteRepository inviteRepository) {
+        this.inviteRepository = inviteRepository;
+    }
+
 
     @GetMapping("/invites")
     public MessageResponse<List<InviteUserDTO>> getAll() {

@@ -7,8 +7,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/admin/")
 public class DeleteEmployeeController {
+    private final UserRepository userRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    public DeleteEmployeeController(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+
     @DeleteMapping("delete/{userId}")
     public void deleteUser(@PathVariable Long userId) {
         userRepository.deleteById(userId);

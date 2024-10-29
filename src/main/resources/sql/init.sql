@@ -87,26 +87,15 @@ CREATE TABLE t_organization_admins
 --############################## Test data ##############################
 INSERT INTO t_organizations (id, organization_name)
 VALUES
-    (1, 'QASQIR');
+    (1, 'QASQIR'),
+    (2, 'TEST');
+
 
 INSERT INTO t_roles (id, role_name)
 VALUES
     (1, 'employee'),
     (2, 'company_admin'),
     (3, 'super_admin');
-
-INSERT INTO t_users(id, user_name, password, email, email_verified)
-values
-    (1, 'Zholdaskali', 'erkeerke', 'zholdaskalierkebulan@gmail.com', true);
-
-INSERT INTO t_user_roles(id, user_id, role_id)
-values
-    (1, 1, 3);
-
-
-SELECT i.id AS id, u.user_name AS userName, u.email AS email
-        FROM t_invites i
-                JOIN t_users u ON i.user_id = u.id
 
 
 --############################## SELECT ##############################
@@ -124,14 +113,9 @@ SELECT * FROM t_sessions;
 
 SELECT * FROM t_users;
 
-SELECT * FROM t_organization_admins;
-
+  SELECT * FROM t_organization_admins;
 
 --  Вывод всех действуюших приглашенных пользователей
 SELECT i.id, u.user_name AS userName, u.email
         FROM t_invites i
         JOIN t_users u ON i.user_id = u.id
-
-Select u1_0.id,u1_0.email,u1_0.email_verified,u1_0.organization_id,u1_0.password,u1_0.user_name from t_users u1_0 where u1_0.user_name='Zholdaskali'
-
-

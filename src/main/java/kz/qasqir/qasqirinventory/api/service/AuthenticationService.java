@@ -13,6 +13,7 @@ import kz.qasqir.qasqirinventory.api.repository.OrganizationRepository;
 import kz.qasqir.qasqirinventory.api.repository.UserRepository;
 import kz.qasqir.qasqirinventory.api.util.encoder.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,12 +27,14 @@ public class AuthenticationService {
     private final InviteService inviteService;
     private final OrganizationService organizationService;
 
-    private static final Long EMPLOYEE_ROLE_ID = 1L;
-    private static final Long ADMIN_ROLE_ID = 2L;
-    private static final String INVITE_LINK = "http://localhost:5173/recover-password";
+    @Value("${roleIds.employee}")
+    private Long EMPLOYEE_ROLE_ID;
 
+    @Value("${roleIds.admin}")
+    private Long ADMIN_ROLE_ID;
 
-
+    @Value("${invite.link}")
+    private String INVITE_LINK;
 
     @Autowired
     public AuthenticationService(UserService userService,
@@ -51,7 +54,6 @@ public class AuthenticationService {
         this.organizationService = organizationService;
     }
 
-
     @Transactional
     public Invite registerInvite(HttpServletRequest request, String userName, String email, String password) {
         validateEmail(email);
@@ -64,7 +66,6 @@ public class AuthenticationService {
         roleService.addForUser(savedUser.getId(), EMPLOYEE_ROLE_ID);
         return inviteService.generate(INVITE_LINK, savedUser.getId());
     }
-
 
     @Transactional
     public String register(String userName, String email, String password, Long organizationId) {
@@ -91,20 +92,15 @@ public class AuthenticationService {
         return sessionService.invalidate(token);
     }
 
-
-
-
     private void validateEmail(String email) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new EmailIsAlreadyRegisteredException();
         }
     }
 
-
     private User createUser(String userName, String email, String password, Long organizationId) {
         return new User(userName, email, passwordEncoder.hash(password), organizationId);
     }
-
 
     private void validatePassword(String rawPassword, String hashedPassword) {
         if (!passwordEncoder.check(rawPassword, hashedPassword)) {

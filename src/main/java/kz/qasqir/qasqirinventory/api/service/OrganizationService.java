@@ -17,8 +17,6 @@ public class OrganizationService {
         this.organizationRepository = organizationRepository;
     }
 
-
-
     public Iterable<Organization> getAll() {
         return organizationRepository.findAll();
     }

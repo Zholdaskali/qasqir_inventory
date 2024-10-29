@@ -9,8 +9,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/verification")
 public class MailVerificationController {
+
+    private final MailVerificationService mailVerificationService;
+
     @Autowired
-    private MailVerificationService mailVerificationService;
+    public MailVerificationController(MailVerificationService mailVerificationService) {
+        this.mailVerificationService = mailVerificationService;
+    }
+
     @PostMapping("/generate")
     public boolean generateCode(@RequestBody MailVerificationSendRequest mailVerificationSendRequest) {
         return mailVerificationService.generate(mailVerificationSendRequest);

@@ -1,4 +1,4 @@
-package kz.qasqir.qasqirinventory.api.Interceptor;
+package kz.qasqir.qasqirinventory.api.Interceptor.Auth;
 
 import kz.qasqir.qasqirinventory.api.exception.SessionHasExpiredException;
 import kz.qasqir.qasqirinventory.api.exception.SessionNotFoundException;
@@ -6,7 +6,6 @@ import kz.qasqir.qasqirinventory.api.model.entity.Role;
 import kz.qasqir.qasqirinventory.api.model.entity.Session;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
 import kz.qasqir.qasqirinventory.api.repository.RoleRepository;
-import kz.qasqir.qasqirinventory.api.repository.SessionRepository;
 import kz.qasqir.qasqirinventory.api.service.SessionService;
 import kz.qasqir.qasqirinventory.api.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,10 +36,10 @@ public class AuthInterceptor implements HandlerInterceptor {
 
 
 
-    @Value("${roles.company_admin}")
+    @Value("${userRoles.company_admin}")
     private String ROLE_COMPANY_ADMIN;
 
-    @Value("${roles.super_admin}")
+    @Value("${userRoles.super_admin}")
     private String ROLE_SUPER_ADMIN;
 
     @Value("${api.path.admin}")
@@ -79,14 +78,16 @@ public class AuthInterceptor implements HandlerInterceptor {
     private Optional<Session> validateSession(String authToken, HttpServletResponse response) throws IOException {
         Optional<Session> sessionOpt = sessionService.getSessionByToken(authToken);
         if (sessionOpt.isPresent()) {
+            // Проверка на истечение сессии
             if (LocalDateTime.now().isAfter(sessionOpt.get().getExpiration())) {
                 sessionService.invalidate(sessionOpt.get().getToken());
                 throw new SessionHasExpiredException();
             }
-            throw new SessionNotFoundException();
+            return sessionOpt;
         }
-        return sessionOpt;
+        throw new SessionNotFoundException();
     }
+
 
     private boolean hasAccess(String requestPath, List<Role> roles) {
         Set<String> roleNames = roles.stream().map(Role::getRoleName).collect(Collectors.toSet());
