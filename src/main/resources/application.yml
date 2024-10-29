@@ -46,8 +46,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 25
-    username: eco.almaty.noreply@gmail.com
-    password: xkoukrglexkowmbh
+    username: qasqir.inventory.noreply@gmail.com
+    password: password_for_the_application
     properties:
       mail:
         smtp:
