@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 !**/src/main/resources/sql/Документ Microsoft Word.docx
 !**/src/main/resources/sql/test.sql
+!**/src/main/resources/sql/script/test.sql
 
 
 ### STS ###

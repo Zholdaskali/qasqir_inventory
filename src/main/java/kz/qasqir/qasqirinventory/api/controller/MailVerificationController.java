@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/verification")
+@RequestMapping("/api/v1/user/verification")
 public class MailVerificationController {
 
     private final MailVerificationService mailVerificationService;

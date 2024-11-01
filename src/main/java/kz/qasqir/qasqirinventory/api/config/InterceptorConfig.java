@@ -15,7 +15,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authInterceptor)
                 .order(1)
-                    .excludePathPatterns("/api/v1/password/reset-invite", "/sign-in", "/api/v1/version")
+                .excludePathPatterns("/api/v1/password/reset-invite", "/sign-in", "/api/v1/version")
                 .excludePathPatterns("/swagger-ui.html", "/api-docs/**", "/swagger-ui/**");
     }
 
@@ -24,6 +24,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins("http://localhost:5173") // или "*" для разрешения всех
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .exposedHeaders("Auth-token")
                 .allowCredentials(true);
     }
 }

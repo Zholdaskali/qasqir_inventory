@@ -11,7 +11,6 @@ public class InviteUserDTO {
         this.email = email;
     }
 
-
     public String getUserName() {
         return userName;
     }

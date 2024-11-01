@@ -2,7 +2,6 @@
 server:
   port: 8081
 
-
 # Конфигурация Spring Boot
 spring:
   application:
@@ -28,12 +27,22 @@ spring:
           starttls:
             enable: true
 
+  # Добавление конфигурации Flyway
+flyway:
+  enabled: true
+  locations:
+    classpath:db/migration
+
 
 # Настройки безопасности приложения
 app:
   security:
     salt-rounds: 12
-
+  superadmins:
+    - username: SuperAdmin
+      password: ENC($2a$12$E1R.iRmttYdYa/xxZ5pUieQUKwakH/TWcifUlnKWnFKEbjflNn3RC)
+    - username: SuperAdmin2
+      password: ENC($2a$12  $6gPGYq8J9xJg.e52MjrSGOi6on7YUPh39wBWo2xWcwMIBxJEOga0K)
 
 # Настройки документации API
 springdoc:
@@ -42,12 +51,10 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
-
 # Роли пользователей
 userRoles:
   company_admin: company_admin
   super_admin: super_admin
-
 
 # API пути
 api:
@@ -66,4 +73,4 @@ invite:
 
 logging:
   level:
-    root: DEBUG
+    org.flywaydb: DEBUG

@@ -5,18 +5,16 @@ import kz.qasqir.qasqirinventory.api.model.request.PasswordResetInviteUserReques
 import kz.qasqir.qasqirinventory.api.model.request.PasswordResetUserRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.service.PasswordResetService;
-import kz.qasqir.qasqirinventory.api.service.SessionService;
-import kz.qasqir.qasqirinventory.api.service.UserService;
-import kz.qasqir.qasqirinventory.api.util.encoder.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/password")
+@RequestMapping("/api/v1/user/password")
 public class PasswordResetController {
 
     private final PasswordResetService passwordResetService;
 
+    @Autowired
     public PasswordResetController(PasswordResetService passwordResetService) {
         this.passwordResetService = passwordResetService;
     }

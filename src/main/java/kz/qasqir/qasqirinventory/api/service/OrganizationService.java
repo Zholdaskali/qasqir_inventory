@@ -25,4 +25,14 @@ public class OrganizationService {
     public void addForAdmin(Long userId, Long organization_id) {
         organizationRepository.addForAdmin(userId, organization_id);
     }
+
+    @Transactional
+    public Organization save(Organization organization) {
+        return organizationRepository.save(organization);
+    }
+
+    @Transactional
+    public Boolean delete(Long organizationId) {
+        return organizationRepository.deleteOrganizationById(organizationId) > 0;
+    }
 }

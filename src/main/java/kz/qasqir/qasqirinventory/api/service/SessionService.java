@@ -44,8 +44,12 @@ public class SessionService {
     public User getTokenForUser(String token) {
         return sessionRepository.findByToken(token)
                 .map(session -> userService.getByUserId(session.getUserId()))
-                .orElseThrow(SessionNotFoundException::new);
+                .orElseThrow(() -> {
+                    System.out.println("Сессия не найдена для токена: " + token);
+                    return new SessionNotFoundException();
+                });
     }
+
 
     @Transactional
     public boolean invalidate(String token) {

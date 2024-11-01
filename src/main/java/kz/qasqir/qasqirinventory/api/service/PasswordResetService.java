@@ -67,6 +67,4 @@ public class PasswordResetService {
         throw new InvalidPasswordException();
     }
 
-
-
 }

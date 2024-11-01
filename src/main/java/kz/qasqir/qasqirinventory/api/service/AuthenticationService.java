@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 public class AuthenticationService {
 
     private final UserService userService;
-    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final SessionService sessionService;
     private final RoleService roleService;
@@ -38,7 +37,6 @@ public class AuthenticationService {
 
     @Autowired
     public AuthenticationService(UserService userService,
-                                 UserRepository userRepository,
                                  PasswordEncoder passwordEncoder,
                                  SessionService sessionService,
                                  RoleService roleService,
@@ -46,7 +44,6 @@ public class AuthenticationService {
                                  OrganizationService organizationService)
     {
         this.userService = userService;
-        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.sessionService = sessionService;
         this.roleService = roleService;
@@ -56,32 +53,32 @@ public class AuthenticationService {
 
     @Transactional
     public Invite registerInvite(HttpServletRequest request, String userName, String email, String password) {
-        validateEmail(email);
+        if (validateEmail(email)) {
+            String token = request.getHeader("Auth-token");
+            User authorUser = sessionService.getTokenForUser(token);
+            User savedUser = createUser(userName, email, password, authorUser.getOrganizationId());
 
-        String token = request.getHeader("Auth-token");
-        User authorUser = sessionService.getTokenForUser(token);
-        User savedUser = createUser(userName, email, password, authorUser.getOrganizationId());
-
-        userService.saveUser(savedUser);
-        roleService.addForUser(savedUser.getId(), EMPLOYEE_ROLE_ID);
-        return inviteService.generate(INVITE_LINK, savedUser.getId());
+            userService.saveUser(savedUser);
+            roleService.addForUser(savedUser.getId(), EMPLOYEE_ROLE_ID);
+            return inviteService.generate(INVITE_LINK, savedUser.getId());
+        }
+        throw new EmailIsAlreadyRegisteredException();
     }
 
     @Transactional
     public String register(String userName, String email, String password, Long organizationId) {
-        validateEmail(email);
-
-        User user = createUser(userName, email, password, organizationId);
-        userService.saveUser(user);
-        roleService.addForUser(user.getId(), ADMIN_ROLE_ID);
-        organizationService.addForAdmin(user.getId(), organizationId);
-        return "Пользователь успешно создан";
+        if (validateEmail(email)) {
+            User user = createUser(userName, email, password, organizationId);
+            userService.saveUser(user);
+            roleService.addForUser(user.getId(), ADMIN_ROLE_ID);
+            organizationService.addForAdmin(user.getId(), organizationId);
+            return "Пользователь успешно создан";
+        }
+        throw new EmailIsAlreadyRegisteredException();
     }
 
     public Session login(String userName, String password) {
-        User user = userRepository.findByUserName(userName)
-                .orElseThrow(AuthenticationErrorException::new);
-
+        User user = userService.getByUserName(userName);
         validatePassword(password, user.getPassword());
 
         sessionService.manageCountSession(user.getId());
@@ -92,10 +89,11 @@ public class AuthenticationService {
         return sessionService.invalidate(token);
     }
 
-    private void validateEmail(String email) {
-        if (userRepository.findByEmail(email).isPresent()) {
-            throw new EmailIsAlreadyRegisteredException();
+    private boolean validateEmail(String email) {
+        if (userService.checkIfEmailExists(email)) {
+            return true;
         }
+        throw new EmailIsAlreadyRegisteredException();
     }
 
     private User createUser(String userName, String email, String password, Long organizationId) {

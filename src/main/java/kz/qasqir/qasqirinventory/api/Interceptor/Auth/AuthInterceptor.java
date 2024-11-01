@@ -25,16 +25,16 @@ import java.util.stream.Collectors;
 @Component
 public class AuthInterceptor implements HandlerInterceptor {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final SessionService sessionService;
+    private final RoleRepository roleRepository;
 
     @Autowired
-    private SessionService sessionService;
-
-    @Autowired
-    private RoleRepository roleRepository;
-
-
+    public AuthInterceptor(RoleRepository roleRepository, UserService userService, SessionService sessionService) {
+        this.roleRepository = roleRepository;
+        this.userService = userService;
+        this.sessionService = sessionService;
+    }
 
     @Value("${userRoles.company_admin}")
     private String ROLE_COMPANY_ADMIN;
@@ -48,14 +48,12 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Value("${api.path.super_admin}")
     private String SUPER_ADMIN_API_PATH;
 
-
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String authToken = request.getHeader("Auth-token");
 
         if (authToken != null && !authToken.isEmpty()) {
-            Optional<Session> sessionOpt = validateSession(authToken, response);
+            Optional<Session> sessionOpt = validateSession(authToken);
             if (sessionOpt.isPresent()) {
                 User user = userService.getByUserId(sessionOpt.get().getUserId());
                 List<Role> roles = roleRepository.getAllForUserId(user.getId());
@@ -75,7 +73,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         return false;
     }
 
-    private Optional<Session> validateSession(String authToken, HttpServletResponse response) throws IOException {
+    private Optional<Session> validateSession(String authToken) throws IOException {
         Optional<Session> sessionOpt = sessionService.getSessionByToken(authToken);
         if (sessionOpt.isPresent()) {
             // Проверка на истечение сессии
@@ -106,5 +104,3 @@ public class AuthInterceptor implements HandlerInterceptor {
         response.getWriter().write("{\"message\": \"" + message + "\"}");
     }
 }
-
-

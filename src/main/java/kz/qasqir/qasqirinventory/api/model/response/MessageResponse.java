@@ -1,5 +1,8 @@
 package kz.qasqir.qasqirinventory.api.model.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+
 public class MessageResponse<T> {
    private T body = null;
    private String message = null;

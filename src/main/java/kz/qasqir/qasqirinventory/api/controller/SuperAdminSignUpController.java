@@ -8,11 +8,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/super-admin/sign-up")
-public class SignUpController {
+public class SuperAdminSignUpController {
+
     private final AuthenticationService authenticationService;
 
     @Autowired
-    public SignUpController(AuthenticationService authenticationService) {
+    public SuperAdminSignUpController(AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
     }
 

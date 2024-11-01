@@ -2,15 +2,15 @@ package kz.qasqir.qasqirinventory.api.repository;
 
 import kz.qasqir.qasqirinventory.api.model.dto.InviteUserDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.Invite;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface InviteRepository extends CrudRepository<Invite, Long> {
+public interface InviteRepository extends JpaRepository<Invite, Long> {
 
     Optional<Invite> findByToken(String token);
 
