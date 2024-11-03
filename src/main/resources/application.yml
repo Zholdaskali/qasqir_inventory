@@ -1,0 +1,79 @@
+# Конфигурация сервера
+server:
+  port: 8081
+
+# Конфигурация Spring Boot
+spring:
+  application:
+    name: qasqir-inventory-api
+  datasource:
+    url: jdbc:postgresql://localhost:5432/qasqir_inventory?useUnicode=true&characterEncoding=UTF-8
+    username: postgres
+    password: erke
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+  mail:
+    host: smtp.gmail.com
+    port: 25
+    username: qasqir.inventory.noreply@gmail.com
+    password: password_for_the_application
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+# Добавление конфигурации Flyway
+flyway:
+  enabled: true
+  locations:
+    classpath:db/migration
+
+
+# Настройки безопасности приложения
+app:
+  security:
+    salt-rounds: 12
+  superadmins:
+    - username: SuperAdmin1
+      password: ENC($2a$12$W3qpaw./1DZy/t3elNdtjeo.rttSOnPWywU.8tdOuWgTwNGIWvmhq)
+    - username: SuperAdmin2
+      password: ENC($2a$12$TxN7SBjj.MbnlQz9mnDA2e8dbEq7bZsPH5P7cNBKlukBnq3VukVFW)
+
+# Настройки документации API
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+# Роли пользователей
+userRoles:
+  company_admin: company_admin
+  super_admin: super_admin
+
+# API пути
+api:
+  path:
+    admin: /api/v1/admin
+    super_admin: /api/v1/super-admin
+
+# Роли пользователей с ID
+roleIds:
+  employee: 1
+  admin: 2
+
+# Ссылка для приглашений
+invite:
+  link: http://localhost:5175/recover-password
+
+logging:
+  level:
+    org.flywaydb: DEBUG
+
+
+
