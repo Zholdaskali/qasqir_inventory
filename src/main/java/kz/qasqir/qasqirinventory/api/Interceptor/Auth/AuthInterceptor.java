@@ -106,7 +106,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     private void sendAccessDeniedResponse(HttpServletResponse response, String message) throws IOException {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        response.setContentType("application/json");
+        response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write("{\"message\": \"" + message + "\"}");
     }
 }

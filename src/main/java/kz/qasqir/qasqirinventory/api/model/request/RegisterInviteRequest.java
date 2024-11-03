@@ -4,6 +4,7 @@ public class RegisterInviteRequest {
     private String userName;
     private String password;
     private String email;
+    private String userNumber;
 
     public String getEmail() {
         return email;
@@ -11,6 +12,14 @@ public class RegisterInviteRequest {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getUserNumber() {
+        return userNumber;
+    }
+
+    public void setUserNumber(String userNumber) {
+        this.userNumber = userNumber;
     }
 
     public String getUserName() {

@@ -22,7 +22,7 @@ public class SuperAdminUserController {
 
     @PostMapping("/sign-up")
     public MessageResponse<String> register(@RequestBody RegisterRequest registerRequest) {
-        return MessageResponse.empty(authenticationService.register(registerRequest.getUserName(), registerRequest.getEmail(), registerRequest.getPassword(), registerRequest.getOrganizationId()));
+        return MessageResponse.empty(authenticationService.register(registerRequest.getUserName(), registerRequest.getEmail(), registerRequest.getNumber(), registerRequest.getPassword(), registerRequest.getOrganizationId()));
     }
 
     @DeleteMapping("/delete/{userId}")

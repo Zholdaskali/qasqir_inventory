@@ -12,6 +12,8 @@ public class User {
     private String userName ;
     @Column(name = "email", nullable = false)
     private String email;
+    @Column(name = "phone_number")
+    private String number;
     @Column(name = "emailVerified", nullable = false)
     private boolean emailVerified = false;
     @Column(name = "password", nullable = false)
@@ -23,11 +25,24 @@ public class User {
 
     }
     public User(String userName,
-                String email,String password, Long organizationId) {
+                String email,
+                String number,
+                String password,
+                Long organizationId)
+    {
         this.userName = userName;
         this.email = email;
+        this.number =number;
         this.password = password;
         this.organizationId = organizationId;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
     }
 
     public boolean isEmailVerified() {

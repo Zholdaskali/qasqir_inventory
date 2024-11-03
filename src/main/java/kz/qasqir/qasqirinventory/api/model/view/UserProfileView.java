@@ -16,6 +16,9 @@ public class UserProfileView {
     @Column(name = "email")
     private String userEmail;
 
+    @Column(name = "number")
+    private String userNumber;
+
     @Column(name = "organization_name")
     private String organization;
 
@@ -28,13 +31,23 @@ public class UserProfileView {
     // Конструкторы
     public UserProfileView() {}
 
-    public UserProfileView(Long userId, String userName, String userEmail, String organization, boolean emailVerified, String userRole) {
+    public UserProfileView(Long userId, String userName, String userEmail,String userNumber, String organization, boolean emailVerified, String userRole) {
         this.userId = userId;
         this.userName = userName;
         this.userEmail = userEmail;
+        this.userNumber = userNumber;
         this.organization = organization;
         this.emailVerified = emailVerified;
         this.userRole = userRole;
+    }
+
+
+    public String getUserNumber() {
+        return userNumber;
+    }
+
+    public void setUserNumber(String userNumber) {
+        this.userNumber = userNumber;
     }
 
     public Long getUserId() {

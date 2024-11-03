@@ -52,11 +52,11 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public Invite registerInvite(HttpServletRequest request, String userName, String email, String password) {
+    public Invite registerInvite(HttpServletRequest request, String userName, String email,String userNumber, String password) {
         if (validateEmail(email)) {
             String token = request.getHeader("Auth-token");
             User authorUser = sessionService.getTokenForUser(token);
-            User savedUser = createUser(userName, email, password, authorUser.getOrganizationId());
+            User savedUser = createUser(userName, email, userNumber, password, authorUser.getOrganizationId());
 
             userService.saveUser(savedUser);
             roleService.addForUser(savedUser.getId(), EMPLOYEE_ROLE_ID);
@@ -66,9 +66,9 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public String register(String userName, String email, String password, Long organizationId) {
+    public String register(String userName, String email,String userNumber, String password, Long organizationId) {
         if (validateEmail(email)) {
-            User user = createUser(userName, email, password, organizationId);
+            User user = createUser(userName, email,userNumber, password, organizationId);
             userService.saveUser(user);
             roleService.addForUser(user.getId(), ADMIN_ROLE_ID);
             organizationService.addForAdmin(user.getId(), organizationId);
@@ -96,8 +96,8 @@ public class AuthenticationService {
         throw new EmailIsAlreadyRegisteredException();
     }
 
-    private User createUser(String userName, String email, String password, Long organizationId) {
-        return new User(userName, email, passwordEncoder.hash(password), organizationId);
+    private User createUser(String userName, String email, String userNumber, String password, Long organizationId) {
+        return new User(userName, email, userNumber, passwordEncoder.hash(password), organizationId);
     }
 
     private void validatePassword(String rawPassword, String hashedPassword) {
