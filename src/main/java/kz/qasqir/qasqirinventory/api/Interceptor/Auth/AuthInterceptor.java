@@ -50,6 +50,12 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            return false; // Не обрабатываем дальнейшие действия
+        }
+
         String authToken = request.getHeader("auth-token");
 
         if (authToken != null && !authToken.isEmpty()) {
