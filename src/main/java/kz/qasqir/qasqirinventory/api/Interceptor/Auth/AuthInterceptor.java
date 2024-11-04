@@ -53,7 +53,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             response.setStatus(HttpServletResponse.SC_OK);
-            return false; // Не обрабатываем дальнейшие действия
+            return false;
         }
 
         String authToken = request.getHeader("auth-token");

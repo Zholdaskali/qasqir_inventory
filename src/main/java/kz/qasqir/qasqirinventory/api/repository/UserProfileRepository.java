@@ -13,6 +13,7 @@ public interface UserProfileRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM UserProfileView u WHERE u.userId = :userId")
     Optional<UserProfileView> findProfileByUserId(Long userId);
+
     int deleteUserById(Long userId);
 }
 

@@ -52,7 +52,7 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public Invite registerInvite(HttpServletRequest request, String userName, String email,String userNumber, String password) {
+    public Invite registerInvite(HttpServletRequest request, String userName, String email, String userNumber, String password) {
         if (validateEmail(email)) {
             String token = request.getHeader("Auth-token");
             User authorUser = sessionService.getTokenForUser(token);
@@ -66,7 +66,7 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public String register(String userName, String email,String userNumber, String password, Long organizationId) {
+    public String register(String userName, String email, String userNumber, String password, Long organizationId) {
         if (validateEmail(email)) {
             User user = createUser(userName, email,userNumber, password, organizationId);
             userService.saveUser(user);

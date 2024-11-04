@@ -13,7 +13,7 @@ public class User {
     @Column(name = "email", nullable = false)
     private String email;
     @Column(name = "phone_number")
-    private String number;
+    private String userNumber;
     @Column(name = "emailVerified", nullable = false)
     private boolean emailVerified = false;
     @Column(name = "password", nullable = false)
@@ -26,23 +26,23 @@ public class User {
     }
     public User(String userName,
                 String email,
-                String number,
+                String userNumber,
                 String password,
                 Long organizationId)
     {
         this.userName = userName;
         this.email = email;
-        this.number =number;
+        this.userNumber = userNumber;
         this.password = password;
         this.organizationId = organizationId;
     }
 
-    public String getNumber() {
-        return number;
+    public String getUserNumber() {
+        return userNumber;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
+    public void setUserNumber(String userNumber) {
+        this.userNumber = userNumber;
     }
 
     public boolean isEmailVerified() {

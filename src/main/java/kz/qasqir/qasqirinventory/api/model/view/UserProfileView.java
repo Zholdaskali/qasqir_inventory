@@ -16,7 +16,7 @@ public class UserProfileView {
     @Column(name = "email")
     private String userEmail;
 
-    @Column(name = "number")
+    @Column(name = "phone_number")
     private String userNumber;
 
     @Column(name = "organization_name")

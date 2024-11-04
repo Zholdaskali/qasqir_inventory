@@ -4,7 +4,7 @@ public class RegisterRequest {
     private String userName;
     private String password;
     private String email;
-    private String number;
+    private String userNumber;
     private Long organizationId;
 
     public String getEmail() {
@@ -39,12 +39,12 @@ public class RegisterRequest {
         this.organizationId = organizationId;
     }
 
-    public String getNumber() {
-        return number;
+    public String getUserNumber() {
+        return userNumber;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
+    public void setUserNumber(String number) {
+        this.userNumber = number;
     }
 }
 
