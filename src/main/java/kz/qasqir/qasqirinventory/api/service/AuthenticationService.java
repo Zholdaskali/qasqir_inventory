@@ -2,15 +2,11 @@ package kz.qasqir.qasqirinventory.api.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
-import kz.qasqir.qasqirinventory.api.exception.AuthenticationErrorException;
 import kz.qasqir.qasqirinventory.api.exception.EmailIsAlreadyRegisteredException;
 import kz.qasqir.qasqirinventory.api.exception.InvalidPasswordException;
 import kz.qasqir.qasqirinventory.api.model.entity.Invite;
 import kz.qasqir.qasqirinventory.api.model.entity.Session;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
-import kz.qasqir.qasqirinventory.api.repository.MailVerificationRepository;
-import kz.qasqir.qasqirinventory.api.repository.OrganizationRepository;
-import kz.qasqir.qasqirinventory.api.repository.UserRepository;
 import kz.qasqir.qasqirinventory.api.util.encoder.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

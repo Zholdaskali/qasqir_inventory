@@ -18,22 +18,20 @@ public class SuperAdminOrganizationController {
         this.organizationService = organizationService;
     }
 
-    @GetMapping("/getAll")
+    @GetMapping
     public MessageResponse<Iterable<Organization>> getAll() {
         return MessageResponse.of(organizationService.getAll());
     }
 
-    @PostMapping("/add")
+    @PostMapping
     public MessageResponse<Organization> save(@RequestBody OrganizationRequest organizationRequest) {
         return MessageResponse.of(organizationService.save(organizationRequest.getOrganizationName()));
     }
 
-    @DeleteMapping("/delete/{organizationId}")
+    @DeleteMapping("{organizationId}")
     public MessageResponse<Boolean> delete(@PathVariable Long organizationId) {
         return MessageResponse.of(organizationService.delete(organizationId));
     }
-
-
 
 
     //    {

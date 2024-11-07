@@ -102,8 +102,6 @@ VALUES
     (1, 'SuperAdmin1', '$2a$12$W3qpaw./1DZy/t3elNdtjeo.rttSOnPWywU.8tdOuWgTwNGIWvmhq', 'zholdaskalierkebulan@gmail.com', true),
     (2, 'SuperAdmin2', '$2a$12$TxN7SBjj.MbnlQz9mnDA2e8dbEq7bZsPH5P7cNBKlukBnq3VukVFW', 'erkebulanzholdaskali@gmail.com', true);
 
-DELETE FROM t_users WHERE id=2;
-
 INSERT INTO t_user_roles (id, user_id, role_id)
 VALUES
     (1, 1, 3),
@@ -152,3 +150,53 @@ FROM t_users u
 SELECT * FROM vw_user_profile
 
 SELECT * FROM flyway_schema_history
+
+
+CREATE OR REPLACE VIEW vw_users_roles AS
+SELECT
+    u.id AS user_id,
+    u.user_name AS user_name,
+    r.id AS role_id,
+    r.role_name AS role_name
+FROM
+    t_users u
+JOIN
+    t_user_roles ur ON u.id = ur.user_id
+JOIN
+    t_roles r ON ur.role_id = r.id;
+
+
+SELECT * FROM vw_users_roles
+
+
+SELECT u.id AS user_id,
+       u.user_name,
+       u.email,
+       u.phone_number,
+       o.organization_name,
+       u.email_verified,
+       ur.role_name
+FROM t_users u
+LEFT JOIN t_organizations o ON u.organization_id = o.id
+JOIN vw_users_roles ur ON u.id = ur.user_id
+WHERE u.id = 2;
+
+
+SELECT * FROM t_users WHERE id = 2;
+
+
+
+--CREATE OR REPLACE VIEW vw_users_roles AS
+--SELECT
+--    u.id AS user_id,
+--    u.user_name AS user_name,
+--    r.id AS role_id,
+--    r.role_name AS role_name
+--FROM
+--    t_users u
+--JOIN
+--    t_user_roles ur ON u.id = ur.user_id
+--JOIN
+--    t_roles r ON ur.role_id = r.id;
+
+

@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/super-admin/user")
+@RequestMapping("/api/v1/super-admin/users")
 public class SuperAdminUserController {
 
     private final AuthenticationService authenticationService;

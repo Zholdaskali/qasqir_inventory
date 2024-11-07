@@ -82,7 +82,6 @@ public class AuthInterceptor implements HandlerInterceptor {
     private Optional<Session> validateSession(String authToken) throws IOException {
         Optional<Session> sessionOpt = sessionService.getSessionByToken(authToken);
         if (sessionOpt.isPresent()) {
-            // Проверка на истечение сессии
             if (LocalDateTime.now().isAfter(sessionOpt.get().getExpiration())) {
                 sessionService.invalidate(sessionOpt.get().getToken());
                 throw new SessionHasExpiredException();

@@ -14,20 +14,17 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
 
     @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleService roleService)
     {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
         this.roleService = roleService;
     }
 
