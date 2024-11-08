@@ -21,6 +21,7 @@ public class AuthenticationService {
     private final RoleService roleService;
     private final InviteService inviteService;
     private final OrganizationService organizationService;
+    private final LoginLogService loginLogService;
 
     @Value("${roleIds.employee}")
     private Long EMPLOYEE_ROLE_ID;
@@ -37,7 +38,8 @@ public class AuthenticationService {
                                  SessionService sessionService,
                                  RoleService roleService,
                                  InviteService inviteService,
-                                 OrganizationService organizationService)
+                                 OrganizationService organizationService,
+                                 LoginLogService loginLogService)
     {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
@@ -45,6 +47,7 @@ public class AuthenticationService {
         this.roleService = roleService;
         this.inviteService = inviteService;
         this.organizationService = organizationService;
+        this.loginLogService = loginLogService;
     }
 
     @Transactional
@@ -77,6 +80,7 @@ public class AuthenticationService {
         User user = userService.getByUserName(userName);
         validatePassword(password, user.getPassword());
 
+        loginLogService.save(user.getId());
         sessionService.manageCountSession(user.getId());
         return sessionService.generateForUser(user.getId());
     }

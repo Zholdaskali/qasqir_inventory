@@ -124,6 +124,8 @@ SELECT * FROM t_users;
 
 SELECT * FROM t_organization_admins;
 
+SELECT * FROM t_login_log
+
 --  Вывод всех действуюших приглашенных пользователей
 SELECT i.id, u.user_name AS userName, u.email
         FROM t_invites i

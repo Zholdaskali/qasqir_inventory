@@ -1,4 +1,4 @@
-POST http://localhost:8081/api/v1/admin/auth/sign-in
+POST http://localhost:8081/api/v1/sign-in
 {
 	"userName": "noadmin",
     "password": "noadmin"

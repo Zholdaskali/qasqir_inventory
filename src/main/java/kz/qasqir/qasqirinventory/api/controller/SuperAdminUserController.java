@@ -25,7 +25,7 @@ public class SuperAdminUserController {
         return MessageResponse.empty(authenticationService.register(registerRequest.getUserName(), registerRequest.getEmail(), registerRequest.getUserNumber(), registerRequest.getPassword(), registerRequest.getOrganizationId()));
     }
 
-    @DeleteMapping("/delete/{userId}")
+    @DeleteMapping("/{userId}")
     public MessageResponse<Boolean> delete(@PathVariable Long userId, Long organizationId ) {
         return MessageResponse.of(userService.deleteUserById(userId, organizationId));
     }

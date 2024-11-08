@@ -1,7 +1,6 @@
 package kz.qasqir.qasqirinventory.api.service;
 
 import jakarta.transaction.Transactional;
-import kz.qasqir.qasqirinventory.api.exception.EmailIsAlreadyRegisteredException;
 import kz.qasqir.qasqirinventory.api.exception.UserNotFoundException;
 import kz.qasqir.qasqirinventory.api.model.dto.UpdateUserDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.Role;

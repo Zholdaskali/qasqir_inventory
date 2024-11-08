@@ -17,7 +17,7 @@ public class GetTestController {
         return "getEmployee";
     }
 
-    @GetMapping("get-super-admin/get")
+    @GetMapping("/super-admin/get")
     public String getSuperAdmin() {
         return "getSuperAdmin";
     }
