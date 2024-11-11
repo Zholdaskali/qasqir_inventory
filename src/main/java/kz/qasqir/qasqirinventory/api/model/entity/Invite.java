@@ -21,6 +21,9 @@ public class Invite {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    public Invite() {}
+
+
     public Long getId() {
         return id;
     }

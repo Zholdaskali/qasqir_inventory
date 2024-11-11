@@ -12,6 +12,9 @@ public class Organization {
     @Column(name = "organization_name", nullable = false)
     private String name;
 
+    public Organization() {
+    }
+
     public Organization(String name) {
         this.name = name;
     }

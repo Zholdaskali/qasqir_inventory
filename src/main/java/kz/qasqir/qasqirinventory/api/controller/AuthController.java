@@ -6,27 +6,29 @@ import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/sign-in")
-public class SignInController {
+@RequestMapping("/api/v1/auth")
+public class AuthController {
 
     private final AuthenticationService authenticationService;
 
     @Autowired
-    public SignInController(AuthenticationService authenticationService) {
+    public AuthController(AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
     }
 
-    @PostMapping
+    @PostMapping("/sign-in")
     public ResponseEntity<MessageResponse<?>> login(@RequestBody LoginRequest loginRequest) {
 //        return MessageResponse.of(authenticationService.login(registerRequest.getUserName(), registerRequest.getPassword()));
         Session session = authenticationService.login(loginRequest.getUserName(), loginRequest.getPassword());
         String token = session.getToken();
         return ResponseEntity.ok().header("auth-token", token).body(MessageResponse.empty("Успешный вход!!!"));
+    }
+
+    @PostMapping("/sign-out")
+    public MessageResponse<Boolean> logout(@RequestHeader("auth-token") String token) {
+        return MessageResponse.of(authenticationService.logout(token));
     }
 }

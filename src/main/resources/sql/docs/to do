@@ -1,0 +1,86 @@
+Функционал
+
+Супер Админ
+{
+    a) Добавление организации                                           +
+    б) Добавление админа организации                                    +
+    в) Удаление Админа организации                                      +
+    г) Удаление организации                                             +
+}
+
+Админ
+{
+    а) все возможности сотрудника                                       +
+    б) Добавление сотрудников -> Инвайт логикасы                        +
+    в) Инвайт сотрудников -> Проверка -> доступ к изменению пароля      +
+    г) Менять сотрудника на админа                                      +
+    д) Менять имя организации                                           -
+}
+
+Сотрудник
+{
+    a) Доступ к профиль                                                 +
+    б) Менять свои данные                                               +
+    в) Подтверждение Email                                              +
+}
+
+
+
+
+контроллеры
+/user-controller
+    /api/v1/user/profile - GET
+    /api/v1/user/profile - PUT
+    /api/v1/user/password-reset - PUT
+    /api/v1/user/email/verification-code - POST  // Генерация кода верификации
+    /api/v1/user/email/verify - POST  // Подтверждение кода
+
+/admin-controller
+    /api/v1/admin/employee - POST  // добавление сотрудника
+    /api/v1/admin/employee/{userId}/role - PUT  // изменение роли сотрудника
+    /api/v1/admin/employee/{userId} - DELETE  // удаление сотрудника
+    /api/v1/admin/organization - PUT  // изменение имени организации
+    /api/v1/admin/invite - POST  // приглашение сотрудника
+
+/super-admin-controller
+    /api/v1/super-admin/organization - POST
+    /api/v1/super-admin/organization/{organizationId} - DELETE
+    /api/v1/super-admin/user - POST
+    /api/v1/super-admin/user/{userId} - DELETE
+
+/auth-controller
+    /api/v1/auth/sign-in - POST
+    /api/v1/auth/sign-out - POST
+
+
+Сервисы
+ProfileService
+UserPasswordService  (или просто PasswordService)
+UserService
+MailVerificationService
+OrganizationService (можно включить в SuperAdminService)
+AuthService
+InviteService
+
+
+
+
+
+будут добавлены
+
+контроллеры
+/employee-controller
+    /api/v1/employee/warehouse/stock - GET  // Просмотр склада
+    /api/v1/employee/warehouse/move - POST  // Перемещение товара
+
+/admin-controller
+    /api/v1/admin/warehouse/add-product - POST  // Добавление товара
+    /api/v1/admin/warehouse/remove-product - DELETE  // Удаление товара
+    /api/v1/admin/warehouse/update-stock - PUT  // Обновление остатков
+
+
+Сервисы
+WarehouseService   // Управление складом: добавление товара, изменение остатков
+InventoryService   // Логика инвентаризации, например, расчет текущего запаса
+ProductService     // Логика работы с конкретными товарами
+
