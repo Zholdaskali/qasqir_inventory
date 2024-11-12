@@ -25,7 +25,6 @@ public class UserController {
     private final PasswordResetService passwordResetService;
     private final MailVerificationService mailVerificationService;
 
-
     @Autowired
     public UserController(ProfileService profileService, UserService userService, PasswordResetService passwordResetService, MailVerificationService mailVerificationService) {
         this.profileService = profileService;
@@ -34,15 +33,14 @@ public class UserController {
         this.mailVerificationService = mailVerificationService;
     }
 
-
     @GetMapping("/profile")
     public UserProfileDTO getProfile(@RequestHeader("auth-token") String token) {
         return profileService.getUserProfileByUserId(token);
     }
 
     @PutMapping("/profile/{userId}")
-    public MessageResponse<User> resetUser(@PathVariable Long userId, @RequestBody UpdateUserDTO upDateUserDTO) {
-        return MessageResponse.of(userService.updateUser(userId, upDateUserDTO));
+    public MessageResponse<User> resetUser(@RequestBody UpdateUserDTO upDateUserDTO) {
+        return MessageResponse.of(userService.updateUser(upDateUserDTO));
     }
 
     @PutMapping("/password/reset-invite")
@@ -51,8 +49,8 @@ public class UserController {
     }
 
     @PutMapping("/password/reset/{userId}")
-    public MessageResponse<String> editPasswordUser(Long userId, @RequestBody PasswordResetUserRequest passwordResetRequest) {
-        return MessageResponse.empty(passwordResetService.editPasswordUser(userId, passwordResetRequest));
+    public MessageResponse<String> editPasswordUser(HttpServletRequest request, @RequestBody PasswordResetUserRequest passwordResetRequest) {
+        return MessageResponse.empty(passwordResetService.editPasswordUser(request, passwordResetRequest));
     }
 
     @PostMapping("/email/generate")

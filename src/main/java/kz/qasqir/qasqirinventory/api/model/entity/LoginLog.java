@@ -1,6 +1,9 @@
 package kz.qasqir.qasqirinventory.api.model.entity;
 
 import jakarta.persistence.*;
+
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,7 +18,7 @@ public class LoginLog {
     private Long userId;
 
     @Column(name = "timestamp", nullable = false)
-    private LocalDateTime timestamp;
+    private Timestamp timestamp;
 
     // Конструктор по умолчанию для JPA
     protected LoginLog() {}
@@ -23,7 +26,7 @@ public class LoginLog {
     // Приватный конструктор для фабрики
     private LoginLog(Long userId) {
         this.userId = userId;
-        this.timestamp = LocalDateTime.now();
+        this.timestamp = Timestamp.from(Instant.now());
     }
 
     // Фабричный метод для создания экземпляра
@@ -36,19 +39,23 @@ public class LoginLog {
         return id;
     }
 
-    public Long getUserId() {
-        return userId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public LocalDateTime getTimestamp() {
-        return timestamp;
+    public Long getUserId() {
+        return userId;
     }
 
     public void setUserId(Long userId) {
         this.userId = userId;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
+    public Timestamp getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
 }

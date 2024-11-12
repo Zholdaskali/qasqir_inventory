@@ -1,7 +1,7 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import kz.qasqir.qasqirinventory.api.model.dto.InviteUserDTO;
+import kz.qasqir.qasqirinventory.api.model.dto. InviteUserDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.Invite;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
 import kz.qasqir.qasqirinventory.api.model.request.RegisterInviteRequest;
@@ -18,11 +18,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/admin")
 public class AdminController {
+
     private final UserService userService;
     private final AuthenticationService authenticationService;
     private final InviteRepository inviteRepository;
-
-
 
     @Autowired
     public AdminController(UserService userService, AuthenticationService authenticationService, InviteRepository inviteRepository) {
@@ -46,7 +45,7 @@ public class AdminController {
         return MessageResponse.of(authenticationService.registerInvite(request ,registerInviteRequest.getUserName(),registerInviteRequest.getEmail(),registerInviteRequest.getUserNumber() , registerInviteRequest.getPassword()));
     }
 
-    @GetMapping("/invites")
+    @GetMapping("/{organizationId}/invites")
     public MessageResponse<List<InviteUserDTO>> getAll() {
         return MessageResponse.of(inviteRepository.findInviteIdAndUserNameAndEmail());
     }

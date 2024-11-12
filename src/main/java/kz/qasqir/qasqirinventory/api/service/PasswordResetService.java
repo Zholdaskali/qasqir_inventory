@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class PasswordResetService {
 
     private final InviteService inviteService;
-    private final SessionService sessionService;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
@@ -29,7 +28,6 @@ public class PasswordResetService {
         this.inviteService = inviteService;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
-        this.sessionService = sessionService;
     }
 
     @Transactional
@@ -51,15 +49,16 @@ public class PasswordResetService {
     }
 
     @Transactional
-    public String editPasswordUser(Long userId,
+    public String editPasswordUser(HttpServletRequest request,
                                    @RequestBody PasswordResetUserRequest passwordResetRequest
     ) {
 
-        User editUser = userService.getByUserId(userId);
+        User editUser = userService.getByUserId(passwordResetRequest.getUserId());
         if(passwordEncoder.check(passwordResetRequest.getOldPassword(), editUser.getPassword())) {
             String hashNewPassword = passwordEncoder.hash(passwordResetRequest.getNewPassword());
             editUser.setPassword(hashNewPassword);
             userService.saveUser(editUser);
+            inviteService.invalidate(request.getParameter("Invite-token"));
             return "Пароль успешно изменен";
         }
         throw new InvalidPasswordException();

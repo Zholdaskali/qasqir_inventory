@@ -1,11 +1,16 @@
 Функционал
 
+Приложение как работает?
+Дает платформу для учета небольших складов организаций
+
+Функционал
 Супер Админ
 {
     a) Добавление организации                                           +
     б) Добавление админа организации                                    +
     в) Удаление Админа организации                                      +
     г) Удаление организации                                             +
+    д) Скачивать логи по периодам                                       +
 }
 
 Админ
@@ -24,14 +29,29 @@
     в) Подтверждение Email                                              +
 }
 
+Система логирования
+{
+    а) Логирование активностей
+    б) Логирование логина
+    в) Логирование ошибок сервера
+}
+
+
+
+
+--> Бизнес логиканын ТЗ берген жооооок
+
+Сотрудник -
+
+
 
 
 
 контроллеры
 /user-controller
-    /api/v1/user/profile - GET
-    /api/v1/user/profile - PUT
-    /api/v1/user/password-reset - PUT
+    /api/v1/user/profile - GET после входа вызывается
+    /api/v1/user/profile - PUT изменение настроек
+    /api/v1/user/password-reset - PUT изменение пароля
     /api/v1/user/email/verification-code - POST  // Генерация кода верификации
     /api/v1/user/email/verify - POST  // Подтверждение кода
 
@@ -54,15 +74,20 @@
 
 
 Сервисы
-ProfileService
-UserPasswordService  (или просто PasswordService)
-UserService
-MailVerificationService
-OrganizationService (можно включить в SuperAdminService)
-AuthService
+ActionLogService
+AuthenticationService
+ExceptionLogService
 InviteService
-
-
+LogFileService
+LoginLogService
+MailService
+MailVerificationService
+OrganizationService
+PasswordResetService
+ProfileService
+RoleService
+SessionService
+UserService
 
 
 
@@ -83,4 +108,7 @@ InviteService
 WarehouseService   // Управление складом: добавление товара, изменение остатков
 InventoryService   // Логика инвентаризации, например, расчет текущего запаса
 ProductService     // Логика работы с конкретными товарами
+
+
+так же нужно учитывать сроки эксплуатации.
 

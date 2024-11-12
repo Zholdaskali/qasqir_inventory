@@ -1,8 +1,8 @@
 package kz.qasqir.qasqirinventory.api.config;
 
-import kz.qasqir.qasqirinventory.api.Interceptor.Auth.ActionLogInterceptor;
+import kz.qasqir.qasqirinventory.api.Interceptor.Action.ActionLogInterceptor;
 import kz.qasqir.qasqirinventory.api.Interceptor.Auth.AuthInterceptor;
-import kz.qasqir.qasqirinventory.api.Interceptor.Auth.InviteInterceptor;
+import kz.qasqir.qasqirinventory.api.Interceptor.Invite.InviteInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -31,9 +31,9 @@ public class  InterceptorConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/swagger-ui.html", "/api-docs/**", "/swagger-ui/**");
         registry.addInterceptor(inviteInterceptor)
                 .order(3)
-                .excludePathPatterns("/api/v1/auth/sign-in", "/api/v1/version")
-                .excludePathPatterns("/swagger-ui.html", "/api-docs/**", "/swagger-ui/**");
+                .addPathPatterns("/api/v1/user/password/reset-invite");
     }
+
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {

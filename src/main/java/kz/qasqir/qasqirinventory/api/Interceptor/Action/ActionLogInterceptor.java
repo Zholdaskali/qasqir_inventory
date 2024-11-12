@@ -1,4 +1,4 @@
-package kz.qasqir.qasqirinventory.api.Interceptor.Auth;
+package kz.qasqir.qasqirinventory.api.Interceptor.Action;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,8 +8,6 @@ import kz.qasqir.qasqirinventory.api.service.SessionService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
 
@@ -17,7 +15,7 @@ import java.time.Instant;
 public class ActionLogInterceptor implements HandlerInterceptor {
 
     private final ActionLogRepository actionLogRepository;
-    private final SessionService sessionService; // или любая другая логика для получения текущего пользователя
+    private final SessionService sessionService;
 
     public ActionLogInterceptor(ActionLogRepository actionLogRepository, SessionService sessionService) {
         this.actionLogRepository = actionLogRepository;
@@ -30,8 +28,7 @@ public class ActionLogInterceptor implements HandlerInterceptor {
         String endpoint = request.getRequestURI();
         Long userId = getCurrentUserId(request.getHeader("Auth-token"));
         String action = methodName;
-        String data = getRequestData(request);
-        saveActionLog(userId, action, endpoint, data);
+        saveActionLog(userId, action, endpoint);
         return true;
     }
 
@@ -39,30 +36,13 @@ public class ActionLogInterceptor implements HandlerInterceptor {
         return sessionService.getTokenForUser(token).getId();
     }
 
-    private String getRequestData(HttpServletRequest request) {
-        try {
-            BufferedReader reader = request.getReader();
-            StringBuilder data = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                data.append(line);
-            }
-            return data.toString();
-        } catch (IOException e) {
-            return "";
-        }
-    }
-
     // Сохранение записи в лог
-    private void saveActionLog(Long userId, String action, String endpoint, String data) {
+    private void saveActionLog(Long userId, String action, String endpoint) {
         ActionLog log = new ActionLog();
         log.setUserId(userId);
         log.setAction(action);
         log.setEndpoint(endpoint);
-        log.setData(data);
         log.setTimestamp(Timestamp.from(Instant.now()));
         actionLogRepository.save(log);
     }
 }
-
-

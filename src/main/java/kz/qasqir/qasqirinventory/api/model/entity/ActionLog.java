@@ -16,8 +16,6 @@ public class ActionLog {
     private String action;
     @Column(name = "endpoint", nullable = false)
     private String endpoint;
-    @Column(name = "data", length = 2048, nullable = false)
-    private String data;
     @Column(name = "timestamp", nullable = false)
     private Timestamp timestamp;
 
@@ -51,14 +49,6 @@ public class ActionLog {
 
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
     }
 
     public Timestamp getTimestamp() {

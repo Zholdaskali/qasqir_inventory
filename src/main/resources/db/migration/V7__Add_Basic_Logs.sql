@@ -21,7 +21,6 @@ CREATE TABLE IF NOT EXISTS t_action_log
     user_id   BIGINT                NOT NULL,
     action    VARCHAR(250)          NOT NULL,
     endpoint  VARCHAR(250)          NOT NULL,
-    data      VARCHAR(2048),
     timestamp TIMESTAMP             NOT NULL DEFAULT current_timestamp,
     PRIMARY KEY (id)
 );

@@ -1,5 +1,6 @@
 package kz.qasqir.qasqirinventory.api.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.UserNotFoundException;
 import kz.qasqir.qasqirinventory.api.model.dto.UpdateUserDTO;
@@ -55,8 +56,8 @@ public class UserService {
     }
 
     @Transactional
-    public User updateUser(Long userId, UpdateUserDTO updateUserDTO) {
-        User updateUser = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+    public User updateUser(UpdateUserDTO updateUserDTO) {
+        User updateUser = userRepository.findById(updateUserDTO.getUserId()).orElseThrow(UserNotFoundException::new);
         updateUser.setUserName(updateUserDTO.getUserName());
         updateUser.setEmail(updateUserDTO.getUserEmail());
         return userRepository.save(updateUser);
@@ -68,7 +69,7 @@ public class UserService {
                 .orElseThrow(UserNotFoundException::new);
         List<Role> roles = roleService.getAllForUserId(userRoleResetRequest.getUserId());
         boolean roleExists = roles.stream()
-                .anyMatch(role -> role.getId() == userRoleResetRequest.getNewRoleId());
+                .anyMatch(role -> Objects.equals(role.getId(), userRoleResetRequest.getNewRoleId()));
 
         if (!roleExists) {
             roleService.addForUser(updateUser.getId(), userRoleResetRequest.getNewRoleId());

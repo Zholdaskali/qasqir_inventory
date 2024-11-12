@@ -1,6 +1,9 @@
 package kz.qasqir.qasqirinventory.api.model.entity;
 
 import jakarta.persistence.*;
+
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,7 +21,7 @@ public class ExceptionLog {
     private String message;
 
     @Column(name = "timestamp", nullable = false)
-    private LocalDateTime timestamp;
+    private Timestamp timestamp;
 
     // Конструктор по умолчанию для JPA
     protected ExceptionLog() {}
@@ -27,7 +30,7 @@ public class ExceptionLog {
     private ExceptionLog(String cause, String message) {
         this.cause = cause;
         this.message = message;
-        this.timestamp = LocalDateTime.now();
+        this.timestamp = Timestamp.from(Instant.now());
     }
 
     // Фабричный метод для удобного создания экземпляра
@@ -38,6 +41,10 @@ public class ExceptionLog {
     // Геттеры и сеттеры (если нужно)
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getCause() {
@@ -56,11 +63,11 @@ public class ExceptionLog {
         this.message = message;
     }
 
-    public LocalDateTime getTimestamp() {
+    public Timestamp getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
+    public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
 }
