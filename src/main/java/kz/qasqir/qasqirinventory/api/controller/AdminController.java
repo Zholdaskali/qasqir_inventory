@@ -2,8 +2,8 @@ package kz.qasqir.qasqirinventory.api.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import kz.qasqir.qasqirinventory.api.model.dto. InviteUserDTO;
+import kz.qasqir.qasqirinventory.api.model.dto.UserDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.Invite;
-import kz.qasqir.qasqirinventory.api.model.entity.User;
 import kz.qasqir.qasqirinventory.api.model.request.RegisterInviteRequest;
 import kz.qasqir.qasqirinventory.api.model.request.UserRoleResetRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
@@ -36,7 +36,7 @@ public class AdminController {
     }
 
     @PutMapping("/employee/{userId}/role")
-    public MessageResponse<User> resetRole(@RequestBody UserRoleResetRequest userRoleResetRequest) {
+    public MessageResponse<UserDTO> resetRole(@RequestBody UserRoleResetRequest userRoleResetRequest) {
         return MessageResponse.of(userService.updateRole(userRoleResetRequest));
     }
 

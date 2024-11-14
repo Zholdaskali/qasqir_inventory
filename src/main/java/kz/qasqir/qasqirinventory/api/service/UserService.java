@@ -1,9 +1,10 @@
 package kz.qasqir.qasqirinventory.api.service;
 
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.UserNotFoundException;
-import kz.qasqir.qasqirinventory.api.model.dto.UpdateUserDTO;
+import kz.qasqir.qasqirinventory.api.model.dto.UserDTO;
+import kz.qasqir.qasqirinventory.api.model.request.UpdateUserRequest;
 import kz.qasqir.qasqirinventory.api.model.entity.Role;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
 import kz.qasqir.qasqirinventory.api.model.request.UserRoleResetRequest;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -56,15 +58,16 @@ public class UserService {
     }
 
     @Transactional
-    public User updateUser(UpdateUserDTO updateUserDTO) {
-        User updateUser = userRepository.findById(updateUserDTO.getUserId()).orElseThrow(UserNotFoundException::new);
-        updateUser.setUserName(updateUserDTO.getUserName());
-        updateUser.setEmail(updateUserDTO.getUserEmail());
-        return userRepository.save(updateUser);
+    public UserDTO updateUser(UpdateUserRequest updateUserRequest) {
+        User updateUser = userRepository.findById(updateUserRequest.getUserId()).orElseThrow(UserNotFoundException::new);
+        updateUser.setUserName(updateUserRequest.getUserName());
+        updateUser.setEmail(updateUserRequest.getUserEmail());
+        userRepository.save(updateUser);
+        return getUserProfileByUserId(updateUserRequest.getUserId());
     }
 
     @Transactional
-    public User updateRole(UserRoleResetRequest userRoleResetRequest) {
+    public UserDTO updateRole(UserRoleResetRequest userRoleResetRequest) {
         User updateUser = userRepository.findById(userRoleResetRequest.getUserId())
                 .orElseThrow(UserNotFoundException::new);
         List<Role> roles = roleService.getAllForUserId(userRoleResetRequest.getUserId());
@@ -74,7 +77,26 @@ public class UserService {
         if (!roleExists) {
             roleService.addForUser(updateUser.getId(), userRoleResetRequest.getNewRoleId());
         }
-        return updateUser;
+        return getUserProfileByUserId(updateUser.getId());
     }
 
+
+    public UserDTO getUserProfileByUserId(Long userId) {
+        List<Tuple> tuples = userRepository.findProfileByUserId(userId);
+
+        Tuple first = tuples.get(0);
+        Long id = first.get("user_id", Long.class);
+        String userName = first.get("user_name", String.class);
+        String email = first.get("email", String.class);
+        String userNumber = first.get("phone_number", String.class);
+        boolean emailVerified = first.get("email_verified", Boolean.class);
+        String organization = first.get("organization_name", String.class);
+
+        List<String> roles = tuples.stream()
+                .map(tuple -> tuple.get("role_name", String.class))
+                .collect(Collectors.toList());
+
+        UserDTO userProfile = new UserDTO(id, userName, email, userNumber, organization, emailVerified, roles);
+        return userProfile;
+    }
 }

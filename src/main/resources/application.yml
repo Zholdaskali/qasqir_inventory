@@ -69,7 +69,7 @@ roleIds:
 
 # Ссылка для приглашений
 invite:
-  link: http://localhost:5175/recover-password
+  link: http://localhost:5173/recover-password
 
 logging:
   level:

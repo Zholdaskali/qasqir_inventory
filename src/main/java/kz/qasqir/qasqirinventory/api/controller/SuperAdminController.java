@@ -1,5 +1,6 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
+import kz.qasqir.qasqirinventory.api.model.dto.OrganizationDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.ActionLog;
 import kz.qasqir.qasqirinventory.api.model.entity.ExceptionLog;
 import kz.qasqir.qasqirinventory.api.model.entity.LoginLog;
@@ -42,12 +43,12 @@ public class SuperAdminController {
     }
 
     @GetMapping("/organizations")
-    public MessageResponse<Iterable<Organization>> getAll() {
-        return MessageResponse.of(organizationService.getAll());
+    public MessageResponse<Iterable<OrganizationDTO>> getAll() {
+        return MessageResponse.of(organizationService.getAllOrganizations());
     }
 
     @PostMapping("/organization")
-    public MessageResponse<Organization> save(@RequestBody OrganizationRequest organizationRequest) {
+    public MessageResponse<OrganizationDTO> save(@RequestBody OrganizationRequest organizationRequest) {
         return MessageResponse.of(organizationService.save(organizationRequest.getOrganizationName()));
     }
 

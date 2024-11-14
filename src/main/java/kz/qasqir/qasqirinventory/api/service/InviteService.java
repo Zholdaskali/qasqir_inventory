@@ -32,17 +32,12 @@ public class InviteService {
         this.userService = userService;
     }
 
-
     @Transactional
     public Invite generate(String path,Long userId) {
-        Invite invite = new Invite();
         String token = tokenGenerator.generate();
         String link = path + "?Invite-token=" + token;
-        invite.setToken(token);
-        invite.setLink(link);
-        invite.setExpiration(LocalDateTime.now().plusDays(7));
-        invite.setDateCreate(LocalDateTime.now());
-        invite.setUserId(userId);
+
+        Invite invite = new Invite(token, link, LocalDateTime.now().plusDays(7), LocalDateTime.now(), userId);
         return inviteRepository.save(invite);
     }
 

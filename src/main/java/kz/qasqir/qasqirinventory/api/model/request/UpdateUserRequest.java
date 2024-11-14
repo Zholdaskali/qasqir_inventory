@@ -1,6 +1,6 @@
-package kz.qasqir.qasqirinventory.api.model.dto;
+package kz.qasqir.qasqirinventory.api.model.request;
 
-public class UpdateUserDTO {
+public class UpdateUserRequest {
     private Long userId;
     private String userName;
     private String userEmail;

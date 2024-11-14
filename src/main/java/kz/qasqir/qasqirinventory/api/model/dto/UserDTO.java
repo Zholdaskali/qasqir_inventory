@@ -1,9 +1,8 @@
 package kz.qasqir.qasqirinventory.api.model.dto;
 
-
 import java.util.List;
 
-public class UserProfileDTO {
+public class UserDTO {
     private Long userId;
     private String userName;
     private String email;
@@ -12,7 +11,7 @@ public class UserProfileDTO {
     private String organization;
     private List<String> userRoles; // Множественные роли
 
-    public UserProfileDTO(Long userId, String userName, String email, String userNumber, String organization, boolean emailVerified, List<String> userRoles) {
+    public UserDTO(Long userId, String userName, String email, String userNumber, String organization, boolean emailVerified, List<String> userRoles) {
         this.userId = userId;
         this.userName = userName;
         this.email = email;

@@ -23,6 +23,13 @@ public class Invite {
 
     public Invite() {}
 
+    public Invite(String token, String link, LocalDateTime expiration, LocalDateTime dateCreate, Long userId) {
+        this.token = token;
+        this.link = link;
+        this.dateCreate = dateCreate;
+        this.expiration = expiration;
+        this.userId = userId;
+    }
 
     public Long getId() {
         return id;

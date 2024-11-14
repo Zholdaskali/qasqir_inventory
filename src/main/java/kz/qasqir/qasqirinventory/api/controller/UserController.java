@@ -1,18 +1,15 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import kz.qasqir.qasqirinventory.api.model.dto.UpdateUserDTO;
-import kz.qasqir.qasqirinventory.api.model.dto.UserProfileDTO;
+import kz.qasqir.qasqirinventory.api.model.request.UpdateUserRequest;
+import kz.qasqir.qasqirinventory.api.model.dto.UserDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
 import kz.qasqir.qasqirinventory.api.model.request.MailVerificationCheckRequest;
 import kz.qasqir.qasqirinventory.api.model.request.MailVerificationSendRequest;
 import kz.qasqir.qasqirinventory.api.model.request.PasswordResetInviteUserRequest;
 import kz.qasqir.qasqirinventory.api.model.request.PasswordResetUserRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.service.MailVerificationService;
-import kz.qasqir.qasqirinventory.api.service.PasswordResetService;
-import kz.qasqir.qasqirinventory.api.service.ProfileService;
-import kz.qasqir.qasqirinventory.api.service.UserService;
+import kz.qasqir.qasqirinventory.api.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,27 +17,28 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/user")
 public class UserController {
 
-    private final ProfileService profileService;
     private final UserService userService;
     private final PasswordResetService passwordResetService;
     private final MailVerificationService mailVerificationService;
+    private final SessionService sessionService;
 
     @Autowired
-    public UserController(ProfileService profileService, UserService userService, PasswordResetService passwordResetService, MailVerificationService mailVerificationService) {
-        this.profileService = profileService;
+    public UserController(UserService userService, PasswordResetService passwordResetService, MailVerificationService mailVerificationService, SessionService sessionService) {
         this.userService = userService;
         this.passwordResetService = passwordResetService;
         this.mailVerificationService = mailVerificationService;
+        this.sessionService = sessionService;
     }
 
     @GetMapping("/profile")
-    public UserProfileDTO getProfile(@RequestHeader("auth-token") String token) {
-        return profileService.getUserProfileByUserId(token);
+    public UserDTO getProfile(@RequestHeader("auth-token") String token) {
+        User user = sessionService.getTokenForUser(token);
+        return userService.getUserProfileByUserId(user.getId());
     }
 
     @PutMapping("/profile/{userId}")
-    public MessageResponse<User> resetUser(@RequestBody UpdateUserDTO upDateUserDTO) {
-        return MessageResponse.of(userService.updateUser(upDateUserDTO));
+    public MessageResponse<UserDTO> resetUser(@RequestBody UpdateUserRequest updateUserRequest) {
+        return MessageResponse.of(userService.updateUser(updateUserRequest));
     }
 
     @PutMapping("/password/reset-invite")
