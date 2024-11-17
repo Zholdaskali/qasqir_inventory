@@ -20,7 +20,6 @@ public class AuthenticationService {
     private final SessionService sessionService;
     private final RoleService roleService;
     private final InviteService inviteService;
-    private final OrganizationService organizationService;
     private final LoginLogService loginLogService;
 
     @Value("${roleIds.employee}")
@@ -38,7 +37,6 @@ public class AuthenticationService {
                                  SessionService sessionService,
                                  RoleService roleService,
                                  InviteService inviteService,
-                                 OrganizationService organizationService,
                                  LoginLogService loginLogService)
     {
         this.userService = userService;
@@ -46,7 +44,6 @@ public class AuthenticationService {
         this.sessionService = sessionService;
         this.roleService = roleService;
         this.inviteService = inviteService;
-        this.organizationService = organizationService;
         this.loginLogService = loginLogService;
     }
 
@@ -55,7 +52,7 @@ public class AuthenticationService {
         if (validateEmail(email)) {
             String token = request.getHeader("Auth-token");
             User authorUser = sessionService.getTokenForUser(token);
-            User savedUser = createUser(userName, email, userNumber, password, authorUser.getOrganizationId());
+            User savedUser = createUser(userName, email, userNumber, password);
 
             userService.saveUser(savedUser);
             roleService.addForUser(savedUser.getId(), EMPLOYEE_ROLE_ID);
@@ -65,12 +62,11 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public String register(String userName, String email, String userNumber, String password, Long organizationId) {
+    public String register(String userName, String email, String userNumber, String password) {
         if (validateEmail(email)) {
-            User user = createUser(userName, email,userNumber, password, organizationId);
+            User user = createUser(userName, email,userNumber, password);
             userService.saveUser(user);
             roleService.addForUser(user.getId(), ADMIN_ROLE_ID);
-            organizationService.addForAdmin(user.getId(), organizationId);
             return "Пользователь успешно создан";
         }
         throw new EmailIsAlreadyRegisteredException();
@@ -96,8 +92,8 @@ public class AuthenticationService {
         throw new EmailIsAlreadyRegisteredException();
     }
 
-    private User createUser(String userName, String email, String userNumber, String password, Long organizationId) {
-        return new User(userName, email, userNumber, passwordEncoder.hash(password), organizationId);
+    private User createUser(String userName, String email, String userNumber, String password) {
+        return new User(userName, email, userNumber, passwordEncoder.hash(password));
     }
 
     private void validatePassword(String rawPassword, String hashedPassword) {

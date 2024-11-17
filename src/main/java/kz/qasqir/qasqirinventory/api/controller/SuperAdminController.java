@@ -1,11 +1,8 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
-import kz.qasqir.qasqirinventory.api.model.dto.OrganizationDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.ActionLog;
 import kz.qasqir.qasqirinventory.api.model.entity.ExceptionLog;
 import kz.qasqir.qasqirinventory.api.model.entity.LoginLog;
-import kz.qasqir.qasqirinventory.api.model.entity.Organization;
-import kz.qasqir.qasqirinventory.api.model.request.OrganizationRequest;
 import kz.qasqir.qasqirinventory.api.model.request.RegisterRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.service.*;
@@ -23,7 +20,6 @@ import java.util.List;
 @RequestMapping("/api/v1/super-admin")
 public class SuperAdminController {
 
-    private final OrganizationService organizationService;
     private final AuthenticationService authenticationService;
     private final UserService userService;
     private final ActionLogService actionLogService;
@@ -32,8 +28,7 @@ public class SuperAdminController {
     private final LogFileService logFileService;
 
     @Autowired
-    public SuperAdminController(OrganizationService organizationService, AuthenticationService authenticationService, UserService userService, ActionLogService actionLogService, ExceptionLogService exceptionLogService, LoginLogService loginLogService, LogFileService logFileService) {
-        this.organizationService = organizationService;
+    public SuperAdminController( AuthenticationService authenticationService, UserService userService, ActionLogService actionLogService, ExceptionLogService exceptionLogService, LoginLogService loginLogService, LogFileService logFileService) {
         this.authenticationService = authenticationService;
         this.userService = userService;
         this.exceptionLogService = exceptionLogService;
@@ -42,29 +37,29 @@ public class SuperAdminController {
         this.logFileService = logFileService;
     }
 
-    @GetMapping("/organizations")
-    public MessageResponse<Iterable<OrganizationDTO>> getAll() {
-        return MessageResponse.of(organizationService.getAllOrganizations());
-    }
-
-    @PostMapping("/organization")
-    public MessageResponse<OrganizationDTO> save(@RequestBody OrganizationRequest organizationRequest) {
-        return MessageResponse.of(organizationService.save(organizationRequest.getOrganizationName()));
-    }
-
-    @DeleteMapping("/organization/{organizationId}")
-    public MessageResponse<Boolean> delete(@PathVariable Long organizationId) {
-        return MessageResponse.of(organizationService.delete(organizationId));
-    }
+//    @GetMapping("/organizations")
+//    public MessageResponse<Iterable<OrganizationDTO>> getAll() {
+//        return MessageResponse.of(organizationService.getAllOrganizations());
+//    }
+//
+//    @PostMapping("/organization")
+//    public MessageResponse<OrganizationDTO> save(@RequestBody OrganizationRequest organizationRequest) {
+//        return MessageResponse.of(organizationService.save(organizationRequest.getOrganizationName()));
+//    }
+//
+//    @DeleteMapping("/organization/{organizationId}")
+//    public MessageResponse<Boolean> delete(@PathVariable Long organizationId) {
+//        return MessageResponse.of(organizationService.delete(organizationId));
+//    }
 
     @PostMapping("/user/sign-up")
     public MessageResponse<String> register(@RequestBody RegisterRequest registerRequest) {
-        return MessageResponse.empty(authenticationService.register(registerRequest.getUserName(), registerRequest.getEmail(), registerRequest.getUserNumber(), registerRequest.getPassword(), registerRequest.getOrganizationId()));
+        return MessageResponse.empty(authenticationService.register(registerRequest.getUserName(), registerRequest.getEmail(), registerRequest.getUserNumber(), registerRequest.getPassword()));
     }
 
     @DeleteMapping("/user/{userId}")
-    public MessageResponse<Boolean> delete(@PathVariable Long userId, Long organizationId ) {
-        return MessageResponse.of(userService.deleteUserById(userId, organizationId));
+    public MessageResponse<Boolean> delete(@PathVariable Long userId) {
+        return MessageResponse.of(userService.deleteUserById(userId));
     }
 
     @GetMapping("/log/action-logs")

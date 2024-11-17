@@ -1,4 +1,4 @@
-package kz.qasqir.qasqirinventory.api.Interceptor.Auth;
+package kz.qasqir.qasqirinventory.api.Interceptor;
 
 import kz.qasqir.qasqirinventory.api.exception.SessionHasExpiredException;
 import kz.qasqir.qasqirinventory.api.exception.SessionNotFoundException;

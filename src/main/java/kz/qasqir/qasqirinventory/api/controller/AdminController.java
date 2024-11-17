@@ -31,13 +31,13 @@ public class AdminController {
     }
 
     @DeleteMapping("/employee/{userId}")
-    public MessageResponse<Boolean> deleteUser(@PathVariable Long userId, @RequestParam Long organizationId) {
-        return MessageResponse.of(userService.deleteUserById(userId, organizationId));
+    public MessageResponse<Boolean> deleteUser(@PathVariable("userId") Long userId, @RequestParam Long organizationId) {
+        return MessageResponse.of(userService.deleteUserById(userId));
     }
 
     @PutMapping("/employee/{userId}/role")
-    public MessageResponse<UserDTO> resetRole(@RequestBody UserRoleResetRequest userRoleResetRequest) {
-        return MessageResponse.of(userService.updateRole(userRoleResetRequest));
+    public MessageResponse<UserDTO> resetRole(@PathVariable("userId") Long userId, @RequestBody UserRoleResetRequest userRoleResetRequest) {
+        return MessageResponse.of(userService.updateRole(userId, userRoleResetRequest));
     }
 
     @PostMapping("/invite")
@@ -45,7 +45,7 @@ public class AdminController {
         return MessageResponse.of(authenticationService.registerInvite(request ,registerInviteRequest.getUserName(),registerInviteRequest.getEmail(),registerInviteRequest.getUserNumber() , registerInviteRequest.getPassword()));
     }
 
-    @GetMapping("/{organizationId}/invites")
+    @GetMapping("/invites")
     public MessageResponse<List<InviteUserDTO>> getAll() {
         return MessageResponse.of(inviteRepository.findInviteIdAndUserNameAndEmail());
     }

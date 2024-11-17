@@ -18,8 +18,8 @@ public class User {
     private boolean emailVerified = false;
     @Column(name = "password", nullable = false)
     private String password;
-    @Column(name = "organization_id")
-    private Long organizationId;
+    @Column(name = "image_id")
+    private Long imageId;
 
     public User() {
 
@@ -27,14 +27,12 @@ public class User {
     public User(String userName,
                 String email,
                 String userNumber,
-                String password,
-                Long organizationId)
+                String password)
     {
         this.userName = userName;
         this.email = email;
         this.userNumber = userNumber;
         this.password = password;
-        this.organizationId = organizationId;
     }
 
     public String getUserNumber() {
@@ -85,11 +83,11 @@ public class User {
         this.password = password;
     }
 
-    public Long getOrganizationId() {
-        return organizationId;
+    public Long getImageId() {
+        return imageId;
     }
 
-    public void setOrganizationId(Long organizationId) {
-        this.organizationId = organizationId;
+    public void setImageId(Long organizationId) {
+        this.imageId = imageId;
     }
 }

@@ -1,4 +1,4 @@
-package kz.qasqir.qasqirinventory.api.Interceptor.Invite;
+package kz.qasqir.qasqirinventory.api.Interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

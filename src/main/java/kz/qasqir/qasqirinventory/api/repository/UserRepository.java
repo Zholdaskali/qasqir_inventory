@@ -17,9 +17,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
      int deleteUserById(Long userId);
 
-     @Query(value = "SELECT u.user_id, u.user_name, u.email, tu.phone_number, u.email_verified, u.organization_id, o.organization_name, u.role_name " +
+     @Query(value = "SELECT u.user_id, u.user_name, u.email, tu.phone_number, u.email_verified, u.role_name " +
              "FROM vw_users_roles u " +
-             "LEFT JOIN t_organizations o ON u.organization_id = o.id " +
              "JOIN t_users tu ON u.user_id = tu.id " +
              "WHERE u.user_id = :userId", nativeQuery = true)
      List<Tuple> findProfileByUserId(@Param("userId") Long userId);

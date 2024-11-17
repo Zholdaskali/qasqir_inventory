@@ -8,14 +8,14 @@ DROP TABLE IF EXISTS t_invites CASCADE;
 DROP TABLE IF EXISTS t_organization_admins CASCADE;
 DROP TABLE IF EXISTS t_users CASCADE;
 DROP TABLE IF EXISTS t_roles CASCADE;
-DROP TABLE IF EXISTS t_organizations CASCADE;
+DROP TABLE IF EXISTS t_images CASCADE;
 
 -- Создание таблиц
-CREATE TABLE IF NOT EXISTS t_organizations
-(
-    id                  BIGSERIAL       NOT NULL,
-    organization_name   VARCHAR(50)     NOT NULL,
+CREATE TABLE IF NOT EXISTS t_images (
+    id                  BIGSERIAL NOT NULL,
+    image_path          VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
+
 );
 
 CREATE TABLE IF NOT EXISTS t_users
@@ -25,9 +25,9 @@ CREATE TABLE IF NOT EXISTS t_users
     password            VARCHAR(256)    NOT NULL,
     email               VARCHAR(70)     NOT NULL,
     email_verified      BOOLEAN         NOT NULL,
-    organization_id     BIGINT          NULL,
+    image_id            BIGINT          NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (organization_id) REFERENCES t_organizations (id) ON DELETE CASCADE
+    FOREIGN KEY (image_id) REFERENCES t_images(id)
 );
 
 CREATE TABLE IF NOT EXISTS t_sessions
@@ -77,26 +77,14 @@ CREATE TABLE IF NOT EXISTS t_invites
     FOREIGN KEY (user_id) REFERENCES t_users (id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS t_organization_admins
-(
-    id                  BIGSERIAL       NOT NULL,
-    user_id             BIGINT          NOT NULL,
-    organization_id     BIGINT          NOT NULL,
-    PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES t_users (id) ON DELETE CASCADE,
-    FOREIGN KEY (organization_id) REFERENCES t_organizations (id) ON DELETE CASCADE
-);
-
 -- Оставляем представление как есть
 CREATE OR REPLACE VIEW vw_user_profile AS
 SELECT
     u.id AS user_id,
     u.user_name,
     u.email,
-    o.organization_name,
     u.email_verified,
     r.role_name
 FROM t_users u
-    LEFT JOIN t_organizations o ON u.organization_id = o.id
     LEFT JOIN t_user_roles ur ON u.id = ur.user_id
     LEFT JOIN t_roles r ON ur.role_id = r.id;

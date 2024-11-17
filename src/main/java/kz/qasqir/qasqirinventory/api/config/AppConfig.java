@@ -30,4 +30,5 @@ public class AppConfig {
     public JavaMailSender getJavaMailSender() {
         return new JavaMailSenderImpl();
     }
+
 }

@@ -4,7 +4,6 @@ SELECT
     u.user_name AS user_name,
     u.email AS email,
     u.email_verified AS email_verified,
-    u.organization_id AS organization_id,  -- Добавляем столбец organization_id
     r.id AS role_id,
     r.role_name AS role_name
 FROM

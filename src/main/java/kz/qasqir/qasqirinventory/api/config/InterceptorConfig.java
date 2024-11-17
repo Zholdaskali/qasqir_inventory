@@ -1,21 +1,24 @@
 package kz.qasqir.qasqirinventory.api.config;
 
-import kz.qasqir.qasqirinventory.api.Interceptor.Action.ActionLogInterceptor;
-import kz.qasqir.qasqirinventory.api.Interceptor.Auth.AuthInterceptor;
-import kz.qasqir.qasqirinventory.api.Interceptor.Invite.InviteInterceptor;
-import org.springframework.beans.factory.annotation.Autowired;
+import kz.qasqir.qasqirinventory.api.Interceptor.ActionLogInterceptor;
+import kz.qasqir.qasqirinventory.api.Interceptor.AuthInterceptor;
+import kz.qasqir.qasqirinventory.api.Interceptor.InviteInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class  InterceptorConfig implements WebMvcConfigurer {
-    @Autowired
-    private AuthInterceptor authInterceptor;
-    @Autowired
-    private ActionLogInterceptor actionLogInterceptor;
-    @Autowired
-    private InviteInterceptor inviteInterceptor;
+
+    private final AuthInterceptor authInterceptor;
+    private final ActionLogInterceptor actionLogInterceptor;
+    private final InviteInterceptor inviteInterceptor;
+
+    public InterceptorConfig(AuthInterceptor authInterceptor, ActionLogInterceptor actionLogInterceptor, InviteInterceptor inviteInterceptor) {
+        this.authInterceptor = authInterceptor;
+        this.actionLogInterceptor = actionLogInterceptor;
+        this.inviteInterceptor = inviteInterceptor;
+    }
 
 
     @Override

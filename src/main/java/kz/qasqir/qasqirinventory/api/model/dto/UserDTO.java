@@ -8,15 +8,13 @@ public class UserDTO {
     private String email;
     private String userNumber;
     private boolean emailVerified;
-    private String organization;
     private List<String> userRoles; // Множественные роли
 
-    public UserDTO(Long userId, String userName, String email, String userNumber, String organization, boolean emailVerified, List<String> userRoles) {
+    public UserDTO(Long userId, String userName, String email, String userNumber, boolean emailVerified, List<String> userRoles) {
         this.userId = userId;
         this.userName = userName;
         this.email = email;
         this.userNumber = userNumber;
-        this.organization = organization;
         this.emailVerified = emailVerified;
         this.userRoles = userRoles;
     }
@@ -59,14 +57,6 @@ public class UserDTO {
 
     public void setEmailVerified(boolean emailVerified) {
         this.emailVerified = emailVerified;
-    }
-
-    public String getOrganization() {
-        return organization;
-    }
-
-    public void setOrganization(String organization) {
-        this.organization = organization;
     }
 
     public List<String> getUserRoles() {

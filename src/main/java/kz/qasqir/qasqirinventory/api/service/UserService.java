@@ -50,11 +50,8 @@ public class UserService {
     }
 
     @Transactional
-    public boolean deleteUserById(Long userId, Long organizationId) {
-        if (Objects.equals(getByUserId(userId).getOrganizationId(), organizationId)) {
+    public boolean deleteUserById(Long userId) {
             return userRepository.deleteUserById(userId) > 0;
-        }
-        throw new UserNotFoundException();
     }
 
     @Transactional
@@ -67,10 +64,10 @@ public class UserService {
     }
 
     @Transactional
-    public UserDTO updateRole(UserRoleResetRequest userRoleResetRequest) {
-        User updateUser = userRepository.findById(userRoleResetRequest.getUserId())
+    public UserDTO updateRole(Long userId, UserRoleResetRequest userRoleResetRequest) {
+        User updateUser = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
-        List<Role> roles = roleService.getAllForUserId(userRoleResetRequest.getUserId());
+        List<Role> roles = roleService.getAllForUserId(userId);
         boolean roleExists = roles.stream()
                 .anyMatch(role -> Objects.equals(role.getId(), userRoleResetRequest.getNewRoleId()));
 
@@ -90,13 +87,12 @@ public class UserService {
         String email = first.get("email", String.class);
         String userNumber = first.get("phone_number", String.class);
         boolean emailVerified = first.get("email_verified", Boolean.class);
-        String organization = first.get("organization_name", String.class);
 
         List<String> roles = tuples.stream()
                 .map(tuple -> tuple.get("role_name", String.class))
                 .collect(Collectors.toList());
 
-        UserDTO userProfile = new UserDTO(id, userName, email, userNumber, organization, emailVerified, roles);
+        UserDTO userProfile = new UserDTO(id, userName, email, userNumber, emailVerified, roles);
         return userProfile;
     }
 }

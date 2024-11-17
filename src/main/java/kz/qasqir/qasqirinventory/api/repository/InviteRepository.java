@@ -4,6 +4,7 @@ import kz.qasqir.qasqirinventory.api.model.dto.InviteUserDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.Invite;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -27,5 +28,6 @@ public interface InviteRepository extends JpaRepository<Invite, Long> {
             "(i.id, u.userName, u.email) " +
             "FROM Invite i JOIN User u ON i.userId = u.id")
     List<InviteUserDTO> findInviteIdAndUserNameAndEmail();
+
 }
 

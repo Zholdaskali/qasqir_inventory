@@ -5,7 +5,6 @@ public class RegisterRequest {
     private String password;
     private String email;
     private String userNumber;
-    private Long organizationId;
 
     public String getEmail() {
         return email;
@@ -29,14 +28,6 @@ public class RegisterRequest {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public Long getOrganizationId() {
-        return organizationId;
-    }
-
-    public void setOrganizationId(Long organizationId) {
-        this.organizationId = organizationId;
     }
 
     public String getUserNumber() {
