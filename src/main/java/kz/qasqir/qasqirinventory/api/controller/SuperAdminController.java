@@ -37,21 +37,6 @@ public class SuperAdminController {
         this.logFileService = logFileService;
     }
 
-//    @GetMapping("/organizations")
-//    public MessageResponse<Iterable<OrganizationDTO>> getAll() {
-//        return MessageResponse.of(organizationService.getAllOrganizations());
-//    }
-//
-//    @PostMapping("/organization")
-//    public MessageResponse<OrganizationDTO> save(@RequestBody OrganizationRequest organizationRequest) {
-//        return MessageResponse.of(organizationService.save(organizationRequest.getOrganizationName()));
-//    }
-//
-//    @DeleteMapping("/organization/{organizationId}")
-//    public MessageResponse<Boolean> delete(@PathVariable Long organizationId) {
-//        return MessageResponse.of(organizationService.delete(organizationId));
-//    }
-
     @PostMapping("/user/sign-up")
     public MessageResponse<String> register(@RequestBody RegisterRequest registerRequest) {
         return MessageResponse.empty(authenticationService.register(registerRequest.getUserName(), registerRequest.getEmail(), registerRequest.getUserNumber(), registerRequest.getPassword()));
@@ -63,36 +48,32 @@ public class SuperAdminController {
     }
 
     @GetMapping("/log/action-logs")
-    public MessageResponse<ResponseEntity<Resource>> getActionLogs(
+    public MessageResponse<List<ActionLog>> getActionLogs(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) throws IOException {
 
-        List<ActionLog> actionLogs = actionLogService.getActionLogs(startDate, endDate);
-        String fileName = String.format("action_logs_%s_to_%s.txt", startDate, endDate);
-
-        return MessageResponse.of(logFileService.generateLogFile(actionLogs, fileName));
+        return MessageResponse.of(actionLogService.getActionLogs(startDate, endDate));
     }
 
     @GetMapping("/log/exception-logs")
-    public ResponseEntity<Resource> getExceptionLogs(
+    public MessageResponse<List<ExceptionLog>> getExceptionLogs(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) throws IOException {
 
-        List<ExceptionLog> exceptionLogs = exceptionLogService.getExceptionLogs(startDate, endDate);
-        String fileName = String.format("exception_logs_%s_to_%s.txt", startDate, endDate);
+//        List<ExceptionLog> exceptionLogs = exceptionLogService.getExceptionLogs(startDate, endDate);
+//        String fileName = String.format("exception_logs_%s_to_%s", startDate, endDate);
 
-        return logFileService.generateLogFile(exceptionLogs, fileName);
+        return MessageResponse.of(exceptionLogService.getExceptionLogs(startDate, endDate));
     }
 
     @GetMapping("/log/login-logs")
-    public ResponseEntity<Resource> getLoginLogs(
+    public MessageResponse<List<LoginLog>> getLoginLogs(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) throws IOException {
 
-        List<LoginLog> loginLogs = loginLogService.getLoginLogs(startDate, endDate);
-        String fileName = String.format("login_logs_%s_to_%s.txt", startDate, endDate);
-
-        return logFileService.generateLogFile(loginLogs, fileName);
+//        List<LoginLog> loginLogs = loginLogService.getLoginLogs(startDate, endDate);
+//        String fileName = String.format("login_logs_%s_to_%s", startDate, endDate);
+        return MessageResponse.of(loginLogService.getLoginLogs(startDate, endDate));
     }
 
 //        {
