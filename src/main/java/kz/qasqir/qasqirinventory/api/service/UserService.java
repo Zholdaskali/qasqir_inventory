@@ -13,6 +13,9 @@ import kz.qasqir.qasqirinventory.api.util.encoder.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -30,10 +33,25 @@ public class UserService {
         this.roleService = roleService;
     }
 
-
     @Transactional
     public void saveUser(User user) {
         userRepository.save(user);
+    }
+
+    public List<UserDTO> getUserAll() {
+        return userRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .toList();
+    }
+
+    private UserDTO convertToDTO(User user) {
+
+        List<Role> roles = roleService.getAllForUserId(user.getId());
+        List<String> roleNames = roles.stream()
+                .map(Role::getRoleName)
+                .collect(Collectors.toList());
+
+        return new UserDTO(user.getId(), user.getUserName(), user.getEmail(), user.getUserNumber(), user.isEmailVerified(), roleNames, user.getRegistrationDate());
     }
 
     public User getByUserName(String userName) {
@@ -76,8 +94,6 @@ public class UserService {
         }
         return getUserProfileByUserId(updateUser.getId());
     }
-
-
     public UserDTO getUserProfileByUserId(Long userId) {
         List<Tuple> tuples = userRepository.findProfileByUserId(userId);
 
@@ -86,13 +102,16 @@ public class UserService {
         String userName = first.get("user_name", String.class);
         String email = first.get("email", String.class);
         String userNumber = first.get("phone_number", String.class);
+        Timestamp registrationTimestamp = first.get("registration_date", Timestamp.class);
+        LocalDateTime registrationDate = registrationTimestamp != null ? registrationTimestamp.toLocalDateTime() : null;
         boolean emailVerified = first.get("email_verified", Boolean.class);
 
         List<String> roles = tuples.stream()
                 .map(tuple -> tuple.get("role_name", String.class))
                 .collect(Collectors.toList());
 
-        UserDTO userProfile = new UserDTO(id, userName, email, userNumber, emailVerified, roles);
+        UserDTO userProfile = new UserDTO(id, userName, email, userNumber, emailVerified, roles, registrationDate);
         return userProfile;
     }
+
 }

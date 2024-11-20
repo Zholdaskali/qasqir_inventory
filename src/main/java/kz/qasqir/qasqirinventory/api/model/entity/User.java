@@ -2,6 +2,9 @@ package kz.qasqir.qasqirinventory.api.model.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "t_users")
 public class User {
@@ -14,6 +17,8 @@ public class User {
     private String email;
     @Column(name = "phone_number")
     private String userNumber;
+    @Column(name = "registration_date")
+    private LocalDateTime registrationDate;
     @Column(name = "emailVerified", nullable = false)
     private boolean emailVerified = false;
     @Column(name = "password", nullable = false)
@@ -89,5 +94,13 @@ public class User {
 
     public void setImageId(Long organizationId) {
         this.imageId = imageId;
+    }
+
+    public LocalDateTime getRegistrationDate() {
+        return registrationDate;
+    }
+
+    public void setRegistrationDate(LocalDateTime registrationDate) {
+        this.registrationDate = registrationDate;
     }
 }

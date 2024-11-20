@@ -1,6 +1,5 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import kz.qasqir.qasqirinventory.api.model.dto. InviteUserDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.UserDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.Invite;
@@ -31,7 +30,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/employee/{userId}")
-    public MessageResponse<Boolean> deleteUser(@PathVariable("userId") Long userId, @RequestParam Long organizationId) {
+    public MessageResponse<Boolean> deleteUser(@PathVariable("userId") Long userId) {
         return MessageResponse.of(userService.deleteUserById(userId));
     }
 
@@ -41,8 +40,8 @@ public class AdminController {
     }
 
     @PostMapping("/invite")
-    public MessageResponse<Invite> inviteRegister(HttpServletRequest request, @RequestBody RegisterInviteRequest registerInviteRequest) {
-        return MessageResponse.of(authenticationService.registerInvite(request ,registerInviteRequest.getUserName(),registerInviteRequest.getEmail(),registerInviteRequest.getUserNumber() , registerInviteRequest.getPassword()));
+    public MessageResponse<Invite> inviteCreate(@RequestBody RegisterInviteRequest registerInviteRequest) {
+        return MessageResponse.of(authenticationService.registerInvite(registerInviteRequest.getUserName(),registerInviteRequest.getEmail(),registerInviteRequest.getUserNumber() , registerInviteRequest.getPassword()));
     }
 
     @GetMapping("/invites")

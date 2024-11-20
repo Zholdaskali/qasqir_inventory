@@ -37,7 +37,7 @@ public class InviteService {
         String token = tokenGenerator.generate();
         String link = path + "?Invite-token=" + token;
 
-        Invite invite = new Invite(token, link, LocalDateTime.now().plusDays(7), LocalDateTime.now(), userId);
+        Invite invite = new Invite(token, link, LocalDateTime.now().plusDays(3), LocalDateTime.now(), userId);
         return inviteRepository.save(invite);
     }
 

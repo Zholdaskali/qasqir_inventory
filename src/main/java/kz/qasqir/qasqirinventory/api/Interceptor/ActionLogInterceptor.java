@@ -24,7 +24,7 @@ public class ActionLogInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String methodName = handler.toString();
+        String methodName = extractMethodName(handler.toString());
         String endpoint = request.getRequestURI();
         Long userId = getCurrentUserId(request.getHeader("Auth-token"));
         String action = methodName;
@@ -44,5 +44,16 @@ public class ActionLogInterceptor implements HandlerInterceptor {
         log.setEndpoint(endpoint);
         log.setTimestamp(Timestamp.from(Instant.now()));
         actionLogRepository.save(log);
+    }
+
+    private String extractMethodName(String fullMethodName) {
+        int hashIndex = fullMethodName.indexOf('#');
+        if (hashIndex != -1) {
+            int paramsIndex = fullMethodName.indexOf('(', hashIndex);
+            if (paramsIndex != -1) {
+                return fullMethodName.substring(hashIndex + 1, paramsIndex);
+            }
+        }
+        return fullMethodName; // Возвращаем строку как есть, если не удалось извлечь
     }
 }

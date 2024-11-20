@@ -1,7 +1,7 @@
-INSERT INTO t_users (id, user_name, password, email, email_verified)
+INSERT INTO t_users (id, user_name, password, email, phone_number, registration_date, email_verified)
 VALUES
-    (1, 'SuperAdmin1', '$2a$12$W3qpaw./1DZy/t3elNdtjeo.rttSOnPWywU.8tdOuWgTwNGIWvmhq', 'zholdaskalierkebulan@gmail.com', true),
-    (2, 'SuperAdmin2', '$2a$12$TxN7SBjj.MbnlQz9mnDA2e8dbEq7bZsPH5P7cNBKlukBnq3VukVFW', 'erkebulanzholdaskali@gmail.com', true);
+    (1, 'SuperAdmin1', '$2a$12$W3qpaw./1DZy/t3elNdtjeo.rttSOnPWywU.8tdOuWgTwNGIWvmhq', 'zholdaskalierkebulan@gmail.com', '+77011112233', CURRENT_TIMESTAMP, true),
+    (2, 'SuperAdmin2', '$2a$12$TxN7SBjj.MbnlQz9mnDA2e8dbEq7bZsPH5P7cNBKlukBnq3VukVFW', 'erkebulanzholdaskali@gmail.com', '+77021114455', CURRENT_TIMESTAMP, true);
 
 
 

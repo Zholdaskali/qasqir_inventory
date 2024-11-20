@@ -1,6 +1,5 @@
 package kz.qasqir.qasqirinventory.api.service;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.EmailIsAlreadyRegisteredException;
 import kz.qasqir.qasqirinventory.api.exception.InvalidPasswordException;
@@ -48,12 +47,9 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public Invite registerInvite(HttpServletRequest request, String userName, String email, String userNumber, String password) {
+    public Invite registerInvite(String userName, String email, String userNumber, String password) {
         if (validateEmail(email)) {
-            String token = request.getHeader("Auth-token");
-            User authorUser = sessionService.getTokenForUser(token);
             User savedUser = createUser(userName, email, userNumber, password);
-
             userService.saveUser(savedUser);
             roleService.addForUser(savedUser.getId(), EMPLOYEE_ROLE_ID);
             return inviteService.generate(INVITE_LINK, savedUser.getId());

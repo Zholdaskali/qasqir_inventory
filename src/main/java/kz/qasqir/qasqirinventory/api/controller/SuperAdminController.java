@@ -1,5 +1,6 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
+import kz.qasqir.qasqirinventory.api.model.dto.UserDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.ActionLog;
 import kz.qasqir.qasqirinventory.api.model.entity.ExceptionLog;
 import kz.qasqir.qasqirinventory.api.model.entity.LoginLog;
@@ -25,19 +26,17 @@ public class SuperAdminController {
     private final ActionLogService actionLogService;
     private final ExceptionLogService exceptionLogService;
     private final LoginLogService loginLogService;
-    private final LogFileService logFileService;
 
     @Autowired
-    public SuperAdminController( AuthenticationService authenticationService, UserService userService, ActionLogService actionLogService, ExceptionLogService exceptionLogService, LoginLogService loginLogService, LogFileService logFileService) {
+    public SuperAdminController( AuthenticationService authenticationService, UserService userService, ActionLogService actionLogService, ExceptionLogService exceptionLogService, LoginLogService loginLogService) {
         this.authenticationService = authenticationService;
         this.userService = userService;
         this.exceptionLogService = exceptionLogService;
         this.actionLogService = actionLogService;
         this.loginLogService = loginLogService;
-        this.logFileService = logFileService;
     }
 
-    @PostMapping("/user/sign-up")
+    @PostMapping("/user")
     public MessageResponse<String> register(@RequestBody RegisterRequest registerRequest) {
         return MessageResponse.empty(authenticationService.register(registerRequest.getUserName(), registerRequest.getEmail(), registerRequest.getUserNumber(), registerRequest.getPassword()));
     }
@@ -45,6 +44,11 @@ public class SuperAdminController {
     @DeleteMapping("/user/{userId}")
     public MessageResponse<Boolean> delete(@PathVariable Long userId) {
         return MessageResponse.of(userService.deleteUserById(userId));
+    }
+
+    @GetMapping("/user")
+    public MessageResponse<List<UserDTO>> getAll() {
+        return MessageResponse.of(userService.getUserAll());
     }
 
     @GetMapping("/log/action-logs")
@@ -60,9 +64,6 @@ public class SuperAdminController {
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) throws IOException {
 
-//        List<ExceptionLog> exceptionLogs = exceptionLogService.getExceptionLogs(startDate, endDate);
-//        String fileName = String.format("exception_logs_%s_to_%s", startDate, endDate);
-
         return MessageResponse.of(exceptionLogService.getExceptionLogs(startDate, endDate));
     }
 
@@ -71,8 +72,6 @@ public class SuperAdminController {
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) throws IOException {
 
-//        List<LoginLog> loginLogs = loginLogService.getLoginLogs(startDate, endDate);
-//        String fileName = String.format("login_logs_%s_to_%s", startDate, endDate);
         return MessageResponse.of(loginLogService.getLoginLogs(startDate, endDate));
     }
 

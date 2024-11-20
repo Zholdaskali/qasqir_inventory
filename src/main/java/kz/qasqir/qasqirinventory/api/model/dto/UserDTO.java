@@ -1,5 +1,8 @@
 package kz.qasqir.qasqirinventory.api.model.dto;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class UserDTO {
@@ -7,16 +10,18 @@ public class UserDTO {
     private String userName;
     private String email;
     private String userNumber;
+    private LocalDateTime registrationDate;
     private boolean emailVerified;
     private List<String> userRoles; // Множественные роли
 
-    public UserDTO(Long userId, String userName, String email, String userNumber, boolean emailVerified, List<String> userRoles) {
+    public UserDTO(Long userId, String userName, String email, String userNumber, boolean emailVerified, List<String> userRoles, LocalDateTime registrationDate) {
         this.userId = userId;
         this.userName = userName;
         this.email = email;
         this.userNumber = userNumber;
         this.emailVerified = emailVerified;
         this.userRoles = userRoles;
+        this.registrationDate = registrationDate;
     }
 
     public Long getUserId() {
@@ -65,5 +70,13 @@ public class UserDTO {
 
     public void setUserRoles(List<String> userRoles) {
         this.userRoles = userRoles;
+    }
+
+    public LocalDateTime getRegistrationDate() {
+        return registrationDate;
+    }
+
+    public void setRegistrationDate(LocalDateTime registrationDate) {
+        this.registrationDate = registrationDate;
     }
 }

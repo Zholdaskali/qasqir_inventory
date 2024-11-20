@@ -12,7 +12,7 @@ public class ExceptionLog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id;    
 
     @Column(name = "cause", nullable = false)
     private String cause;
