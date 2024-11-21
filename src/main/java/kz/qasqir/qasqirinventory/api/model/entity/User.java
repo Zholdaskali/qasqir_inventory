@@ -92,7 +92,7 @@ public class User {
         return imageId;
     }
 
-    public void setImageId(Long organizationId) {
+    public void setImageId(Long imageId) {
         this.imageId = imageId;
     }
 

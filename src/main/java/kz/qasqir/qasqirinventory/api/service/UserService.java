@@ -1,6 +1,5 @@
 package kz.qasqir.qasqirinventory.api.service;
 
-import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.UserNotFoundException;
 import kz.qasqir.qasqirinventory.api.model.dto.UserDTO;
@@ -13,9 +12,6 @@ import kz.qasqir.qasqirinventory.api.util.encoder.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -25,12 +21,14 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final RoleService roleService;
+    private final ImageService imageService;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleService roleService)
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleService roleService, ImageService imageService)
     {
         this.userRepository = userRepository;
         this.roleService = roleService;
+        this.imageService = imageService;
     }
 
     @Transactional
@@ -40,18 +38,8 @@ public class UserService {
 
     public List<UserDTO> getUserAll() {
         return userRepository.findAll().stream()
-                .map(this::convertToDTO)
+                .map(this::convertToUserDTO)
                 .toList();
-    }
-
-    private UserDTO convertToDTO(User user) {
-
-        List<Role> roles = roleService.getAllForUserId(user.getId());
-        List<String> roleNames = roles.stream()
-                .map(Role::getRoleName)
-                .collect(Collectors.toList());
-
-        return new UserDTO(user.getId(), user.getUserName(), user.getEmail(), user.getUserNumber(), user.isEmailVerified(), roleNames, user.getRegistrationDate());
     }
 
     public User getByUserName(String userName) {
@@ -78,7 +66,7 @@ public class UserService {
         updateUser.setUserName(updateUserRequest.getUserName());
         updateUser.setEmail(updateUserRequest.getUserEmail());
         userRepository.save(updateUser);
-        return getUserProfileByUserId(updateUserRequest.getUserId());
+        return convertToUserDTO(updateUser);
     }
 
     @Transactional
@@ -95,23 +83,22 @@ public class UserService {
         return getUserProfileByUserId(updateUser.getId());
     }
     public UserDTO getUserProfileByUserId(Long userId) {
-        List<Tuple> tuples = userRepository.findProfileByUserId(userId);
-
-        Tuple first = tuples.get(0);
-        Long id = first.get("user_id", Long.class);
-        String userName = first.get("user_name", String.class);
-        String email = first.get("email", String.class);
-        String userNumber = first.get("phone_number", String.class);
-        Timestamp registrationTimestamp = first.get("registration_date", Timestamp.class);
-        LocalDateTime registrationDate = registrationTimestamp != null ? registrationTimestamp.toLocalDateTime() : null;
-        boolean emailVerified = first.get("email_verified", Boolean.class);
-
-        List<String> roles = tuples.stream()
-                .map(tuple -> tuple.get("role_name", String.class))
-                .collect(Collectors.toList());
-
-        UserDTO userProfile = new UserDTO(id, userName, email, userNumber, emailVerified, roles, registrationDate);
-        return userProfile;
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException :: new);
+        return convertToUserDTO(user);
     }
 
+    private UserDTO convertToUserDTO(User user) {
+        List<Role> roles = roleService.getAllForUserId(user.getId());
+        List<String> roleNames = roles.stream()
+                .map(Role::getRoleName)
+                .collect(Collectors.toList());
+        String imagePath;
+        if (user.getImageId() != null) {
+            imagePath = imageService.getImagePath(user.getImageId());
+        } else {
+            imagePath = null;
+        }
+        return new UserDTO(user.getId(), user.getUserName(), user.getEmail(), user.getUserNumber(),
+                user.isEmailVerified(), roleNames, user.getRegistrationDate(), imagePath);
+    }
 }

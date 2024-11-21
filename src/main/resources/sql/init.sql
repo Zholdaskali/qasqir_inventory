@@ -92,6 +92,8 @@ SELECT * FROM t_organizations;
 
 SELECT * FROM t_roles;
 
+SELECT * FROM t_images;
+
 SELECT * FROM t_invites;
 
 SELECT * FROM t_mail_verifications;
@@ -120,3 +122,10 @@ SELECT i.id, u.user_name AS userName, u.email
         JOIN t_users u ON i.user_id = u.id
 
 select ll1_0.id,ll1_0.timestamp,ll1_0.user_id from t_login_log ll1_0 where ll1_0.timestamp between '2024-11-11' and '2024-11-13'
+
+
+SELECT u.user_id, u.user_name, u.email, tu.phone_number, tu.registration_date, i.image_path, u.email_verified, u.role_name
+FROM vw_users_roles u
+JOIN t_users tu ON u.user_id = tu.id
+LEFT JOIN t_images i ON tu.image_id = i.id
+WHERE u.user_id = 1;

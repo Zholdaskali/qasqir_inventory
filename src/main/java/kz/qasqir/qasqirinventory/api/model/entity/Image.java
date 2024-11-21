@@ -3,6 +3,7 @@ package kz.qasqir.qasqirinventory.api.model.entity;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "t_images ")
 public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

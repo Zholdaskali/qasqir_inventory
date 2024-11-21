@@ -11,10 +11,11 @@ public class UserDTO {
     private String email;
     private String userNumber;
     private LocalDateTime registrationDate;
+    private String imagePath;
     private boolean emailVerified;
     private List<String> userRoles; // Множественные роли
 
-    public UserDTO(Long userId, String userName, String email, String userNumber, boolean emailVerified, List<String> userRoles, LocalDateTime registrationDate) {
+    public UserDTO(Long userId, String userName, String email, String userNumber, boolean emailVerified, List<String> userRoles, LocalDateTime registrationDate, String imagePath) {
         this.userId = userId;
         this.userName = userName;
         this.email = email;
@@ -22,6 +23,7 @@ public class UserDTO {
         this.emailVerified = emailVerified;
         this.userRoles = userRoles;
         this.registrationDate = registrationDate;
+        this.imagePath = imagePath;
     }
 
     public Long getUserId() {
@@ -78,5 +80,13 @@ public class UserDTO {
 
     public void setRegistrationDate(LocalDateTime registrationDate) {
         this.registrationDate = registrationDate;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 }

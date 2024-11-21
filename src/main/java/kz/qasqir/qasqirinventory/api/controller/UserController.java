@@ -9,9 +9,13 @@ import kz.qasqir.qasqirinventory.api.model.request.MailVerificationSendRequest;
 import kz.qasqir.qasqirinventory.api.model.request.PasswordResetInviteUserRequest;
 import kz.qasqir.qasqirinventory.api.model.request.PasswordResetUserRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
+import kz.qasqir.qasqirinventory.api.repository.ImageRepository;
 import kz.qasqir.qasqirinventory.api.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -21,13 +25,15 @@ public class UserController {
     private final PasswordResetService passwordResetService;
     private final MailVerificationService mailVerificationService;
     private final SessionService sessionService;
+    private final ImageService imageService;
 
     @Autowired
-    public UserController(UserService userService, PasswordResetService passwordResetService, MailVerificationService mailVerificationService, SessionService sessionService) {
+    public UserController(UserService userService, PasswordResetService passwordResetService, MailVerificationService mailVerificationService, SessionService sessionService, ImageService imageService) {
         this.userService = userService;
         this.passwordResetService = passwordResetService;
         this.mailVerificationService = mailVerificationService;
         this.sessionService = sessionService;
+        this.imageService = imageService;
     }
 
     @GetMapping("/profile")
@@ -42,12 +48,16 @@ public class UserController {
     }
 
     @PutMapping("/password/reset-invite")
-    public MessageResponse<String> editPasswordInviteUser(HttpServletRequest request, @RequestBody PasswordResetInviteUserRequest passwordResetRequest) {
+    public MessageResponse<String> editPasswordInviteUser(
+            HttpServletRequest request,
+            @RequestBody PasswordResetInviteUserRequest passwordResetRequest) {
         return MessageResponse.empty(passwordResetService.editPasswordInviteUser(request, passwordResetRequest));
     }
 
     @PutMapping("/password/reset/{userId}")
-    public MessageResponse<String> editPasswordUser(HttpServletRequest request, @RequestBody PasswordResetUserRequest passwordResetRequest) {
+    public MessageResponse<String> editPasswordUser(
+            HttpServletRequest request,
+            @RequestBody PasswordResetUserRequest passwordResetRequest) {
         return MessageResponse.empty(passwordResetService.editPasswordUser(request, passwordResetRequest));
     }
 
@@ -59,5 +69,12 @@ public class UserController {
     @PostMapping("/email/verify")
     public boolean verify(@RequestBody MailVerificationCheckRequest mailVerificationCheckRequest) {
         return mailVerificationService.verify(mailVerificationCheckRequest);
+    }
+
+    @PostMapping("/{userId}/image")
+    public MessageResponse<?> uploadAvatar(
+            @PathVariable Long userId,
+            @RequestParam("file") MultipartFile file) {
+            return imageService.addImage(userId, file);
     }
 }
