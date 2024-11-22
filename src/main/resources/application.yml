@@ -47,13 +47,13 @@ springdoc:
 
 # Роли пользователей
 userRoles:
-  company_admin: company_admin
+  warehouse_admin: warehouse-admin
   super_admin: super_admin
 
 # API пути
 api:
   path:
-    admin: /api/v1/admin
+    warehouse_admin: /api/v1/warehouse-admin
     super_admin: /api/v1/super-admin
 
 # Роли пользователей с ID
@@ -64,6 +64,14 @@ roleIds:
 # Ссылка для приглашений
 invite:
   link: http://localhost:5173/recover-password
+
+
+company:
+  data:
+    support-email: "office@alioth.kz"
+    support-phone: "+7 708 652 94 60"
+    company-contact-info: "TOO ALIOTH, TM QasQir, ул. Торгут Озала 161, г. Алматы"
+
 
 # Логирование
 logging:

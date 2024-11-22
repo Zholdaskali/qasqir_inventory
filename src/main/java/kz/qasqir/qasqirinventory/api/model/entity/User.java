@@ -1,6 +1,7 @@
 package kz.qasqir.qasqirinventory.api.model.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ public class User {
     @Column(name = "user_name", nullable = false)
     private String userName ;
     @Column(name = "email", nullable = false)
+    @Email(message="Enter valid Email Id.")
     private String email;
     @Column(name = "phone_number")
     private String phoneNumber;

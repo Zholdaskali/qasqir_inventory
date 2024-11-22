@@ -36,13 +36,13 @@ public class AuthInterceptor implements HandlerInterceptor {
         this.sessionService = sessionService;
     }
 
-    @Value("${userRoles.company_admin}")
+    @Value("${userRoles.warehouse_admin}")
     private String ROLE_COMPANY_ADMIN;
 
     @Value("${userRoles.super_admin}")
     private String ROLE_SUPER_ADMIN;
 
-    @Value("${api.path.admin}")
+    @Value("${api.path.warehouse_admin}")
     private String ADMIN_API_PATH;
 
     @Value("${api.path.super_admin}")

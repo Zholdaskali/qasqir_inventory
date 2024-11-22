@@ -1,5 +1,6 @@
 package kz.qasqir.qasqirinventory.api.service;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.EmailIsAlreadyRegisteredException;
 import kz.qasqir.qasqirinventory.api.exception.InvalidPasswordException;
@@ -12,9 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
-
 @Service
 public class AuthenticationService {
 
@@ -24,6 +22,7 @@ public class AuthenticationService {
     private final RoleService roleService;
     private final InviteService inviteService;
     private final LoginLogService loginLogService;
+    private final InviteMailService inviteMailService;
 
     @Value("${roleIds.employee}")
     private Long EMPLOYEE_ROLE_ID;
@@ -34,13 +33,22 @@ public class AuthenticationService {
     @Value("${invite.link}")
     private String INVITE_LINK;
 
+    @Value("${company.data.support-email}")
+    private String SUPPORT_EMAIL;
+
+    @Value("${company.data.support-phone}")
+    private String SUPPORT_PHONE;
+
+    @Value("${company.data.company-contact-info}")
+    private String COMPANY_CONTACT_INFO;
+
     @Autowired
     public AuthenticationService(UserService userService,
                                  PasswordEncoder passwordEncoder,
                                  SessionService sessionService,
                                  RoleService roleService,
                                  InviteService inviteService,
-                                 LoginLogService loginLogService)
+                                 LoginLogService loginLogService, InviteMailService inviteMailService)
     {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
@@ -48,21 +56,25 @@ public class AuthenticationService {
         this.roleService = roleService;
         this.inviteService = inviteService;
         this.loginLogService = loginLogService;
+        this.inviteMailService = inviteMailService;
     }
 
     @Transactional
-    public Invite registerInvite(String userName, String email, String userNumber, String password) {
+    public String registerInvite(String userName, String email, String userNumber, String password) {
         if (validateEmail(email)) {
             if (validateNumber(userNumber)) {
                 User savedUser = createUser(userName, email, userNumber, password);
                 userService.saveUser(savedUser);
                 roleService.addForUser(savedUser.getId(), EMPLOYEE_ROLE_ID);
-                return inviteService.generate(INVITE_LINK, savedUser.getId());
+                String inviteLink = inviteService.generate(INVITE_LINK, savedUser.getId()).getLink();
+                inviteMailService.generateInviteEmail(userName, email, password, inviteLink, SUPPORT_EMAIL, SUPPORT_PHONE, COMPANY_CONTACT_INFO);
+                return "Приглашение отправлено";
             }
             throw new NumberIsAlreadyRegisteredException();
         }
         throw new EmailIsAlreadyRegisteredException();
     }
+
 
     @Transactional
     public String register(String userName, String email, String userNumber, String password) {
@@ -91,14 +103,14 @@ public class AuthenticationService {
         return sessionService.invalidate(token);
     }
 
-    private boolean validateEmail(String email) {
+    public boolean validateEmail(String email) {
         if (!userService.checkIfEmailExists(email)) {
             return true;
         }
         throw new EmailIsAlreadyRegisteredException();
     }
 
-    private boolean validateNumber(String userNumber) {
+    public boolean validateNumber(String userNumber) {
         if (!userService.checkIfNumberExists(userNumber)) {
             return true;
         }

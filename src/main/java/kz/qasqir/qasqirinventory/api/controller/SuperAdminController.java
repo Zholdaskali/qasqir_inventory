@@ -1,10 +1,14 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
+import kz.qasqir.qasqirinventory.api.model.dto.InviteUserDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.UserDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.ActionLog;
 import kz.qasqir.qasqirinventory.api.model.entity.ExceptionLog;
+import kz.qasqir.qasqirinventory.api.model.entity.Invite;
 import kz.qasqir.qasqirinventory.api.model.entity.LoginLog;
+import kz.qasqir.qasqirinventory.api.model.request.RegisterInviteRequest;
 import kz.qasqir.qasqirinventory.api.model.request.RegisterRequest;
+import kz.qasqir.qasqirinventory.api.model.request.UserRoleResetRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +30,16 @@ public class SuperAdminController {
     private final ActionLogService actionLogService;
     private final ExceptionLogService exceptionLogService;
     private final LoginLogService loginLogService;
+    private final InviteService inviteService;
 
     @Autowired
-    public SuperAdminController( AuthenticationService authenticationService, UserService userService, ActionLogService actionLogService, ExceptionLogService exceptionLogService, LoginLogService loginLogService) {
+    public SuperAdminController(AuthenticationService authenticationService, UserService userService, ActionLogService actionLogService, ExceptionLogService exceptionLogService, LoginLogService loginLogService, InviteService inviteService) {
         this.authenticationService = authenticationService;
         this.userService = userService;
         this.exceptionLogService = exceptionLogService;
         this.actionLogService = actionLogService;
         this.loginLogService = loginLogService;
+        this.inviteService = inviteService;
     }
 
     @PostMapping("/user")
@@ -47,8 +53,23 @@ public class SuperAdminController {
     }
 
     @GetMapping("/user")
-    public MessageResponse<List<UserDTO>> getAll() {
+    public MessageResponse<List<UserDTO>> getUserAll() {
         return MessageResponse.of(userService.getUserAll());
+    }
+
+    @PutMapping("/user/{userId}/role")
+    public MessageResponse<UserDTO> resetRole(@PathVariable("userId") Long userId, @RequestBody UserRoleResetRequest userRoleResetRequest) {
+        return MessageResponse.of(userService.updateRole(userId, userRoleResetRequest));
+    }
+
+    @PostMapping("/invite")
+    public MessageResponse<String> inviteCreate(@RequestBody RegisterInviteRequest registerInviteRequest) {
+        return MessageResponse.empty(authenticationService.registerInvite(registerInviteRequest.getUserName(),registerInviteRequest.getEmail(),registerInviteRequest.getUserNumber() , registerInviteRequest.getPassword()));
+    }
+
+    @GetMapping("/invites")
+    public MessageResponse<List<InviteUserDTO>> getInviteAll() {
+        return MessageResponse.of(inviteService.getInviteIdAndUserNameAndEmail());
     }
 
     @GetMapping("/log/action-logs")
@@ -75,13 +96,4 @@ public class SuperAdminController {
         return MessageResponse.of(loginLogService.getLoginLogs(startDate, endDate));
     }
 
-//        {
-//            "userName": "SuperAdmin1",
-//            "password": "TorgutOzalaqasqirAdminkz02"
-//        }
-//
-//        {
-//            "userName": "SuperAdmin2",
-//            "password": "ErkebulanAdmin0404"
-//        }
 }

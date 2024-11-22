@@ -84,7 +84,15 @@ FROM t_users u
     LEFT JOIN t_roles r ON ur.role_id = r.id;
 
 
-
+//        {
+//            "userName": "SuperAdmin1",
+//            "password": "TorgutOzalaqasqirAdminkz02"
+//        }
+//
+//        {
+//            "userName": "SuperAdmin2",
+//            "password": "ErkebulanAdmin0404"
+//        }
 
 
 --############################## SELECT ##############################

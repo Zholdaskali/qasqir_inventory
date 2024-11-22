@@ -9,11 +9,8 @@ import kz.qasqir.qasqirinventory.api.model.request.MailVerificationSendRequest;
 import kz.qasqir.qasqirinventory.api.model.request.PasswordResetInviteUserRequest;
 import kz.qasqir.qasqirinventory.api.model.request.PasswordResetUserRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.repository.ImageRepository;
 import kz.qasqir.qasqirinventory.api.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,8 +40,8 @@ public class UserController {
     }
 
     @PutMapping("/profile/{userId}")
-    public MessageResponse<UserDTO> resetUser(@RequestBody UpdateUserRequest updateUserRequest) {
-        return MessageResponse.of(userService.updateUser(updateUserRequest));
+    public MessageResponse<UserDTO> resetUser(@PathVariable Long userId, @RequestBody UpdateUserRequest updateUserRequest) {
+        return MessageResponse.of(userService.updateUser(updateUserRequest, userId));
     }
 
     @PutMapping("/password/reset-invite")
@@ -72,9 +69,14 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/image")
-    public MessageResponse<?> uploadAvatar(
+    public MessageResponse<String> uploadAvatar(
             @PathVariable Long userId,
             @RequestParam("file") MultipartFile file) {
             return imageService.addImage(userId, file);
+    }
+
+    @DeleteMapping("/{userId}")
+    public MessageResponse<Boolean> deleteUser(@PathVariable Long userId) {
+        return MessageResponse.of(userService.deleteUserById(userId));
     }
 }

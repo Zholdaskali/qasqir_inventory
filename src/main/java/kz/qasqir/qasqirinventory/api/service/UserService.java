@@ -1,6 +1,8 @@
 package kz.qasqir.qasqirinventory.api.service;
 
 import jakarta.transaction.Transactional;
+import kz.qasqir.qasqirinventory.api.exception.EmailIsAlreadyRegisteredException;
+import kz.qasqir.qasqirinventory.api.exception.NumberIsAlreadyRegisteredException;
 import kz.qasqir.qasqirinventory.api.exception.UserNotFoundException;
 import kz.qasqir.qasqirinventory.api.model.dto.UserDTO;
 import kz.qasqir.qasqirinventory.api.model.request.UpdateUserRequest;
@@ -24,7 +26,7 @@ public class UserService {
     private final ImageService imageService;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleService roleService, ImageService imageService)
+    public UserService(UserRepository userRepository, RoleService roleService, ImageService imageService)
     {
         this.userRepository = userRepository;
         this.roleService = roleService;
@@ -65,11 +67,22 @@ public class UserService {
     }
 
     @Transactional
-    public UserDTO updateUser(UpdateUserRequest updateUserRequest) {
-        User updateUser = userRepository.findById(updateUserRequest.getUserId()).orElseThrow(UserNotFoundException::new);
+    public UserDTO updateUser(UpdateUserRequest updateUserRequest, Long userId) {
+        User updateUser = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        if (!Objects.equals(updateUser.getEmail(), updateUserRequest.getUserEmail())) {
+            updateUser.setEmailVerified(false);
+        }
         updateUser.setUserName(updateUserRequest.getUserName());
-        updateUser.setEmail(updateUserRequest.getUserEmail());
-        updateUser.setPhoneNumber(updateUserRequest.getUserNumber());
+        if (checkIfEmailExists(updateUserRequest.getUserEmail())) {
+            updateUser.setEmail(updateUserRequest.getUserEmail());
+        }else {
+            throw new EmailIsAlreadyRegisteredException();
+        }
+        if (checkIfNumberExists(updateUserRequest.getUserNumber())) {
+            updateUser.setPhoneNumber(updateUserRequest.getUserNumber());
+        }else {
+            throw new NumberIsAlreadyRegisteredException();
+        }
         userRepository.save(updateUser);
         return convertToUserDTO(updateUser);
     }
@@ -87,6 +100,7 @@ public class UserService {
         }
         return getUserProfileByUserId(updateUser.getId());
     }
+
     public UserDTO getUserProfileByUserId(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException :: new);
         return convertToUserDTO(user);
