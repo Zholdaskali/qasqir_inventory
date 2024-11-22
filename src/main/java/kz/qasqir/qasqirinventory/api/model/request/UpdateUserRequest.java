@@ -4,6 +4,7 @@ public class UpdateUserRequest {
     private Long userId;
     private String userName;
     private String userEmail;
+    private String userNumber;
 
     public String getUserName() {
         return userName;
@@ -27,5 +28,13 @@ public class UpdateUserRequest {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getUserNumber() {
+        return userNumber;
+    }
+
+    public void setUserNumber(String userNumber) {
+        this.userNumber = userNumber;
     }
 }

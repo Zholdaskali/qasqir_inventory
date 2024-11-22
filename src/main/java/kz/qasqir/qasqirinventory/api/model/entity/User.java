@@ -2,7 +2,7 @@ package kz.qasqir.qasqirinventory.api.model.entity;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
@@ -16,7 +16,7 @@ public class User {
     @Column(name = "email", nullable = false)
     private String email;
     @Column(name = "phone_number")
-    private String userNumber;
+    private String phoneNumber;
     @Column(name = "registration_date")
     private LocalDateTime registrationDate;
     @Column(name = "emailVerified", nullable = false)
@@ -36,16 +36,17 @@ public class User {
     {
         this.userName = userName;
         this.email = email;
-        this.userNumber = userNumber;
+        this.phoneNumber = userNumber;
         this.password = password;
+        this.registrationDate = new Timestamp(System.currentTimeMillis()).toLocalDateTime();
     }
 
-    public String getUserNumber() {
-        return userNumber;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setUserNumber(String userNumber) {
-        this.userNumber = userNumber;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public boolean isEmailVerified() {

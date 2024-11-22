@@ -51,6 +51,10 @@ public class UserService {
         return userRepository.findByEmail(email).isPresent();
     }
 
+    public boolean checkIfNumberExists(String phoneNumber) {
+        return userRepository.findByPhoneNumber(phoneNumber).isPresent();
+    }
+
     public User getByUserId(Long userId) {
         return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
     }
@@ -65,6 +69,7 @@ public class UserService {
         User updateUser = userRepository.findById(updateUserRequest.getUserId()).orElseThrow(UserNotFoundException::new);
         updateUser.setUserName(updateUserRequest.getUserName());
         updateUser.setEmail(updateUserRequest.getUserEmail());
+        updateUser.setPhoneNumber(updateUserRequest.getUserNumber());
         userRepository.save(updateUser);
         return convertToUserDTO(updateUser);
     }
@@ -98,7 +103,7 @@ public class UserService {
         } else {
             imagePath = null;
         }
-        return new UserDTO(user.getId(), user.getUserName(), user.getEmail(), user.getUserNumber(),
+        return new UserDTO(user.getId(), user.getUserName(), user.getEmail(), user.getPhoneNumber(),
                 user.isEmailVerified(), roleNames, user.getRegistrationDate(), imagePath);
     }
 }

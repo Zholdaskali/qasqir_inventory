@@ -3,6 +3,7 @@ package kz.qasqir.qasqirinventory.api.service;
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.EmailIsAlreadyRegisteredException;
 import kz.qasqir.qasqirinventory.api.exception.InvalidPasswordException;
+import kz.qasqir.qasqirinventory.api.exception.NumberIsAlreadyRegisteredException;
 import kz.qasqir.qasqirinventory.api.model.entity.Invite;
 import kz.qasqir.qasqirinventory.api.model.entity.Session;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
@@ -10,6 +11,9 @@ import kz.qasqir.qasqirinventory.api.util.encoder.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.sql.Timestamp;
+import java.time.LocalDate;
 
 @Service
 public class AuthenticationService {
@@ -49,10 +53,13 @@ public class AuthenticationService {
     @Transactional
     public Invite registerInvite(String userName, String email, String userNumber, String password) {
         if (validateEmail(email)) {
-            User savedUser = createUser(userName, email, userNumber, password);
-            userService.saveUser(savedUser);
-            roleService.addForUser(savedUser.getId(), EMPLOYEE_ROLE_ID);
-            return inviteService.generate(INVITE_LINK, savedUser.getId());
+            if (validateNumber(userNumber)) {
+                User savedUser = createUser(userName, email, userNumber, password);
+                userService.saveUser(savedUser);
+                roleService.addForUser(savedUser.getId(), EMPLOYEE_ROLE_ID);
+                return inviteService.generate(INVITE_LINK, savedUser.getId());
+            }
+            throw new NumberIsAlreadyRegisteredException();
         }
         throw new EmailIsAlreadyRegisteredException();
     }
@@ -60,10 +67,13 @@ public class AuthenticationService {
     @Transactional
     public String register(String userName, String email, String userNumber, String password) {
         if (validateEmail(email)) {
-            User user = createUser(userName, email,userNumber, password);
-            userService.saveUser(user);
-            roleService.addForUser(user.getId(), ADMIN_ROLE_ID);
-            return "Пользователь успешно создан";
+            if(validateNumber(userNumber)) {
+                User user = createUser(userName, email,userNumber, password);
+                userService.saveUser(user);
+                roleService.addForUser(user.getId(), ADMIN_ROLE_ID);
+                return "Пользователь успешно создан";
+            }
+            throw new NumberIsAlreadyRegisteredException();
         }
         throw new EmailIsAlreadyRegisteredException();
     }
@@ -83,6 +93,13 @@ public class AuthenticationService {
 
     private boolean validateEmail(String email) {
         if (!userService.checkIfEmailExists(email)) {
+            return true;
+        }
+        throw new EmailIsAlreadyRegisteredException();
+    }
+
+    private boolean validateNumber(String userNumber) {
+        if (!userService.checkIfNumberExists(userNumber)) {
             return true;
         }
         throw new EmailIsAlreadyRegisteredException();

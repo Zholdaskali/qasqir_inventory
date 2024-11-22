@@ -25,11 +25,11 @@ CREATE TABLE IF NOT EXISTS t_users
     password            VARCHAR(256)    NOT NULL,
     email               VARCHAR(70)     NOT NULL,
     phone_number        VARCHAR(15)     NOT NULL,
-    registration_date TIMESTAMP       NOT NULL DEFAULT current_timestamp,
+    registration_date   TIMESTAMP       NOT NULL DEFAULT current_timestamp,
     email_verified      BOOLEAN         NOT NULL,
     image_id            BIGINT          NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (image_id) REFERENCES t_images(id),
+    FOREIGN KEY (image_id) REFERENCES t_images(id) ON DELETE CASCADE,
     UNIQUE (email, phone_number)
 );
 
