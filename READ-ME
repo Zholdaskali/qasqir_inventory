@@ -1,0 +1,116 @@
+Doc
+
+Приложение дает платформу для учета небольших складов организаций
+
+
+
+---------------------------------------------- Готовый Функционал ----------------------------------------------
+Супер Админ
+{
+    б) Добавление админа организации                                    +
+    д) Скачивать логи по периодам                                       +
+    c) Все возможности других ролей                                     +
+}
+
+Админ
+{
+    а) все возможности сотрудника                                       +
+    б) Добавление сотрудников -> Инвайт логикасы                        +
+    в) Инвайт сотрудников -> Проверка -> доступ к изменению пароля      +
+    г) Менять сотрудника на админа                                      +
+    д) Менять имя организации                                           -
+}
+
+Сотрудник
+{
+    a) Доступ к профиль                                                 +
+    б) Менять свои данные                                               +
+    в) Подтверждение Email                                              +
+}
+
+
+---------------------------------- Перехватчики (Interceptors) запросов -> перехватывает все запросы кроме (Определенных) ---------------------------------
+
+1. Система контроля проверки сессии по токену (AuthInterceptor)
+{
+    а) проверка наличия сессии,
+    б) проверка срока сессии
+}
+
+2. Система контроля проверки прав (входит в AuthInterceptor)
+{
+    а) проверка прав на уровне эндпоинтов
+}
+
+3. Система логирования (ActionLogInterceptor)
+{
+    а) Логирование активностей
+    б) Логирование логина
+    в) Логирование ошибок сервера
+}
+
+---------------------------------------------- Эндпоинты ----------------------------------------------
+/user-controller
+    /api/v1/user/profile                                - GET после входа вызывается
+    /api/v1/user/profile                                - PUT изменение настроек
+    /api/v1/user/password-reset                         - PUT изменение пароля
+    /api/v1/user/email/verification-code                - POST  // Генерация кода верификации
+    /api/v1/user/email/verify                           - POST  // Подтверждение кода
+
+/admin-controller
+    /api/v1/admin/employee                              - POST  // добавление сотрудника
+    /api/v1/admin/employee/{userId}/role                - PUT  // изменение роли сотрудника
+    /api/v1/admin/employee/{userId}                     - DELETE  // удаление сотрудника
+    /api/v1/admin/invite                                - POST  // приглашение сотрудника
+
+/super-admin-controller
+    /api/v1/super-admin/log/action-logs                 - GET // скачивание логов активности пользователей на сервере
+    /api/v1/super-admin/log/exception-logs              - GET // скачивание логов обработки ошибок на сервере
+    /api/v1/super-admin/log/login-logs                  - GET // скачивание логов входа в систему на сервере
+
+/auth-controller
+    /api/v1/auth/sign-in                                - POST //вход в систему
+    /api/v1/auth/sign-out                               - POST //выход из системы
+
+
+---------------------------------------------- Сервисы ----------------------------------------------
+ActionLogService
+AuthenticationService
+ExceptionLogService
+InviteService
+LogFileService
+LoginLogService
+MailService
+MailVerificationService
+PasswordResetService
+ProfileService
+RoleService
+SessionService
+UserService
+
+
+
+
+
+
+
+---------------------------------------------- будут добавлены (примерно) ----------------------------------------------> После предоставления ТЗ
+
+контроллеры
+/employee-controller
+    /api/v1/employee/warehouse/stock - GET  // Просмотр склада
+    /api/v1/employee/warehouse/move - POST  // Перемещение товара
+
+/admin-controller
+    /api/v1/admin/warehouse/add-product - POST  // Добавление товара
+    /api/v1/admin/warehouse/remove-product - DELETE  // Удаление товара
+    /api/v1/admin/warehouse/update-stock - PUT  // Обновление остатков
+
+
+Сервисы
+WarehouseService   // Управление складом: добавление товара, изменение остатков
+InventoryService   // Логика инвентаризации, например, расчет текущего запаса
+ProductService     // Логика работы с конкретными товарами
+
+
+так же нужно учитывать сроки эксплуатации.
