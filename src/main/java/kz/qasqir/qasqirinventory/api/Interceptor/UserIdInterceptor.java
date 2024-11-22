@@ -15,21 +15,19 @@ import org.springframework.web.servlet.HandlerInterceptor;
         this.sessionService = sessionService;
     }
 
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String userIdFromSession = sessionService.getSessionByToken(request.getHeader("Auth-token")).get().getUserId().toString();
 
         String userIdFromRequest = request.getParameter("userId");
-
-        if (!userIdFromSession.equals(userIdFromRequest)) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("Доступ запрещен: userId не совпадают");
-            return false;
+        if (!(userIdFromRequest == null)) {
+            if (!userIdFromSession.equals(userIdFromRequest)) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("Доступ запрещен: userId не совпадают");
+                return false;
+            }
         }
-
-        // Если всё в порядке, продолжаем обработку
         return true;
     }
 }

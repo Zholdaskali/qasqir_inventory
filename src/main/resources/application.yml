@@ -4,8 +4,6 @@ server:
 
 # Конфигурация Spring Boot
 spring:
-  application:
-    name: qasqir-inventory-api
   datasource:
     url: jdbc:postgresql://localhost:5432/qasqir_inventory?useUnicode=true&characterEncoding=UTF-8
     username: postgres
@@ -16,23 +14,19 @@ spring:
       ddl-auto: none
     show-sql: true
   mail:
-    host: smtp.gmail.com
-    port: 25
-    username: qasqir.inventory.noreply@gmail.com
-    password: password_for_the_application
+    host: smtp.gmail.com       # SMTP-сервер Gmail
+    port: 587                  # Порт для STARTTLS
+    username: tmqasqirinventory@gmail.com   # Ваш адрес Gmail
+    password: lhvmohlhvtovxykt  # Пароль приложения
     properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
+      mail.smtp.auth: true      # Включение аутентификации
+      mail.smtp.starttls.enable: true  # Включение STARTTLS
 
-# Добавление конфигурации Flyway
+
+# Конфигурация Flyway
 flyway:
   enabled: true
-  locations:
-    classpath:db/migration
-
+  locations: classpath:db/migration
 
 # Настройки безопасности приложения
 app:
@@ -71,9 +65,7 @@ roleIds:
 invite:
   link: http://localhost:5173/recover-password
 
+# Логирование
 logging:
   level:
     org.flywaydb: DEBUG
-
-
-
