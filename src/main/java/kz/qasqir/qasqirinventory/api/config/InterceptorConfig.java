@@ -44,7 +44,7 @@ public class  InterceptorConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173") // или "*" для разрешения всех
+                .allowedOrigins("http://localhost:8080") // или "*" для разрешения всех
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .exposedHeaders("Auth-token", "auth-token")
                 .allowCredentials(true);

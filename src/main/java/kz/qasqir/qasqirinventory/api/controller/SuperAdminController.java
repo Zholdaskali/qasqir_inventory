@@ -1,10 +1,7 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
-import kz.qasqir.qasqirinventory.api.model.dto.InviteUserDTO;
-import kz.qasqir.qasqirinventory.api.model.dto.UserDTO;
-import kz.qasqir.qasqirinventory.api.model.entity.ActionLog;
+import kz.qasqir.qasqirinventory.api.model.dto.*;
 import kz.qasqir.qasqirinventory.api.model.entity.ExceptionLog;
-import kz.qasqir.qasqirinventory.api.model.entity.Invite;
 import kz.qasqir.qasqirinventory.api.model.entity.LoginLog;
 import kz.qasqir.qasqirinventory.api.model.request.RegisterInviteRequest;
 import kz.qasqir.qasqirinventory.api.model.request.RegisterRequest;
@@ -12,9 +9,7 @@ import kz.qasqir.qasqirinventory.api.model.request.UserRoleResetRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -73,7 +68,7 @@ public class SuperAdminController {
     }
 
     @GetMapping("/log/action-logs")
-    public MessageResponse<List<ActionLog>> getActionLogs(
+    public MessageResponse<List<ActionLogDTO>> getActionLogs(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) throws IOException {
 
@@ -81,7 +76,7 @@ public class SuperAdminController {
     }
 
     @GetMapping("/log/exception-logs")
-    public MessageResponse<List<ExceptionLog>> getExceptionLogs(
+    public MessageResponse<List<ExceptionLogDTO>> getExceptionLogs(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) throws IOException {
 
@@ -89,7 +84,7 @@ public class SuperAdminController {
     }
 
     @GetMapping("/log/login-logs")
-    public MessageResponse<List<LoginLog>> getLoginLogs(
+    public MessageResponse<List<LoginLogDTO>> getLoginLogs(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) throws IOException {
 

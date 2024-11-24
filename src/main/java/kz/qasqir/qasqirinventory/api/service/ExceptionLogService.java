@@ -1,6 +1,7 @@
 package kz.qasqir.qasqirinventory.api.service;
 
 import kz.qasqir.qasqirinventory.api.exception.LogsNotFoundException;
+import kz.qasqir.qasqirinventory.api.model.dto.ExceptionLogDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.ExceptionLog;
 import kz.qasqir.qasqirinventory.api.model.entity.LoginLog;
 import kz.qasqir.qasqirinventory.api.repository.ExceptionLogRepository;
@@ -24,15 +25,19 @@ public class ExceptionLogService {
         return exceptionLogRepository.save(ExceptionLog.of(cause, message));
     }
 
-    public List<ExceptionLog> getExceptionLogs(LocalDate startDate, LocalDate endDate) {
+    public List<ExceptionLogDTO> getExceptionLogs(LocalDate startDate, LocalDate endDate) {
 
         Timestamp startTimestamp = Timestamp.valueOf(startDate.atStartOfDay());
         Timestamp endTimestamp = Timestamp.valueOf(endDate.atStartOfDay().plusDays(1).minusSeconds(1));
-        List<ExceptionLog> exceptionLogs = exceptionLogRepository.findAllByTimestampBetween(startTimestamp, endTimestamp);
+        List<ExceptionLogDTO> exceptionLogs = exceptionLogRepository.findAllByTimestampBetween(startTimestamp, endTimestamp).stream().map(this::convertToExceptionLogDTO).toList();
 
         if (!exceptionLogs.isEmpty()) {
             return exceptionLogs;
         }
         throw new LogsNotFoundException();
+    }
+
+    private ExceptionLogDTO convertToExceptionLogDTO(ExceptionLog exceptionLog) {
+        return new ExceptionLogDTO(exceptionLog.getId(), exceptionLog.getCause(), exceptionLog.getMessage(), exceptionLog.getTimestamp());
     }
 }
