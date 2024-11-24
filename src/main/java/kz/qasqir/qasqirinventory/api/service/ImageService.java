@@ -49,7 +49,7 @@ public class ImageService {
     }
 
     private String saveImageToDisk(MultipartFile file) {
-        String uploadDir = "E:/AAAAWORK/Work/imageQasqir";
+        String uploadDir = "E:/AAAAWORK/Work/imageQasqir/";
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
         Path filePath = Paths.get(uploadDir + fileName);
 
@@ -66,7 +66,7 @@ public class ImageService {
             throw new FailedToAddImageException();
         }
 
-        return filePath.toString();
+        return filePath.toString().replace("\\", "/");
     }
 
     public String getImagePath(Long imageId) {
