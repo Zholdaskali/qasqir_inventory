@@ -31,9 +31,9 @@ public class ImageService {
 
             User user = userRepository.findById(userId)
                     .orElseThrow(UserNotFoundException::new);
-            if (!user.getImageId().toString().isEmpty()) {
-                imageRepository.deleteById(user.getImageId());
-            }
+//            if (!user.getImageId().toString().isEmpty()) {
+//                imageRepository.deleteById(user.getImageId());
+//            }
             String filePath = saveImageToDisk(file);
             Image image = new Image();
             image.setImagePath(filePath);
