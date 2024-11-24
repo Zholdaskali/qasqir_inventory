@@ -6,12 +6,14 @@ public class LoginLogDTO {
     private Long loginLogId;
     private Long userId;
     private String userName;
+    private String userEmail;
     private Timestamp timestamp;
 
-    public LoginLogDTO(Long loginLogId, Long userId, String userName, Timestamp timestamp) {
+    public LoginLogDTO(Long loginLogId, Long userId, String userName, String userEmail, Timestamp timestamp) {
         this.loginLogId = loginLogId;
         this.userId = userId;
         this.userName = userName;
+        this.userEmail = userEmail;
         this.timestamp = timestamp;
     }
 

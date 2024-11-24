@@ -38,6 +38,8 @@ public class ExceptionLogService {
     }
 
     private ExceptionLogDTO convertToExceptionLogDTO(ExceptionLog exceptionLog) {
+
+//        Long exceptionId, String cause, String message, Timestamp timestamp
         return new ExceptionLogDTO(exceptionLog.getId(), exceptionLog.getCause(), exceptionLog.getMessage(), exceptionLog.getTimestamp());
     }
 }

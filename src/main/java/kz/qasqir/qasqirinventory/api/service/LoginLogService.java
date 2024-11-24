@@ -39,6 +39,6 @@ public class LoginLogService {
 
     private LoginLogDTO convertToLoginLogDTO(LoginLog loginLog) {
         User user = userService.getByUserId(loginLog.getUserId());
-        return new LoginLogDTO(loginLog.getId(), loginLog.getUserId(), user.getEmail(), loginLog.getTimestamp());
+        return new LoginLogDTO(loginLog.getId(), loginLog.getUserId(), user.getUserName(), user.getEmail(), loginLog.getTimestamp());
     }
 }
