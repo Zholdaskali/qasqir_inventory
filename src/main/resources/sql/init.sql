@@ -137,3 +137,4 @@ FROM vw_users_roles u
 JOIN t_users tu ON u.user_id = tu.id
 LEFT JOIN t_images i ON tu.image_id = i.id
 WHERE u.user_id = 1;
+

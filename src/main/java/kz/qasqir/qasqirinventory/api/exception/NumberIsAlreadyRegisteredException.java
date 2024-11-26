@@ -2,6 +2,6 @@ package kz.qasqir.qasqirinventory.api.exception;
 
 public class NumberIsAlreadyRegisteredException extends RuntimeException {
     public NumberIsAlreadyRegisteredException() {
-        super("Номер уже зарегистрирован");
+        super("Этот номер уже зарегистрирован. Пожалуйста, используйте другой номер или войдите в свою учетную запись.");
     }
 }

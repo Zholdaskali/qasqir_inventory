@@ -34,6 +34,7 @@ public class ActionLogService {
         List<ActionLogDTO> actionLogs = actionLogRepository.findAllByTimestampBetween(startTimestamp, endTimestamp).stream().map(this::convertToActionLogDTO).toList();
 
         if (!actionLogs.isEmpty()) {
+            System.out.println();
             return actionLogs;
         }
         throw new LogsNotFoundException();
@@ -42,6 +43,7 @@ public class ActionLogService {
     private ActionLogDTO convertToActionLogDTO(ActionLog actionLog) {
 //        Long actionLoId, Long userId, String userName, String userEmail, String action, String endpoint, Timestamp timestamp
         User user = userService.getByUserId(actionLog.getUserId());
+        System.out.println(actionLog.getTimestamp());
         return new ActionLogDTO(actionLog.getId(), actionLog.getUserId(), user.getUserName(), user.getEmail(), actionLog.getAction(), actionLog.getEndpoint(), actionLog.getTimestamp());
     }
 }

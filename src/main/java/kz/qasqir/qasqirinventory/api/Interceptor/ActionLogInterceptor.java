@@ -43,6 +43,7 @@ public class ActionLogInterceptor implements HandlerInterceptor {
         log.setAction(action);
         log.setEndpoint(endpoint);
         log.setTimestamp(Timestamp.from(Instant.now()));
+
         actionLogRepository.save(log);
     }
 

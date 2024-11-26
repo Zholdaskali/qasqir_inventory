@@ -18,7 +18,7 @@ public class InviteInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String inviteToken = request.getParameter("Invite-token");
 
-        if (inviteToken == null || !getCurrentInviteId(inviteToken)) {
+        if ( inviteToken == null|| !getCurrentInviteId(inviteToken)) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.setContentType("application/json");
             response.getWriter().write("{\"message\": \"Access denied: invalid or missing invitation token\"}");

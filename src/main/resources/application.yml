@@ -5,7 +5,7 @@ server:
 # Конфигурация Spring Boot
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/qasqir_inventory?useUnicode=true&characterEncoding=UTF-8
+    url: jdbc:postgresql://localhost:5432/qasqir_inventory?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC+5
     username: postgres
     password: erke
     driver-class-name: org.postgresql.Driver
@@ -21,6 +21,9 @@ spring:
     properties:
       mail.smtp.auth: true      # Включение аутентификации
       mail.smtp.starttls.enable: true  # Включение STARTTLS
+  jackson:
+    time-zone: Asia/Aqtobe
+
 
 
 # Конфигурация Flyway
