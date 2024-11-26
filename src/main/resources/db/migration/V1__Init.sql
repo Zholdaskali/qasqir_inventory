@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS t_images (
 CREATE TABLE IF NOT EXISTS t_users
 (
     id                  BIGSERIAL       NOT NULL,
-    user_name           VARCHAR(20)     NOT NULL,
+    user_name           VARCHAR(40)     NOT NULL,
     password            VARCHAR(256)    NOT NULL,
     email               VARCHAR(70)     NOT NULL,
     phone_number        VARCHAR(15)     NOT NULL,
