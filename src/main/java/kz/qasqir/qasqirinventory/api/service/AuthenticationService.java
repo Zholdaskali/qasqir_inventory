@@ -90,8 +90,8 @@ public class AuthenticationService {
         throw new EmailIsAlreadyRegisteredException();
     }
 
-    public Session login(String userName, String password) {
-        User user = userService.getByUserName(userName);
+    public Session login(String email, String password) {
+        User user = userService.getByUserEmail(email);
         validatePassword(password, user.getPassword());
 
         loginLogService.save(user.getId());

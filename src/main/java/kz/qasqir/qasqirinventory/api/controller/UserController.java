@@ -1,5 +1,9 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import kz.qasqir.qasqirinventory.api.model.request.UpdateUserRequest;
 import kz.qasqir.qasqirinventory.api.model.dto.UserDTO;
@@ -33,17 +37,29 @@ public class UserController {
         this.imageService = imageService;
     }
 
+    @Operation(
+            summary = "Получить профиль пользователя",
+            description = "Возвращает профиль пользователя по его токену"
+    )
     @GetMapping("/profile")
     public UserDTO getProfile(@RequestHeader("auth-token") String token) {
         User user = sessionService.getTokenForUser(token);
         return userService.getUserProfileByUserId(user.getId());
     }
 
+    @Operation(
+            summary = "Изменение профиля(данных) пользователя",
+            description = "Возвращает измененный профиль пользователя"
+    )
     @PutMapping("/profile/{userId}")
     public MessageResponse<UserDTO> resetUser(@PathVariable Long userId, @RequestBody UpdateUserRequest updateUserRequest) {
         return MessageResponse.of(userService.updateUser(updateUserRequest, userId));
     }
 
+    @Operation(
+            summary = "Изменение пароля приглашенного пользователя",
+            description = "Возвращает ответ изменения пароля"
+    )
     @PutMapping("/password/reset-invite")
     public MessageResponse<String> editPasswordInviteUser(
             HttpServletRequest request,
@@ -51,23 +67,38 @@ public class UserController {
         return MessageResponse.empty(passwordResetService.editPasswordInviteUser(request, passwordResetRequest));
     }
 
+    @Operation(
+            summary = "Изменение пароля пользователя",
+            description = "Возвращает ответ изменения пароля"
+    )
     @PutMapping("/password/reset/{userId}")
     public MessageResponse<String> editPasswordUser(
-            HttpServletRequest request,
             @RequestBody PasswordResetUserRequest passwordResetRequest) {
-        return MessageResponse.empty(passwordResetService.editPasswordUser(request, passwordResetRequest));
+        return MessageResponse.empty(passwordResetService.editPasswordUser(passwordResetRequest));
     }
 
+    @Operation(
+            summary = "Генерация кода для подтверждения email",
+            description = "Возвращает ответ подтверждения email"
+    )
     @PostMapping("/email/generate")
     public boolean generateCode(@RequestBody MailVerificationSendRequest mailVerificationSendRequest) {
         return mailVerificationService.generate(mailVerificationSendRequest);
     }
 
+    @Operation(
+            summary = "Проверка кода подтверждения email",
+            description = "Возвращает ответ совпадения email"
+    )
     @PostMapping("/email/verify")
     public boolean verify(@RequestBody MailVerificationCheckRequest mailVerificationCheckRequest) {
         return mailVerificationService.verify(mailVerificationCheckRequest);
     }
 
+    @Operation(
+            summary = "Добавление изображения для пользователя",
+            description = "Возвращает ответ добавление изображения"
+    )
     @PostMapping("/{userId}/image")
     public MessageResponse<String> uploadAvatar(
             @PathVariable Long userId,
@@ -75,6 +106,10 @@ public class UserController {
             return imageService.addImage(userId, file);
     }
 
+    @Operation(
+            summary = "Удаление пользователя",
+            description = "Возвращает ответ удаление пользователя"
+    )
     @DeleteMapping("/{userId}")
     public MessageResponse<Boolean> deleteUser(@PathVariable Long userId) {
         return MessageResponse.of(userService.deleteUserById(userId));

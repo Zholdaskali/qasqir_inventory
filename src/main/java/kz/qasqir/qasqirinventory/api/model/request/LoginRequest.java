@@ -1,15 +1,15 @@
 package kz.qasqir.qasqirinventory.api.model.request;
 
 public class LoginRequest {
-    private String userName;
+    private String userEmail;
     private String password;
 
-    public String getUserName() {
-        return userName;
+    public String getUserEmail() {
+        return userEmail;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
     public String getPassword() {

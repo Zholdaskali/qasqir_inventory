@@ -1,8 +1,7 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import kz.qasqir.qasqirinventory.api.model.dto.*;
-import kz.qasqir.qasqirinventory.api.model.entity.ExceptionLog;
-import kz.qasqir.qasqirinventory.api.model.entity.LoginLog;
 import kz.qasqir.qasqirinventory.api.model.request.RegisterInviteRequest;
 import kz.qasqir.qasqirinventory.api.model.request.RegisterRequest;
 import kz.qasqir.qasqirinventory.api.model.request.UserRoleResetRequest;
@@ -37,36 +36,64 @@ public class SuperAdminController {
         this.inviteService = inviteService;
     }
 
+    @Operation(
+            summary = "Добавление пользователя",
+            description = "Возвращает ответ добавление пользователя"
+    )
     @PostMapping("/user")
     public MessageResponse<String> register(@RequestBody RegisterRequest registerRequest) {
         return MessageResponse.empty(authenticationService.register(registerRequest.getUserName(), registerRequest.getEmail(), registerRequest.getUserNumber(), registerRequest.getPassword()));
     }
 
+    @Operation(
+            summary = "Удаление пользователя",
+            description = "Возвращает ответ удаление пользователя"
+    )
     @DeleteMapping("/user/{userId}")
     public MessageResponse<Boolean> delete(@PathVariable Long userId) {
         return MessageResponse.of(userService.deleteUserById(userId));
     }
 
+    @Operation(
+            summary = "Вывод всех пользователей системы",
+            description = "Возвращает список пользователей с данными"
+    )
     @GetMapping("/user")
     public MessageResponse<List<UserDTO>> getUserAll() {
         return MessageResponse.of(userService.getUserAll());
     }
 
+    @Operation(
+            summary = "Изменение роли пользователя",
+            description = "Данные измененного пользователя"
+    )
     @PutMapping("/user/{userId}/role")
     public MessageResponse<UserDTO> resetRole(@PathVariable("userId") Long userId, @RequestBody UserRoleResetRequest userRoleResetRequest) {
         return MessageResponse.of(userService.updateRole(userId, userRoleResetRequest));
     }
 
+    @Operation(
+            summary = "Создание приглашения пользователя",
+            description = "Возвращает сообщение о создании приглашения"
+    )
     @PostMapping("/invite")
     public MessageResponse<String> inviteCreate(@RequestBody RegisterInviteRequest registerInviteRequest) {
         return MessageResponse.empty(authenticationService.registerInvite(registerInviteRequest.getUserName(),registerInviteRequest.getEmail(),registerInviteRequest.getUserNumber() , registerInviteRequest.getPassword()));
     }
 
+    @Operation(
+            summary = "Вывод всех приглашенных пользователей системы",
+            description = "Возвращает список приглашений с данными"
+    )
     @GetMapping("/invites")
     public MessageResponse<List<InviteUserDTO>> getInviteAll() {
         return MessageResponse.of(inviteService.getInviteIdAndUserNameAndEmail());
     }
 
+    @Operation(
+            summary = "Скачивание активностей пользователей в системе",
+            description = "Возвращает список логов активностей пользователей в системе"
+    )
     @GetMapping("/log/action-logs")
     public MessageResponse<List<ActionLogDTO>> getActionLogs(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -75,6 +102,10 @@ public class SuperAdminController {
         return MessageResponse.of(actionLogService.getActionLogs(startDate, endDate));
     }
 
+    @Operation(
+            summary = "Скачивание логов ошибок системы",
+            description = "Возвращает список логов ошибок системы"
+    )
     @GetMapping("/log/exception-logs")
     public MessageResponse<List<ExceptionLogDTO>> getExceptionLogs(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -83,6 +114,11 @@ public class SuperAdminController {
         return MessageResponse.of(exceptionLogService.getExceptionLogs(startDate, endDate));
     }
 
+
+    @Operation(
+            summary = "Скачивание логов входа в систему",
+            description = "Возвращает список логов входа в систему"
+    )
     @GetMapping("/log/login-logs")
     public MessageResponse<List<LoginLogDTO>> getLoginLogs(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,

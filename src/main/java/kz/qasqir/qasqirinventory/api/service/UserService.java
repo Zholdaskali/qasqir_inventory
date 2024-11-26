@@ -44,8 +44,8 @@ public class UserService {
                 .toList();
     }
 
-    public User getByUserName(String userName) {
-        return userRepository.findByUserName(userName)
+    public User getByUserEmail(String email) {
+        return userRepository.findByEmail(email)
                 .orElseThrow(UserNotFoundException::new);
     }
 

@@ -2,7 +2,6 @@ package kz.qasqir.qasqirinventory.api.config;
 
 import kz.qasqir.qasqirinventory.api.Interceptor.*;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;

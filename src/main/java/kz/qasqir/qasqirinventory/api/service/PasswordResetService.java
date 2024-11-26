@@ -49,8 +49,7 @@ public class PasswordResetService {
     }
 
     @Transactional
-    public String editPasswordUser(HttpServletRequest request,
-                                   @RequestBody PasswordResetUserRequest passwordResetRequest
+    public String editPasswordUser(@RequestBody PasswordResetUserRequest passwordResetRequest
     ) {
 
         User editUser = userService.getByUserId(passwordResetRequest.getUserId());
@@ -58,7 +57,6 @@ public class PasswordResetService {
             String hashNewPassword = passwordEncoder.hash(passwordResetRequest.getNewPassword());
             editUser.setPassword(hashNewPassword);
             userService.saveUser(editUser);
-            inviteService.invalidate(request.getParameter("Invite-token"));
             return "Пароль успешно изменен";
         }
         throw new InvalidPasswordException();
