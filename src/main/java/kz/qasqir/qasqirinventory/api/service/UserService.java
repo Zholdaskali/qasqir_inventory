@@ -10,7 +10,6 @@ import kz.qasqir.qasqirinventory.api.model.entity.Role;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
 import kz.qasqir.qasqirinventory.api.model.request.UserRoleResetRequest;
 import kz.qasqir.qasqirinventory.api.repository.UserRepository;
-import kz.qasqir.qasqirinventory.api.util.encoder.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -69,22 +68,40 @@ public class UserService {
     @Transactional
     public UserDTO updateUser(UpdateUserRequest updateUserRequest, Long userId) {
         User updateUser = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+
         if (!Objects.equals(updateUser.getEmail(), updateUserRequest.getUserEmail())) {
             updateUser.setEmailVerified(false);
         }
+
         updateUser.setUserName(updateUserRequest.getUserName());
-        if (checkIfEmailExists(updateUserRequest.getUserEmail())) {
-            updateUser.setEmail(updateUserRequest.getUserEmail());
-        }else {
+
+        validateEmail(updateUserRequest.getUserEmail(), userId);
+        updateUser.setEmail(updateUserRequest.getUserEmail());
+
+        validatePhoneNumber(updateUserRequest.getUserNumber(), userId);
+        updateUser.setPhoneNumber(updateUserRequest.getUserNumber());
+
+        userRepository.save(updateUser);
+
+        return convertToUserDTO(updateUser);
+    }
+
+    private void validateEmail(String email, Long userId) {
+        boolean emailExists = userRepository.findByEmail(email)
+                .filter(user -> !user.getId().equals(userId)) // Исключаем текущего пользователя
+                .isPresent();
+        if (emailExists) {
             throw new EmailIsAlreadyRegisteredException();
         }
-        if (checkIfNumberExists(updateUserRequest.getUserNumber())) {
-            updateUser.setPhoneNumber(updateUserRequest.getUserNumber());
-        }else {
+    }
+
+    private void validatePhoneNumber(String phoneNumber, Long userId) {
+        boolean phoneExists = userRepository.findByPhoneNumber(phoneNumber)
+                .filter(user -> !user.getId().equals(userId)) // Исключаем текущего пользователя
+                .isPresent();
+        if (phoneExists) {
             throw new NumberIsAlreadyRegisteredException();
         }
-        userRepository.save(updateUser);
-        return convertToUserDTO(updateUser);
     }
 
     @Transactional
@@ -101,6 +118,8 @@ public class UserService {
         return getUserProfileByUserId(updateUser.getId());
     }
 
+
+
     public UserDTO getUserProfileByUserId(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException :: new);
         return convertToUserDTO(user);
@@ -111,12 +130,9 @@ public class UserService {
         List<String> roleNames = roles.stream()
                 .map(Role::getRoleName)
                 .collect(Collectors.toList());
-        String imagePath;
-        if (user.getImageId() != null) {
-            imagePath = imageService.getImagePath(user.getImageId());
-        } else {
-            imagePath = null;
-        }
+        String imagePath = user.getImageId() != null
+                ? imageService.getImagePath(user.getImageId())
+                : null;
         return new UserDTO(user.getId(), user.getUserName(), user.getEmail(), user.getPhoneNumber(),
                 user.isEmailVerified(), roleNames, user.getRegistrationDate(), imagePath);
     }

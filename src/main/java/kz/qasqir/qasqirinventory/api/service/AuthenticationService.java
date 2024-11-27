@@ -1,11 +1,9 @@
 package kz.qasqir.qasqirinventory.api.service;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.EmailIsAlreadyRegisteredException;
 import kz.qasqir.qasqirinventory.api.exception.InvalidPasswordException;
 import kz.qasqir.qasqirinventory.api.exception.NumberIsAlreadyRegisteredException;
-import kz.qasqir.qasqirinventory.api.model.entity.Invite;
 import kz.qasqir.qasqirinventory.api.model.entity.Session;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
 import kz.qasqir.qasqirinventory.api.util.encoder.PasswordEncoder;
@@ -76,19 +74,19 @@ public class AuthenticationService {
     }
 
 
-    @Transactional
-    public String register(String userName, String email, String userNumber, String password) {
-        if (validateEmail(email)) {
-            if(validateNumber(userNumber)) {
-                User user = createUser(userName, email,userNumber, password);
-                userService.saveUser(user);
-                roleService.addForUser(user.getId(), ADMIN_ROLE_ID);
-                return "Пользователь успешно создан";
-            }
-            throw new NumberIsAlreadyRegisteredException();
-        }
-        throw new EmailIsAlreadyRegisteredException();
-    }
+//    @Transactional
+//    public String register(String userName, String email, String userNumber, String password) {
+//        if (validateEmail(email)) {
+//            if(validateNumber(userNumber)) {
+//                User user = createUser(userName, email,userNumber, password);
+//                userService.saveUser(user);
+//                roleService.addForUser(user.getId(), ADMIN_ROLE_ID);
+//                return "Пользователь успешно создан";
+//            }
+//            throw new NumberIsAlreadyRegisteredException();
+//        }
+//        throw new EmailIsAlreadyRegisteredException();
+//    }
 
     public Session login(String email, String password) {
         User user = userService.getByUserEmail(email);

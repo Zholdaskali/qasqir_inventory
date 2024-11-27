@@ -3,7 +3,6 @@ package kz.qasqir.qasqirinventory.api.service;
 import kz.qasqir.qasqirinventory.api.exception.LogsNotFoundException;
 import kz.qasqir.qasqirinventory.api.model.dto.ExceptionLogDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.ExceptionLog;
-import kz.qasqir.qasqirinventory.api.model.entity.LoginLog;
 import kz.qasqir.qasqirinventory.api.repository.ExceptionLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

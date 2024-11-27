@@ -1,14 +1,10 @@
 package kz.qasqir.qasqirinventory.api.service;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import kz.qasqir.qasqirinventory.api.exception.InviteNotFoundException;
-import kz.qasqir.qasqirinventory.api.exception.UserNotFoundException;
 import kz.qasqir.qasqirinventory.api.model.dto.InviteUserDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.Invite;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
-import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.repository.InviteRepository;
-import kz.qasqir.qasqirinventory.api.repository.UserRepository;
 import kz.qasqir.qasqirinventory.api.util.token.TokenGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

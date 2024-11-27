@@ -3,19 +3,18 @@
 -- Удаляем таблицы, если они существуют
 DROP TABLE IF EXISTS t_user_roles CASCADE;
 DROP TABLE IF EXISTS t_sessions CASCADE;
-DROP TABLE IF EXISTS t_mail_verifications CASCADE;
-DROP TABLE IF EXISTS t_invites CASCADE;
-DROP TABLE IF EXISTS t_organization_admins CASCADE;
+DROP TABLE IF EXISTS t_mail_verifications;
+DROP TABLE IF EXISTS t_invites;
+DROP TABLE IF EXISTS t_organization_admins;
 DROP TABLE IF EXISTS t_users CASCADE;
 DROP TABLE IF EXISTS t_roles CASCADE;
-DROP TABLE IF EXISTS t_images CASCADE;
+DROP TABLE IF EXISTS t_images;
 
 -- Создание таблиц
 CREATE TABLE IF NOT EXISTS t_images (
     id                  BIGSERIAL NOT NULL,
     image_path          VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
-
 );
 
 CREATE TABLE IF NOT EXISTS t_users
@@ -29,7 +28,7 @@ CREATE TABLE IF NOT EXISTS t_users
     email_verified      BOOLEAN         NOT NULL,
     image_id            BIGINT          NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (image_id) REFERENCES t_images(id) ON DELETE CASCADE,
+    FOREIGN KEY (image_id) REFERENCES t_images(id) ON DELETE SET NULL, -- Убираем CASCADE
     UNIQUE (email, phone_number)
 );
 
@@ -77,7 +76,7 @@ CREATE TABLE IF NOT EXISTS t_invites
     expiration      TIMESTAMP           NOT NULL,
     user_id         BIGINT              NOT NULL,
     PRIMARY KEY(id),
-    FOREIGN KEY (user_id) REFERENCES t_users (id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES t_users (id) ON DELETE SET NULL -- Убираем CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS t_exception_log

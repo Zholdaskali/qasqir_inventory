@@ -36,14 +36,14 @@ public class SuperAdminController {
         this.inviteService = inviteService;
     }
 
-    @Operation(
-            summary = "Добавление пользователя",
-            description = "Возвращает ответ добавление пользователя"
-    )
-    @PostMapping("/user")
-    public MessageResponse<String> register(@RequestBody RegisterRequest registerRequest) {
-        return MessageResponse.empty(authenticationService.register(registerRequest.getUserName(), registerRequest.getEmail(), registerRequest.getUserNumber(), registerRequest.getPassword()));
-    }
+//    @Operation(
+//            summary = "Добавление пользователя",
+//            description = "Возвращает ответ добавление пользователя"
+//    )
+//    @PostMapping("/user")
+//    public MessageResponse<String> register(@RequestBody RegisterRequest registerRequest) {
+//        return MessageResponse.empty(authenticationService.register(registerRequest.getUserName(), registerRequest.getEmail(), registerRequest.getUserNumber(), registerRequest.getPassword()));
+//    }
 
     @Operation(
             summary = "Удаление пользователя",

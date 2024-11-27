@@ -7,6 +7,7 @@ import kz.qasqir.qasqirinventory.api.model.entity.User;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.repository.ImageRepository;
 import kz.qasqir.qasqirinventory.api.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +21,8 @@ import java.util.UUID;
 public class ImageService {
     private final ImageRepository imageRepository;
     private final UserRepository userRepository;
+    @Value("${image.directory.link}")
+    private String UPLOAD_DIR;
 
     public ImageService(ImageRepository imageRepository, UserRepository userRepository) {
         this.imageRepository = imageRepository;
@@ -49,7 +52,7 @@ public class ImageService {
     }
 
     private String saveImageToDisk(MultipartFile file) {
-        String uploadDir = "E:/AAAAWORK/Work/imageQasqir/";
+        String uploadDir = UPLOAD_DIR;
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
         Path filePath = Paths.get(uploadDir + fileName);
 
@@ -70,5 +73,6 @@ public class ImageService {
         Image image =  imageRepository.findById(imageId).orElseThrow();
         return image.getImagePath();
     }
+
 
 }

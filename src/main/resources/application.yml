@@ -69,6 +69,10 @@ invite:
   link: http://localhost:5173/recover-password
 
 
+image:
+  directory:
+    link: "E:/AAAAWORK/Work/imageQasqir/"
+
 company:
   data:
     support-email: "office@alioth.kz"
