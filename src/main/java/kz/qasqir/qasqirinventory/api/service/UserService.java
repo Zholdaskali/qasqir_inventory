@@ -118,8 +118,6 @@ public class UserService {
         return getUserProfileByUserId(updateUser.getId());
     }
 
-
-
     public UserDTO getUserProfileByUserId(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException :: new);
         return convertToUserDTO(user);
@@ -136,4 +134,18 @@ public class UserService {
         return new UserDTO(user.getId(), user.getUserName(), user.getEmail(), user.getPhoneNumber(),
                 user.isEmailVerified(), roleNames, user.getRegistrationDate(), imagePath);
     }
+
+//    @Transactional
+//    public UserDTO updateRole(Long userId, UserRoleResetRequest userRoleResetRequest) {
+//        User updateUser = userRepository.findById(userId)
+//                .orElseThrow(UserNotFoundException::new);
+//        List<Role> roles = roleService.getAllForUserId(userId);
+//        boolean roleExists = roles.stream()
+//                .anyMatch(role -> Objects.equals(role.getId(), userRoleResetRequest.getNewRoleId()));
+//
+//        if (!roleExists) {
+//            roleService.addForUser(updateUser.getId(), userRoleResetRequest.getNewRoleId());
+//        }
+//        return getUserProfileByUserId(updateUser.getId());
+//    }
 }

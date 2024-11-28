@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.InvalidPasswordException;
 import kz.qasqir.qasqirinventory.api.exception.InviteHasExpiredException;
+import kz.qasqir.qasqirinventory.api.exception.UserNotFoundException;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
 import kz.qasqir.qasqirinventory.api.model.request.PasswordResetInviteUserRequest;
 import kz.qasqir.qasqirinventory.api.model.request.PasswordResetUserRequest;
@@ -18,6 +19,7 @@ public class PasswordResetService {
     private final InviteService inviteService;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+
 
     @Autowired
     public PasswordResetService (InviteService inviteService,
@@ -39,6 +41,7 @@ public class PasswordResetService {
             User editUser = inviteService.getTokenForUser(inviteToken);
             String hashNewPassword = passwordEncoder.hash(passwordResetRequest.getNewPassword());
             editUser.setPassword(hashNewPassword);
+            editUser.setEmailVerified(true);
             userService.saveUser(editUser);
             inviteService.invalidate(inviteToken);
             return "Пароль успешно изменен";
