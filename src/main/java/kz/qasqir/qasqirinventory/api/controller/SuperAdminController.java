@@ -3,7 +3,6 @@ package kz.qasqir.qasqirinventory.api.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import kz.qasqir.qasqirinventory.api.model.dto.*;
 import kz.qasqir.qasqirinventory.api.model.request.RegisterInviteRequest;
-import kz.qasqir.qasqirinventory.api.model.request.RegisterRequest;
 import kz.qasqir.qasqirinventory.api.model.request.UserRoleResetRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.service.*;
@@ -127,4 +126,16 @@ public class SuperAdminController {
         return MessageResponse.of(loginLogService.getLoginLogs(startDate, endDate));
     }
 
+
+    //        {
+//            "userName": "SuperAdmin1",
+//            "password": "TorgutOzalaqasqirAdminkz02"
+//        }
+//
+//        {
+//            "userName": "SuperAdmin2",
+//            "password": "ErkebulanAdmin0404"
+//        }
+
 }
+    

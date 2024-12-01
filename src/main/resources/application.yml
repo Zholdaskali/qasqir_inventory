@@ -18,6 +18,7 @@ spring:
     port: 587                  # Порт для STARTTLS
     username: tmqasqirinventory@gmail.com   # Ваш адрес Gmail
     password: lhvmohlhvtovxykt  # Пароль приложения
+    from: "Noreply <tmqasqirinventory@gmail.com>"
     properties:
       mail.smtp.auth: true      # Включение аутентификации
       mail.smtp.starttls.enable: true  # Включение STARTTLS

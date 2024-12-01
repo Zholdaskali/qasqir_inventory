@@ -3,7 +3,7 @@ package kz.qasqir.qasqirinventory.api.model.dto;
 import java.sql.Timestamp;
 
 public class ActionLogDTO {
-    private Long actionLoId;
+    private Long actionLogId;
     private Long userId;
     private String userName;
     private String userEmail;
@@ -12,7 +12,7 @@ public class ActionLogDTO {
     private Timestamp timestamp;
 
     public ActionLogDTO(Long actionLoId, Long userId, String userName, String userEmail, String action, String endpoint, Timestamp timestamp) {
-        this.actionLoId = actionLoId;
+        this.actionLogId = actionLoId;
         this.userId = userId;
         this.userName = userName;
         this.userEmail = userEmail;
@@ -37,12 +37,12 @@ public class ActionLogDTO {
         this.userEmail = userEmail;
     }
 
-    public Long getActionLoId() {
-        return actionLoId;
+    public Long getActionLogId() {
+        return actionLogId;
     }
 
-    public void setActionLoId(Long actionLoId) {
-        this.actionLoId = actionLoId;
+    public void setActionLogId(Long actionLogId) {
+        this.actionLogId = actionLogId;
     }
 
     public Long getUserId() {
