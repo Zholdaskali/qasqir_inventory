@@ -62,9 +62,9 @@ public class UserController {
     )
     @PutMapping("/password/reset-invite")
     public MessageResponse<String> editPasswordInviteUser(
-            HttpServletRequest request,
+            @RequestParam("Invite-token") String token,
             @RequestBody PasswordResetInviteUserRequest passwordResetRequest) {
-        return MessageResponse.empty(passwordResetService.editPasswordInviteUser(request, passwordResetRequest));
+        return MessageResponse.empty(passwordResetService.editPasswordInviteUser(token, passwordResetRequest));
     }
 
     @Operation(

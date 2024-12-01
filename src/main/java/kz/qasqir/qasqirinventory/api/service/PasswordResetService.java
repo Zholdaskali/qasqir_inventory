@@ -33,10 +33,9 @@ public class PasswordResetService {
     }
 
     @Transactional
-    public String editPasswordInviteUser(HttpServletRequest request,
+    public String editPasswordInviteUser(String inviteToken,
                                             @RequestBody PasswordResetInviteUserRequest passwordResetRequest
     ) {
-        String inviteToken = request.getParameter("Invite-token");
         if (inviteService.getByToken(inviteToken).isPresent()) {
             User editUser = inviteService.getTokenForUser(inviteToken);
             String hashNewPassword = passwordEncoder.hash(passwordResetRequest.getNewPassword());

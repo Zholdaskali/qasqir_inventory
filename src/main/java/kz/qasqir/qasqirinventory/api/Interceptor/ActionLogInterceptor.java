@@ -33,6 +33,7 @@ public class ActionLogInterceptor implements HandlerInterceptor {
     }
 
     private Long getCurrentUserId(String token) {
+        System.out.println("getCurrentUserId");
         return sessionService.getTokenForUser(token).getId();
     }
 
