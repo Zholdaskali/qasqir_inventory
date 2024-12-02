@@ -65,14 +65,10 @@ public class SessionService {
         }
     }
 
-    public Optional<Session> getSessionByToken(String token) {
-        Optional<Session> sessionOpt = sessionRepository.findByToken(token);
-        if (sessionOpt.isPresent()) {
-            return sessionOpt;
-        }
-        else{
-            throw new SessionNotFoundException();
-        }
+    public Session getSessionByToken(String token) {
+        return sessionRepository.findByToken(token)
+                .orElseThrow(SessionNotFoundException::new);
     }
+
 
 }

@@ -29,5 +29,7 @@ public interface InviteRepository extends JpaRepository<Invite, Long> {
             "FROM Invite i JOIN User u ON i.userId = u.id")
     List<InviteUserDTO> findInviteIdAndUserNameAndEmail();
 
+    int deleteInviteById(Long inviteId);
+
 }
 

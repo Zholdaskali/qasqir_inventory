@@ -135,3 +135,20 @@ JOIN
     t_user_roles ur ON u.id = ur.user_id
 JOIN
     t_roles r ON ur.role_id = r.id;
+
+
+CREATE TABLE IF NOT EXISTS t_organization (
+    bin                 CHAR(12) NOT NULL, -- Уникальный бизнес-идентификационный номер
+    organization_name   VARCHAR(255) NOT NULL, -- Название организации
+    email               VARCHAR(254) NOT NULL, -- Email
+    owner_name          VARCHAR(255) NOT NULL, -- Имя владельца
+    phone_number        VARCHAR(15) NOT NULL, -- Номер телефона
+    registration_date   TIMESTAMP NOT NULL DEFAULT current_timestamp, -- Дата регистрации
+    website_link        VARCHAR(255) NOT NULL, -- Ссылка на сайт
+    address             TEXT NOT NULL, -- Полный адрес
+    image_id            BIGINT NULL, -- Идентификатор изображения
+    PRIMARY KEY (bin), -- БИН используется как первичный ключ
+    FOREIGN KEY (image_id) REFERENCES t_images(id) ON DELETE SET NULL,
+    UNIQUE (email, phone_number) -- Уникальные ограничения
+);
+

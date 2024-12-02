@@ -24,15 +24,17 @@ public class SuperAdminController {
     private final ExceptionLogService exceptionLogService;
     private final LoginLogService loginLogService;
     private final InviteService inviteService;
+    private final OrganizationService organizationService;
 
     @Autowired
-    public SuperAdminController(AuthenticationService authenticationService, UserService userService, ActionLogService actionLogService, ExceptionLogService exceptionLogService, LoginLogService loginLogService, InviteService inviteService) {
+    public SuperAdminController(AuthenticationService authenticationService, UserService userService, ActionLogService actionLogService, ExceptionLogService exceptionLogService, LoginLogService loginLogService, InviteService inviteService, OrganizationService organizationService) {
         this.authenticationService = authenticationService;
         this.userService = userService;
         this.exceptionLogService = exceptionLogService;
         this.actionLogService = actionLogService;
         this.loginLogService = loginLogService;
         this.inviteService = inviteService;
+        this.organizationService = organizationService;
     }
 
 //    @Operation(
@@ -49,7 +51,7 @@ public class SuperAdminController {
             description = "Возвращает ответ удаление пользователя"
     )
     @DeleteMapping("/user/{userId}")
-    public MessageResponse<Boolean> delete(@PathVariable Long userId) {
+    public MessageResponse<Boolean> deleteUser(@PathVariable Long userId) {
         return MessageResponse.of(userService.deleteUserById(userId));
     }
 
@@ -89,6 +91,14 @@ public class SuperAdminController {
         return MessageResponse.of(inviteService.getInviteIdAndUserNameAndEmail());
     }
 
+    @DeleteMapping("/invites/{inviteId}")
+    public MessageResponse<Boolean> deleteInvite(
+            @PathVariable("inviteId") Long inviteId
+    ) {
+        return MessageResponse.of(inviteService.deleteInvite(inviteId));
+    }
+
+
     @Operation(
             summary = "Скачивание активностей пользователей в системе",
             description = "Возвращает список логов активностей пользователей в системе"
@@ -126,14 +136,19 @@ public class SuperAdminController {
         return MessageResponse.of(loginLogService.getLoginLogs(startDate, endDate));
     }
 
+    @GetMapping("/organization")
+    public MessageResponse<OrganizationDTO> getOrganization() {
+        return MessageResponse.of(organizationService.getOrganization());
+    }
+
 
     //        {
-//            "userName": "SuperAdmin1",
+//            "userName": "superAdmin1@gmail.com",
 //            "password": "TorgutOzalaqasqirAdminkz02"
 //        }
 //
 //        {
-//            "userName": "SuperAdmin2",
+//            "userName": "erkebulanzholdaskali@gmail.com",
 //            "password": "ErkebulanAdmin0404"
 //        }
 

@@ -21,6 +21,7 @@ public class AuthenticationService {
     private final InviteService inviteService;
     private final LoginLogService loginLogService;
     private final InviteMailService inviteMailService;
+    private final ValidateDataService validateDataService;
 
     @Value("${roleIds.employee}")
     private Long EMPLOYEE_ROLE_ID;
@@ -46,7 +47,9 @@ public class AuthenticationService {
                                  SessionService sessionService,
                                  RoleService roleService,
                                  InviteService inviteService,
-                                 LoginLogService loginLogService, InviteMailService inviteMailService)
+                                 LoginLogService loginLogService,
+                                 InviteMailService inviteMailService,
+                                 ValidateDataService validateDataService)
     {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
@@ -55,22 +58,19 @@ public class AuthenticationService {
         this.inviteService = inviteService;
         this.loginLogService = loginLogService;
         this.inviteMailService = inviteMailService;
+        this.validateDataService = validateDataService;
     }
 
     @Transactional
     public String registerInvite(String userName, String email, String userNumber, String password) {
-        if (validateEmail(email)) {
-            if (validateNumber(userNumber)) {
-                User savedUser = createUser(userName, email, userNumber, password);
-                userService.saveUser(savedUser);
-                roleService.addForUser(savedUser.getId(), EMPLOYEE_ROLE_ID);
-                String inviteLink = inviteService.generate(INVITE_LINK, savedUser.getId()).getLink();
-                inviteMailService.generateInviteEmail(userName, email, password, inviteLink, SUPPORT_EMAIL, SUPPORT_PHONE, COMPANY_CONTACT_INFO);
-                return "Приглашение отправлено";
-            }
-            throw new NumberIsAlreadyRegisteredException();
-        }
-        throw new EmailIsAlreadyRegisteredException();
+        validateDataService.ensureEmailIsUnique(email);
+        validateDataService.ensurePhoneNumberIsUnique(userNumber);
+        User savedUser = createUser(userName, email, userNumber, password);
+        userService.saveUser(savedUser);
+        roleService.addForUser(savedUser.getId(), EMPLOYEE_ROLE_ID);
+        String inviteLink = inviteService.generate(INVITE_LINK, savedUser.getId()).getLink();
+        inviteMailService.generateInviteEmail(userName, email, password, inviteLink, SUPPORT_EMAIL, SUPPORT_PHONE, COMPANY_CONTACT_INFO);
+        return "Приглашение отправлено";
     }
 
 
@@ -90,7 +90,7 @@ public class AuthenticationService {
 
     public Session login(String email, String password) {
         User user = userService.getByUserEmail(email);
-        validatePassword(password, user.getPassword());
+        validateDataService.validatePassword(password, user.getPassword());
 
         loginLogService.save(user.getId());
         sessionService.manageCountSession(user.getId());
@@ -101,29 +101,10 @@ public class AuthenticationService {
         return sessionService.invalidate(token);
     }
 
-    public boolean validateEmail(String email) {
-        if (!userService.checkIfEmailExists(email)) {
-            return true;
-        }
-        throw new EmailIsAlreadyRegisteredException();
-    }
-
-    public boolean validateNumber(String userNumber) {
-        if (!userService.checkIfNumberExists(userNumber)) {
-            return true;
-        }
-        throw new EmailIsAlreadyRegisteredException();
-    }
-
     private User createUser(String userName, String email, String userNumber, String password) {
         return new User(userName, email, userNumber, passwordEncoder.hash(password));
     }
 
-    private void validatePassword(String rawPassword, String hashedPassword) {
-        if (!passwordEncoder.check(rawPassword, hashedPassword)) {
-            throw new InvalidPasswordException();
-        }
-    }
 }
 
 

@@ -16,3 +16,16 @@ VALUES
     (5, 1, 2),
     (6, 1, 1)
 ON CONFLICT DO NOTHING;  -- Избегаем ошибок при дублировании
+
+
+INSERT INTO t_organization (
+    bin, organization_name, email, owner_name, phone_number, website_link, address
+) VALUES (
+    '170640007696',
+    'TOO Alioth',
+    'office@alioth.kz',
+    'Бастрыкин Олег Викторович',
+    '+77086529460',
+    'https://qasqir.kz',
+    'г. Алматы, ул. Торгут Озала 161'
+);

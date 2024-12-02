@@ -28,7 +28,8 @@ public class InviteInterceptor implements HandlerInterceptor {
     }
 
     private Boolean getCurrentInviteId(String token) {
-        return token != null && inviteService.getByToken(token).isPresent();
+        inviteService.getByToken(token);
+        return token != null;
     }
 }
 

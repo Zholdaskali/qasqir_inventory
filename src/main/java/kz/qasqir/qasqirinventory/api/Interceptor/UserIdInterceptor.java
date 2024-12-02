@@ -18,7 +18,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         System.out.println("UserIdInterceptor");
-        String userIdFromSession = sessionService.getSessionByToken(request.getHeader("Auth-token")).get().getUserId().toString();
+        String userIdFromSession = sessionService.getSessionByToken(request.getHeader("Auth-token")).getUserId().toString();
         String userIdFromRequest = request.getParameter("userId");
         if (!(userIdFromRequest == null)) {
             if (!userIdFromSession.equals(userIdFromRequest)) {

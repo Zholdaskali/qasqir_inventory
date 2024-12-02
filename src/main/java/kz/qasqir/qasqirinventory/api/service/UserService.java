@@ -23,13 +23,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleService roleService;
     private final ImageService imageService;
+    private final ValidateDataService validateDataService;
 
     @Autowired
-    public UserService(UserRepository userRepository, RoleService roleService, ImageService imageService)
+    public UserService(UserRepository userRepository, RoleService roleService, ImageService imageService, ValidateDataService validateDataService)
     {
         this.userRepository = userRepository;
         this.roleService = roleService;
         this.imageService = imageService;
+        this.validateDataService = validateDataService;
     }
 
     @Transactional
@@ -46,14 +48,6 @@ public class UserService {
     public User getByUserEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(UserNotFoundException::new);
-    }
-
-    public boolean checkIfEmailExists(String email) {
-        return userRepository.findByEmail(email).isPresent();
-    }
-
-    public boolean checkIfNumberExists(String phoneNumber) {
-        return userRepository.findByPhoneNumber(phoneNumber).isPresent();
     }
 
     public User getByUserId(Long userId) {
@@ -75,33 +69,15 @@ public class UserService {
 
         updateUser.setUserName(updateUserRequest.getUserName());
 
-        validateEmail(updateUserRequest.getUserEmail(), userId);
+        validateDataService.validateUserEmail(updateUserRequest.getUserEmail(), userId);
         updateUser.setEmail(updateUserRequest.getUserEmail());
 
-        validatePhoneNumber(updateUserRequest.getUserNumber(), userId);
+        validateDataService.validateUserPhoneNumber(updateUserRequest.getUserNumber(), userId);
         updateUser.setPhoneNumber(updateUserRequest.getUserNumber());
 
         userRepository.save(updateUser);
 
         return convertToUserDTO(updateUser);
-    }
-
-    private void validateEmail(String email, Long userId) {
-        boolean emailExists = userRepository.findByEmail(email)
-                .filter(user -> !user.getId().equals(userId)) // Исключаем текущего пользователя
-                .isPresent();
-        if (emailExists) {
-            throw new EmailIsAlreadyRegisteredException();
-        }
-    }
-
-    private void validatePhoneNumber(String phoneNumber, Long userId) {
-        boolean phoneExists = userRepository.findByPhoneNumber(phoneNumber)
-                .filter(user -> !user.getId().equals(userId)) // Исключаем текущего пользователя
-                .isPresent();
-        if (phoneExists) {
-            throw new NumberIsAlreadyRegisteredException();
-        }
     }
 
     @Transactional
@@ -120,6 +96,9 @@ public class UserService {
 
     public UserDTO getUserProfileByUserId(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException :: new);
+        System.out.println(user.getImageId());
+        System.out.println(user.getId());
+        System.out.println(user.getUserName());
         return convertToUserDTO(user);
     }
 

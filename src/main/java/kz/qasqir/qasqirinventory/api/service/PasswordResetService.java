@@ -36,19 +36,16 @@ public class PasswordResetService {
     public String editPasswordInviteUser(String inviteToken,
                                             @RequestBody PasswordResetInviteUserRequest passwordResetRequest
     ) {
-        if (inviteService.getByToken(inviteToken).isPresent()) {
-            User editUser = inviteService.getTokenForUser(inviteToken);
-            String hashNewPassword = passwordEncoder.hash(passwordResetRequest.getNewPassword());
-            editUser.setPassword(hashNewPassword);
-            editUser.setEmailVerified(true);
-            userService.saveUser(editUser);
-            inviteService.invalidate(inviteToken);
-            return "Пароль успешно изменен";
-        }
-        else {
-            throw new InviteHasExpiredException();
-        }
+        inviteService.getByToken(inviteToken);
+        User editUser = inviteService.getTokenForUser(inviteToken);
+        String hashNewPassword = passwordEncoder.hash(passwordResetRequest.getNewPassword());
+        editUser.setPassword(hashNewPassword);
+        editUser.setEmailVerified(true);
+        userService.saveUser(editUser);
+        inviteService.invalidate(inviteToken);
+        return "Пароль успешно изменен";
     }
+
 
     @Transactional
     public String editPasswordUser(@RequestBody PasswordResetUserRequest passwordResetRequest

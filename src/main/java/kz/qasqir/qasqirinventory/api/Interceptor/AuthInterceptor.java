@@ -59,39 +59,32 @@ public class AuthInterceptor implements HandlerInterceptor {
         String authToken = request.getHeader("auth-token");
 
         if (authToken != null && !authToken.isEmpty()) {
-            Optional<Session> sessionOpt = validateSession(authToken);
-            if (sessionOpt.isPresent()) {
-                User user = userService.getByUserId(sessionOpt.get().getUserId());
-                List<Role> roles = roleRepository.getAllForUserId(user.getId());
-                request.setAttribute("user", user);
-                request.setAttribute("roles", roles);
+            Session sessionOpt = validateSession(authToken);
+            User user = userService.getByUserId(sessionOpt.getUserId());
+            List<Role> roles = roleRepository.getAllForUserId(user.getId());
+            request.setAttribute("user", user);
+            request.setAttribute("roles", roles);
 
-                if (hasAccess(request.getRequestURI(), roles)) {
-                    System.out.println(request.getRequestURI());
-                    return true;
-                }
-                sendAccessDeniedResponse(response, "Доступ запрещен: недостаточно прав");
-                return false;
+            if (hasAccess(request.getRequestURI(), roles)) {
+                System.out.println(request.getRequestURI());
+                return true;
             }
+            sendAccessDeniedResponse(response, "Доступ запрещен: недостаточно прав");
+            return false;
         }
-
         sendAccessDeniedResponse(response, "Доступ запрещен: недействительный токен");
         return false;
     }
 
-    private Optional<Session> validateSession(String authToken) throws IOException {
+    private Session validateSession(String authToken) throws IOException {
         System.out.println("validateSession");
-        Optional<Session> sessionOpt = sessionService.getSessionByToken(authToken);
-        if (sessionOpt.isPresent()) {
-            if (LocalDateTime.now().isAfter(sessionOpt.get().getExpiration())) {
-                System.out.println("validateSession");
-                sessionService.invalidate(sessionOpt.get().getToken());
-                throw new SessionHasExpiredException();
+        Session session = sessionService.getSessionByToken(authToken);
+        if (LocalDateTime.now().isAfter(session.getExpiration())) {
+            System.out.println("validateSession");
+            sessionService.invalidate(session.getToken());
+            throw new SessionHasExpiredException();
             }
-            return sessionOpt;
-        }
-        System.out.println("validateSession");
-        throw new SessionNotFoundException();
+        return session;
     }
 
 

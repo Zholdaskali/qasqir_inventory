@@ -1,6 +1,8 @@
 package kz.qasqir.qasqirinventory.api.service;
 
+import kz.qasqir.qasqirinventory.api.exception.InviteHasExpiredException;
 import kz.qasqir.qasqirinventory.api.exception.InviteNotFoundException;
+import kz.qasqir.qasqirinventory.api.exception.UserNotFoundException;
 import kz.qasqir.qasqirinventory.api.model.dto.InviteUserDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.Invite;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
@@ -46,8 +48,8 @@ public class InviteService {
                 .orElseThrow(InviteNotFoundException::new);
     }
 
-    public Optional<Invite> getByToken(String token) {
-        return inviteRepository.findByToken(token);
+    public Invite getByToken(String token) {
+        return inviteRepository.findByToken(token).orElseThrow(UserNotFoundException::new);
     }
 
     @Transactional
@@ -57,5 +59,9 @@ public class InviteService {
 
     public List<InviteUserDTO> getInviteIdAndUserNameAndEmail() {
         return inviteRepository.findInviteIdAndUserNameAndEmail();
+    }
+
+    public boolean deleteInvite(Long inviteId) {
+        return inviteRepository.deleteInviteById(inviteId) > 1;
     }
 }
