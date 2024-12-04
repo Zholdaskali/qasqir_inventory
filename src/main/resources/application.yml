@@ -53,13 +53,16 @@ springdoc:
 userRoles:
   warehouse_manager: warehouse_manager
   admin: admin
-
+  storekeeper: storekeeper
+  employee: employee
 
 # API пути
 api:
   path:
     warehouse_manager: /api/v1/warehouse-manager
     admin: /api/v1/admin
+    storekeeper: /api/v1/storekeeper
+    employee: /api/v1/employee
 
 #    @Value("${userRoles.warehouse_manager}")
 #    private String ROLE_WAREHOUSE_MANAGER;

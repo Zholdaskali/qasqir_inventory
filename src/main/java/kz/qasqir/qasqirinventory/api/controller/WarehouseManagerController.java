@@ -4,6 +4,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/warehouse-manager")
-public class AdminWarehouseController {
+public class WarehouseManagerController {
 
 }
