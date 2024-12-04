@@ -1,7 +1,6 @@
 package kz.qasqir.qasqirinventory.api.Interceptor;
 
 import kz.qasqir.qasqirinventory.api.exception.SessionHasExpiredException;
-import kz.qasqir.qasqirinventory.api.exception.SessionNotFoundException;
 import kz.qasqir.qasqirinventory.api.model.entity.Role;
 import kz.qasqir.qasqirinventory.api.model.entity.Session;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
@@ -18,7 +17,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,17 +34,17 @@ public class AuthInterceptor implements HandlerInterceptor {
         this.sessionService = sessionService;
     }
 
-    @Value("${userRoles.warehouse_admin}")
-    private String ROLE_COMPANY_ADMIN;
+    @Value("${userRoles.warehouse_manager}")
+    private String ROLE_WAREHOUSE_MANAGER;
 
-    @Value("${userRoles.super_admin}")
-    private String ROLE_SUPER_ADMIN;
+    @Value("${userRoles.admin}")
+    private String ROLE_ADMIN;
 
-    @Value("${api.path.warehouse_admin}")
-    private String ADMIN_API_PATH;
+    @Value("${api.path.warehouse_manager}")
+    private String PATH_WAREHOUSE_MANAGER_API;
 
-    @Value("${api.path.super_admin}")
-    private String SUPER_ADMIN_API_PATH;
+    @Value("${api.path.admin}")
+    private String PATH_ADMIN_API;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -87,16 +85,15 @@ public class AuthInterceptor implements HandlerInterceptor {
         return session;
     }
 
-
     private boolean hasAccess(String requestPath, List<Role> roles) {
         Set<String> roleNames = roles.stream().map(Role::getRoleName).collect(Collectors.toSet());
 
-        if (requestPath.startsWith(ADMIN_API_PATH) && roleNames.contains(ROLE_COMPANY_ADMIN)) {
+        if (requestPath.startsWith(PATH_WAREHOUSE_MANAGER_API) && roleNames.contains(ROLE_WAREHOUSE_MANAGER)) {
             return true;
-        } else if (requestPath.startsWith(SUPER_ADMIN_API_PATH) && roleNames.contains(ROLE_SUPER_ADMIN)) {
+        } else if (requestPath.startsWith(PATH_ADMIN_API) && roleNames.contains(ROLE_ADMIN)) {
             return true;
         }
-        return !requestPath.startsWith(ADMIN_API_PATH) && !requestPath.startsWith(SUPER_ADMIN_API_PATH);
+        return !requestPath.startsWith(PATH_WAREHOUSE_MANAGER_API) && !requestPath.startsWith(PATH_ADMIN_API);
     }
 
     private void sendAccessDeniedResponse(HttpServletResponse response, String message) throws IOException {

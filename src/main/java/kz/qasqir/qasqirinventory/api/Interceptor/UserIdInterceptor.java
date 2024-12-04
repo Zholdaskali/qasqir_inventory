@@ -3,7 +3,6 @@ package kz.qasqir.qasqirinventory.api.Interceptor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kz.qasqir.qasqirinventory.api.service.SessionService;
-import kz.qasqir.qasqirinventory.api.service.UserService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -11,7 +10,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
     public class UserIdInterceptor implements HandlerInterceptor {
     private final SessionService sessionService;
 
-    public UserIdInterceptor(UserService userService, SessionService sessionService) {
+    public UserIdInterceptor(SessionService sessionService) {
         this.sessionService = sessionService;
     }
 

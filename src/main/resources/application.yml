@@ -51,14 +51,28 @@ springdoc:
 
 # Роли пользователей
 userRoles:
-  warehouse_admin: warehouse-admin
-  super_admin: super_admin
+  warehouse_manager: warehouse_manager
+  admin: admin
+
 
 # API пути
 api:
   path:
-    warehouse_admin: /api/v1/warehouse-admin
-    super_admin: /api/v1/super-admin
+    warehouse_manager: /api/v1/warehouse-manager
+    admin: /api/v1/admin
+
+#    @Value("${userRoles.warehouse_manager}")
+#    private String ROLE_WAREHOUSE_MANAGER;
+#
+#    @Value("${userRoles.admin}")
+#    private String ROLE_ADMIN;
+#
+#    @Value("${api.path.warehouse_manager}")
+#    private String PATH_WAREHOUSE_MANAGER_API;
+#
+#    @Value("${api.path.admin}")
+#    private String PATH_ADMIN_API;
+
 
 # Роли пользователей с ID
 roleIds:

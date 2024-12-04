@@ -20,8 +20,6 @@ public class AuthController {
         this.authenticationService = authenticationService;
     }
 
-
-
     @Operation(
             summary = "Вход в систему",
             description = "Возвращает токен сессии"

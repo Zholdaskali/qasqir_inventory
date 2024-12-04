@@ -16,8 +16,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/super-admin")
-public class SuperAdminController {
+@RequestMapping("/api/v1/admin")
+public class AdminController {
 
     private final AuthenticationService authenticationService;
     private final UserService userService;
@@ -28,7 +28,7 @@ public class SuperAdminController {
     private final OrganizationService organizationService;
 
     @Autowired
-    public SuperAdminController(AuthenticationService authenticationService, UserService userService, ActionLogService actionLogService, ExceptionLogService exceptionLogService, LoginLogService loginLogService, InviteService inviteService, OrganizationService organizationService) {
+    public AdminController(AuthenticationService authenticationService, UserService userService, ActionLogService actionLogService, ExceptionLogService exceptionLogService, LoginLogService loginLogService, InviteService inviteService, OrganizationService organizationService) {
         this.authenticationService = authenticationService;
         this.userService = userService;
         this.exceptionLogService = exceptionLogService;
@@ -37,15 +37,6 @@ public class SuperAdminController {
         this.inviteService = inviteService;
         this.organizationService = organizationService;
     }
-
-//    @Operation(
-//            summary = "Добавление пользователя",
-//            description = "Возвращает ответ добавление пользователя"
-//    )
-//    @PostMapping("/user")
-//    public MessageResponse<String> register(@RequestBody RegisterRequest registerRequest) {
-//        return MessageResponse.empty(authenticationService.register(registerRequest.getUserName(), registerRequest.getEmail(), registerRequest.getUserNumber(), registerRequest.getPassword()));
-//    }
 
     @Operation(
             summary = "Удаление пользователя",
