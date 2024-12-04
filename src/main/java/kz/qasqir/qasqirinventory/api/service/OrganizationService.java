@@ -2,8 +2,11 @@ package kz.qasqir.qasqirinventory.api.service;
 
 import kz.qasqir.qasqirinventory.api.model.dto.OrganizationDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.Organization;
+import kz.qasqir.qasqirinventory.api.model.request.OrganizationResetRequest;
 import kz.qasqir.qasqirinventory.api.repository.OrganizationRepository;
 import org.springframework.stereotype.Service;
+import kz.qasqir.qasqirinventory.api.exception.OrganizationNotFound;
+
 
 @Service
 public class OrganizationService {
@@ -20,6 +23,20 @@ public class OrganizationService {
         return convertToDTO(organization);
     }
 
+    public OrganizationDTO resetOrganization(OrganizationResetRequest organizationResetRequest) {
+        Organization organization = organizationRepository.findById(Long.valueOf(organizationResetRequest.getBin()))
+                .orElseThrow(OrganizationNotFound::new);
+
+        organization.setOrganizationName(organizationResetRequest.getOrganizationName());
+        organization.setEmail(organizationResetRequest.getEmail());
+        organization.setOwnerName(organizationResetRequest.getOwnerName());
+        organization.setPhoneNumber(organizationResetRequest.getPhoneNumber());
+        organization.setAddress(organizationResetRequest.getAddress());
+        organization.setWebsiteLink(organizationResetRequest.getWebsiteLink());
+        organizationRepository.save(organization);
+        return convertToDTO(organization);
+    }
+
     private OrganizationDTO convertToDTO(Organization organization) {
         String imagePath = organization.getImageId() != null
                 ? imageService.getImagePath(organization.getImageId())
@@ -33,4 +50,5 @@ public class OrganizationService {
 //                String phoneNumber, LocalDateTime registrationDate, String websiteLink,
 //                String address, Long imagePath)
     }
+
 }

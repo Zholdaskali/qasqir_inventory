@@ -1,9 +1,7 @@
 package kz.qasqir.qasqirinventory.api.service;
 
 import jakarta.transaction.Transactional;
-import kz.qasqir.qasqirinventory.api.exception.EmailIsAlreadyRegisteredException;
-import kz.qasqir.qasqirinventory.api.exception.InvalidPasswordException;
-import kz.qasqir.qasqirinventory.api.exception.NumberIsAlreadyRegisteredException;
+import kz.qasqir.qasqirinventory.api.exception.*;
 import kz.qasqir.qasqirinventory.api.model.entity.Session;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
 import kz.qasqir.qasqirinventory.api.util.encoder.PasswordEncoder;
@@ -63,42 +61,43 @@ public class AuthenticationService {
 
     @Transactional
     public String registerInvite(String userName, String email, String userNumber, String password) {
-        validateDataService.ensureEmailIsUnique(email);
-        validateDataService.ensurePhoneNumberIsUnique(userNumber);
-        User savedUser = createUser(userName, email, userNumber, password);
-        userService.saveUser(savedUser);
-        roleService.addForUser(savedUser.getId(), EMPLOYEE_ROLE_ID);
-        String inviteLink = inviteService.generate(INVITE_LINK, savedUser.getId()).getLink();
-        inviteMailService.generateInviteEmail(userName, email, password, inviteLink, SUPPORT_EMAIL, SUPPORT_PHONE, COMPANY_CONTACT_INFO);
-        return "Приглашение отправлено";
+        try {
+            validateDataService.ensureEmailIsUnique(email);
+            validateDataService.ensurePhoneNumberIsUnique(userNumber);
+            User savedUser = createUser(userName, email, userNumber, password);
+            userService.saveUser(savedUser);
+            roleService.addForUser(savedUser.getId(), EMPLOYEE_ROLE_ID);
+            String inviteLink = inviteService.generate(INVITE_LINK, savedUser.getId()).getLink();
+            inviteMailService.generateInviteEmail(userName, email, password, inviteLink, SUPPORT_EMAIL, SUPPORT_PHONE, COMPANY_CONTACT_INFO);
+            return "Приглашение отправлено";
+        } catch (EmailIsAlreadyRegisteredException | NumberIsAlreadyRegisteredException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Не удалось зарегистрировать приглашение, попробуйте позже.");
+        }
     }
 
-
-//    @Transactional
-//    public String register(String userName, String email, String userNumber, String password) {
-//        if (validateEmail(email)) {
-//            if(validateNumber(userNumber)) {
-//                User user = createUser(userName, email,userNumber, password);
-//                userService.saveUser(user);
-//                roleService.addForUser(user.getId(), ADMIN_ROLE_ID);
-//                return "Пользователь успешно создан";
-//            }
-//            throw new NumberIsAlreadyRegisteredException();
-//        }
-//        throw new EmailIsAlreadyRegisteredException();
-//    }
-
     public Session login(String email, String password) {
-        User user = userService.getByUserEmail(email);
-        validateDataService.validatePassword(password, user.getPassword());
+        try {
+            User user = userService.getByUserEmail(email);
+            validateDataService.validatePassword(password, user.getPassword());
 
-        loginLogService.save(user.getId());
-        sessionService.manageCountSession(user.getId());
-        return sessionService.generateForUser(user.getId());
+            loginLogService.save(user.getId());
+            sessionService.manageCountSession(user.getId());
+            return sessionService.generateForUser(user.getId());
+        } catch (InvalidPasswordException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new LoginFailedException();
+        }
     }
 
     public boolean logout(String token) {
-        return sessionService.invalidate(token);
+        try {
+            return sessionService.invalidate(token);
+        } catch (Exception e) {
+            throw new LogOutFailedException();
+        }
     }
 
     private User createUser(String userName, String email, String userNumber, String password) {

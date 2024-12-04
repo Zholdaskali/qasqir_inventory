@@ -2,6 +2,7 @@ package kz.qasqir.qasqirinventory.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import kz.qasqir.qasqirinventory.api.model.dto.*;
+import kz.qasqir.qasqirinventory.api.model.request.OrganizationResetRequest;
 import kz.qasqir.qasqirinventory.api.model.request.RegisterInviteRequest;
 import kz.qasqir.qasqirinventory.api.model.request.UserRoleResetRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
@@ -98,7 +99,6 @@ public class SuperAdminController {
         return MessageResponse.of(inviteService.deleteInvite(inviteId));
     }
 
-
     @Operation(
             summary = "Скачивание активностей пользователей в системе",
             description = "Возвращает список логов активностей пользователей в системе"
@@ -123,7 +123,6 @@ public class SuperAdminController {
         return MessageResponse.of(exceptionLogService.getExceptionLogs(startDate, endDate));
     }
 
-
     @Operation(
             summary = "Скачивание логов входа в систему",
             description = "Возвращает список логов входа в систему"
@@ -136,17 +135,30 @@ public class SuperAdminController {
         return MessageResponse.of(loginLogService.getLoginLogs(startDate, endDate));
     }
 
+    @Operation(
+            summary = "Вывод всех организаций",
+            description = "Возвращает список организаций"
+    )
     @GetMapping("/organization")
     public MessageResponse<OrganizationDTO> getOrganization() {
         return MessageResponse.of(organizationService.getOrganization());
     }
 
+    @Operation(
+            summary = "Изменение параметров организации",
+            description = "Возвращает измененную организацию"
+    )
+    @PutMapping("/organization")
+    public MessageResponse<OrganizationDTO> resetOrganization(@RequestBody OrganizationResetRequest organizationResetRequest) {
+        return MessageResponse.of(organizationService.resetOrganization(organizationResetRequest));
+    }
 
-    //        {
+
+//        {
 //            "userName": "superAdmin1@gmail.com",
 //            "password": "TorgutOzalaqasqirAdminkz02"
 //        }
-//
+
 //        {
 //            "userName": "erkebulanzholdaskali@gmail.com",
 //            "password": "ErkebulanAdmin0404"

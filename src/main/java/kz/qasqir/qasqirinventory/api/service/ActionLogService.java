@@ -1,6 +1,7 @@
 package kz.qasqir.qasqirinventory.api.service;
 
 import kz.qasqir.qasqirinventory.api.exception.LogsNotFoundException;
+import kz.qasqir.qasqirinventory.api.exception.UserNotFoundException;
 import kz.qasqir.qasqirinventory.api.model.dto.ActionLogDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.UserDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.ActionLog;
@@ -41,10 +42,31 @@ public class ActionLogService {
     }
 
     private ActionLogDTO convertToActionLogDTO(ActionLog actionLog) {
-//        Long actionLoId, Long userId, String userName, String userEmail, String action, String endpoint, Timestamp timestamp
-        User user = userService.getByUserId(actionLog.getUserId());
-//        System.out.println(actionLog.getTimestamp());
-        return new ActionLogDTO(actionLog.getId(), actionLog.getUserId(), user.getUserName(), user.getEmail(), actionLog.getAction(), actionLog.getEndpoint(), actionLog.getTimestamp());
+        try {
+            // Пытаемся получить пользователя
+            User user = userService.getByUserId(actionLog.getUserId());
+            return new ActionLogDTO(
+                    actionLog.getId(),
+                    actionLog.getUserId(),
+                    user.getUserName(),
+                    user.getEmail(),
+                    actionLog.getAction(),
+                    actionLog.getEndpoint(),
+                    actionLog.getTimestamp()
+            );
+        } catch (UserNotFoundException e) {
+            // Обрабатываем случай, когда пользователь не найден
+            return new ActionLogDTO(
+                    actionLog.getId(),
+                    actionLog.getUserId(),
+                    "Unknown User",
+                    "Unknown Email",
+                    actionLog.getAction(),
+                    actionLog.getEndpoint(),
+                    actionLog.getTimestamp()
+            );
+        }
     }
+
 }
 

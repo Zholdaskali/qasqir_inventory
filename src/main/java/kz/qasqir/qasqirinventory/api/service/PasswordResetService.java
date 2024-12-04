@@ -1,10 +1,7 @@
 package kz.qasqir.qasqirinventory.api.service;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.InvalidPasswordException;
-import kz.qasqir.qasqirinventory.api.exception.InviteHasExpiredException;
-import kz.qasqir.qasqirinventory.api.exception.UserNotFoundException;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
 import kz.qasqir.qasqirinventory.api.model.request.PasswordResetInviteUserRequest;
 import kz.qasqir.qasqirinventory.api.model.request.PasswordResetUserRequest;

@@ -1,6 +1,7 @@
 package kz.qasqir.qasqirinventory.api.service;
 
 import kz.qasqir.qasqirinventory.api.exception.LogsNotFoundException;
+import kz.qasqir.qasqirinventory.api.exception.UserNotFoundException;
 import kz.qasqir.qasqirinventory.api.model.dto.LoginLogDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.LoginLog;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
@@ -38,7 +39,25 @@ public class LoginLogService {
     }
 
     private LoginLogDTO convertToLoginLogDTO(LoginLog loginLog) {
-        User user = userService.getByUserId(loginLog.getUserId());
-        return new LoginLogDTO(loginLog.getId(), loginLog.getUserId(), user.getUserName(), user.getEmail(), loginLog.getTimestamp());
+        try {
+            User user = userService.getByUserId(loginLog.getUserId());
+            return new LoginLogDTO(
+                    loginLog.getId(),
+                    loginLog.getUserId(),
+                    user.getUserName(),
+                    user.getEmail(),
+                    loginLog.getTimestamp()
+            );
+        } catch (UserNotFoundException e) {
+            // Возвращаем DTO с "Unknown User" и "Unknown Email"
+            return new LoginLogDTO(
+                    loginLog.getId(),
+                    loginLog.getUserId(),
+                    "Unknown User",
+                    "Unknown Email",
+                    loginLog.getTimestamp()
+            );
+        }
     }
+
 }

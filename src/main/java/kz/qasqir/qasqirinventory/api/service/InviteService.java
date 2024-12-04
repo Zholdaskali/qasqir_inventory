@@ -49,7 +49,7 @@ public class InviteService {
     }
 
     public Invite getByToken(String token) {
-        return inviteRepository.findByToken(token).orElseThrow(UserNotFoundException::new);
+        return inviteRepository.findByToken(token).orElseThrow(InviteNotFoundException::new);
     }
 
     @Transactional
