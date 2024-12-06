@@ -17,6 +17,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,12 +35,22 @@ public class AuthInterceptor implements HandlerInterceptor {
         this.sessionService = sessionService;
     }
 
+
+    //roles
     @Value("${userRoles.warehouse_manager}")
     private String ROLE_WAREHOUSE_MANAGER;
 
     @Value("${userRoles.admin}")
     private String ROLE_ADMIN;
 
+    @Value("${userRoles.employee}")
+    private String ROLE_EMPLOYEE;
+
+    @Value("${userRoles.storekeeper}")
+    private String ROLE_STOREKEEPER;
+
+
+    //api
     @Value("${api.path.warehouse_manager}")
     private String PATH_WAREHOUSE_MANAGER_API;
 
@@ -48,6 +59,10 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     @Value("${api.path.employee}")
     private String PATH_EMPLOYEE_API;
+
+    @Value("${api.path.storekeeper}")
+    private String PATH_STOREKEEPER_API;
+
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -88,16 +103,19 @@ public class AuthInterceptor implements HandlerInterceptor {
         return session;
     }
 
+    private final Map<String, String> rolePathMap = Map.of(
+            PATH_WAREHOUSE_MANAGER_API, ROLE_WAREHOUSE_MANAGER,
+            PATH_ADMIN_API, ROLE_ADMIN,
+            PATH_EMPLOYEE_API, ROLE_EMPLOYEE,
+            PATH_STOREKEEPER_API, ROLE_STOREKEEPER
+    );
+
     private boolean hasAccess(String requestPath, List<Role> roles) {
         Set<String> roleNames = roles.stream().map(Role::getRoleName).collect(Collectors.toSet());
-
-        if (requestPath.startsWith(PATH_WAREHOUSE_MANAGER_API) && roleNames.contains(ROLE_WAREHOUSE_MANAGER)) {
-            return true;
-        } else if (requestPath.startsWith(PATH_ADMIN_API) && roleNames.contains(ROLE_ADMIN)) {
-            return true;
-        }else if (requestPath.startsWith(PATH_EMPLOYEE_API))
-        return !requestPath.startsWith(PATH_WAREHOUSE_MANAGER_API) && !requestPath.startsWith(PATH_ADMIN_API);
+        return rolePathMap.entrySet().stream()
+                .anyMatch(entry -> requestPath.startsWith(entry.getKey()) && roleNames.contains(entry.getValue()));
     }
+
 
     private void sendAccessDeniedResponse(HttpServletResponse response, String message) throws IOException {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
