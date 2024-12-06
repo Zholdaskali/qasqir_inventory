@@ -83,16 +83,37 @@ public class UserService {
 
     @Transactional
     public UserDTO updateRole(Long userId, UserRoleResetRequest userRoleResetRequest) {
-        User updateUser = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-        List<Role> roles = roleService.getAllForUserId(userId);
-        boolean roleExists = roles.stream()
-                .anyMatch(role -> Objects.equals(role.getId(), userRoleResetRequest.getNewRoleId()));
+        List<Long> newRoles = userRoleResetRequest.getNewRoles();
 
-        if (!roleExists) {
-            roleService.addForUser(updateUser.getId(), userRoleResetRequest.getNewRoleId());
-        }
-        return getUserProfileByUserId(updateUser.getId());
+        // Получаем текущие роли пользователя
+        List<Role> currentRoles = roleService.getAllForUserId(userId);
+
+        // Получаем идентификаторы текущих ролей
+        List<Long> currentRoleIds = currentRoles.stream()
+                .map(Role::getId)
+                .toList();
+
+        // Определяем роли, которые нужно удалить (старые роли, которых нет в новых)
+        List<Long> rolesToDelete = currentRoleIds.stream()
+                .filter(roleId -> !newRoles.contains(roleId))
+                .toList();
+
+        // Определяем роли, которые нужно добавить (новые роли, которых нет в текущих)
+        List<Long> rolesToAdd = newRoles.stream()
+                .filter(roleId -> !currentRoleIds.contains(roleId))
+                .toList();
+
+        // Удаляем лишние роли
+        rolesToDelete.forEach(roleId -> roleService.removeRoleFromUser(userId, roleId));
+
+        // Добавляем новые роли
+        rolesToAdd.forEach(roleId -> roleService.addForUser(userId, roleId));
+
+        // Получаем обновленного пользователя
+        User user = getByUserId(userId);
+
+        // Преобразуем пользователя в DTO
+        return convertToUserDTO(user);
     }
 
     public UserDTO getUserProfileByUserId(Long userId) {

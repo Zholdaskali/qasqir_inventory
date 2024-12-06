@@ -1,5 +1,6 @@
 package kz.qasqir.qasqirinventory.api.Interceptor;
 
+import jakarta.annotation.PostConstruct;
 import kz.qasqir.qasqirinventory.api.exception.SessionHasExpiredException;
 import kz.qasqir.qasqirinventory.api.model.entity.Role;
 import kz.qasqir.qasqirinventory.api.model.entity.Session;
@@ -16,6 +17,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -103,17 +105,60 @@ public class AuthInterceptor implements HandlerInterceptor {
         return session;
     }
 
-    private final Map<String, String> rolePathMap = Map.of(
-            PATH_WAREHOUSE_MANAGER_API, ROLE_WAREHOUSE_MANAGER,
-            PATH_ADMIN_API, ROLE_ADMIN,
-            PATH_EMPLOYEE_API, ROLE_EMPLOYEE,
-            PATH_STOREKEEPER_API, ROLE_STOREKEEPER
-    );
+    private final Map<String, String> rolePathMap = new HashMap<>();
+
+    @PostConstruct
+    private void initRolePathMap() {
+        if (PATH_WAREHOUSE_MANAGER_API != null && ROLE_WAREHOUSE_MANAGER != null) {
+            rolePathMap.put(PATH_WAREHOUSE_MANAGER_API, ROLE_WAREHOUSE_MANAGER);
+        }
+        if (PATH_ADMIN_API != null && ROLE_ADMIN != null) {
+            rolePathMap.put(PATH_ADMIN_API, ROLE_ADMIN);
+        }
+        if (PATH_EMPLOYEE_API != null && ROLE_EMPLOYEE != null) {
+            rolePathMap.put(PATH_EMPLOYEE_API, ROLE_EMPLOYEE);
+        }
+        if (PATH_STOREKEEPER_API != null && ROLE_STOREKEEPER != null) {
+            rolePathMap.put(PATH_STOREKEEPER_API, ROLE_STOREKEEPER);
+        }
+
+        System.out.println("Initialized rolePathMap: " + rolePathMap);
+    }
 
     private boolean hasAccess(String requestPath, List<Role> roles) {
+
+        // Если путь не начинается с тех путей, которые требуют проверки, разрешаем доступ
+        if (!requestPath.startsWith(PATH_WAREHOUSE_MANAGER_API)
+                && !requestPath.startsWith(PATH_ADMIN_API)
+                && !requestPath.startsWith(PATH_EMPLOYEE_API)
+                && !requestPath.startsWith(PATH_STOREKEEPER_API)) {
+            return true;  // Пропускаем проверку и разрешаем доступ
+        }
+
+        // Проверяем доступ для различных путей
         Set<String> roleNames = roles.stream().map(Role::getRoleName).collect(Collectors.toSet());
-        return rolePathMap.entrySet().stream()
-                .anyMatch(entry -> requestPath.startsWith(entry.getKey()) && roleNames.contains(entry.getValue()));
+
+        // Проверка для пути warehouse_manager
+        if (requestPath.startsWith(PATH_WAREHOUSE_MANAGER_API) && roleNames.contains(ROLE_WAREHOUSE_MANAGER)) {
+            return true;
+        }
+
+        // Проверка для пути admin
+        if (requestPath.startsWith(PATH_ADMIN_API) && roleNames.contains(ROLE_ADMIN)) {
+            return true;
+        }
+
+        // Проверка для пути employee
+        if (requestPath.startsWith(PATH_EMPLOYEE_API) && roleNames.contains(ROLE_EMPLOYEE)) {
+            return true;
+        }
+
+        // Проверка для пути storekeeper
+        if (requestPath.startsWith(PATH_STOREKEEPER_API) && roleNames.contains(ROLE_STOREKEEPER)) {
+            return true;
+        }
+
+        return false;
     }
 
 

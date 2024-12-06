@@ -1,22 +1,15 @@
 package kz.qasqir.qasqirinventory.api.model.request;
 
+import java.util.List;
+
 public class UserRoleResetRequest {
-    private Long newRoleId;
-    private Long oldRoleId;
+    private List<Long> newRoles;
 
-    public Long getNewRoleId() {
-        return newRoleId;
+    public List<Long> getNewRoles() {
+        return newRoles;
     }
 
-    public void setNewRoleId(Long newRoleId) {
-        this.newRoleId = newRoleId;
-    }
-
-    public Long getOldRoleId() {
-        return oldRoleId;
-    }
-
-    public void setOldRoleId(Long oldRoleId) {
-        this.oldRoleId = oldRoleId;
+    public void setNewRoles(List<Long> newRoles) {
+        this.newRoles = newRoles;
     }
 }

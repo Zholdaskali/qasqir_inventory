@@ -56,13 +56,13 @@ userRoles:
   storekeeper: storekeeper
   employee: employee
 
-# API пути
 api:
   path:
     admin: /api/v1/admin
     warehouse_manager: /api/v1/warehouse-manager
     storekeeper: /api/v1/storekeeper
     employee: /api/v1/employee
+
 
 #    @Value("${userRoles.warehouse_manager}")
 #    private String ROLE_WAREHOUSE_MANAGER;
@@ -104,3 +104,5 @@ company:
 logging:
   level:
     org.flywaydb: DEBUG
+bitrix24:
+  webhook-url: "https://b24-mvtnvt.bitrix24.kz/rest/1/n7jy59tgz5tnu571/"

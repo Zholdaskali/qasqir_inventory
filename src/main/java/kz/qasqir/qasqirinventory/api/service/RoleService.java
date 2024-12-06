@@ -28,4 +28,10 @@ public class RoleService {
         return roleRepository.getAllForUserId(userId);
     }
 
+    @Transactional
+    public void removeRoleFromUser(Long userId, Long roleId) {
+        // Удаляем запись из t_user_roles, которая связывает пользователя с ролью
+        roleRepository.deleteRoleFromUser(userId, roleId);
+    }
+
 }

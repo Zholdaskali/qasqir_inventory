@@ -69,10 +69,10 @@ public class AuthenticationService {
             validateDataService.ensurePhoneNumberIsUnique(registerInviteRequest.getUserNumber());
             User savedUser = createUser(registerInviteRequest.getUserName(), registerInviteRequest.getEmail(), registerInviteRequest.getUserNumber(), registerInviteRequest.getPassword());
             userService.saveUser(savedUser);
-            List<String> userRoles = registerInviteRequest.getUserRoles();
+            List<Long> userRoles = registerInviteRequest.getUserRoles();
 
-            for (String userRole : userRoles) {
-                roleService.addForUser(savedUser.getId(), Long.valueOf(userRole));
+            for (Long userRole : userRoles) {
+                roleService.addForUser(savedUser.getId(), userRole);
             }
 
             String inviteLink = inviteService.generate(INVITE_LINK, savedUser.getId()).getLink();

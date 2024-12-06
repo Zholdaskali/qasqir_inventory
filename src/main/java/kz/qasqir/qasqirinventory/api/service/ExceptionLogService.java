@@ -50,7 +50,7 @@ public class ExceptionLogService {
             }
 
             return exceptionLogs;
-        } catch (IllegalArgumentException | LogsNotFoundException e) {
+        } catch (LogsNotFoundException e) {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException("Не удалось получить логи исключений. Попробуйте позже.");

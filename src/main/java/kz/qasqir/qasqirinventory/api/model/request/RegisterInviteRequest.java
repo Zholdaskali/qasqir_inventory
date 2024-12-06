@@ -7,7 +7,7 @@ public class RegisterInviteRequest {
     private String password;
     private String email;
     private String userNumber;
-    private List<String> userRoles;
+    private List<Long> userRoles;
 
     public String getEmail() {
         return email;
@@ -41,11 +41,11 @@ public class RegisterInviteRequest {
         this.password = password;
     }
 
-    public List<String> getUserRoles() {
+    public List<Long> getUserRoles() {
         return userRoles;
     }
 
-    public void setUserRoles(List<String> userRoles) {
+    public void setUserRoles(List<Long> userRoles) {
         this.userRoles = userRoles;
     }
 }
