@@ -1,13 +1,9 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import kz.qasqir.qasqirinventory.api.model.request.UpdateUserRequest;
+import kz.qasqir.qasqirinventory.api.model.request.*;
 import kz.qasqir.qasqirinventory.api.model.dto.UserDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
-import kz.qasqir.qasqirinventory.api.model.request.MailVerificationCheckRequest;
-import kz.qasqir.qasqirinventory.api.model.request.MailVerificationSendRequest;
-import kz.qasqir.qasqirinventory.api.model.request.PasswordResetInviteUserRequest;
-import kz.qasqir.qasqirinventory.api.model.request.PasswordResetUserRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +19,16 @@ public class UserController {
     private final MailVerificationService mailVerificationService;
     private final SessionService sessionService;
     private final ImageService imageService;
+    private final PasswordRecoveryService passwordRecoveryService;
 
     @Autowired
-    public UserController(UserService userService, PasswordResetService passwordResetService, MailVerificationService mailVerificationService, SessionService sessionService, ImageService imageService) {
+    public UserController(UserService userService, PasswordResetService passwordResetService, MailVerificationService mailVerificationService, SessionService sessionService, ImageService imageService, PasswordRecoveryService passwordRecoveryService) {
         this.userService = userService;
         this.passwordResetService = passwordResetService;
         this.mailVerificationService = mailVerificationService;
         this.sessionService = sessionService;
         this.imageService = imageService;
+        this.passwordRecoveryService = passwordRecoveryService;
     }
 
     @Operation(
@@ -38,9 +36,9 @@ public class UserController {
             description = "Возвращает профиль пользователя по его токену"
     )
     @GetMapping("/profile")
-    public UserDTO getProfile(@RequestHeader("auth-token") String token) {
+    public MessageResponse<UserDTO> getProfile(@RequestHeader("auth-token") String token) {
         User user = sessionService.getTokenForUser(token);
-        return userService.getUserProfileByUserId(user.getId());
+        return MessageResponse.of(userService.getUserProfileByUserId(user.getId()));
     }
 
     @Operation(
@@ -71,6 +69,29 @@ public class UserController {
     public MessageResponse<String> editPasswordUser(
             @RequestBody PasswordResetUserRequest passwordResetRequest) {
         return MessageResponse.empty(passwordResetService.editPasswordUser(passwordResetRequest));
+    }
+
+    @Operation(
+            summary = "Забыли пароль",
+            description = "Возвращает ответ генерации пароля"
+    )
+    @PostMapping("password/recovery")
+    public MessageResponse<String> recoveryPassword(
+            @RequestBody RecoveryPasswordRequest recoveryPasswordRequest
+            ) {
+        return MessageResponse.empty(passwordRecoveryService.generate(recoveryPasswordRequest.getEmail()));
+    }
+
+    @Operation(
+            summary = "Проверяет токен на валидность и меняет пароль",
+            description = "Возвращает ответ изменения пароля"
+    )
+    @PutMapping("/password/reset")
+    public MessageResponse<String> resetPassword(
+            @RequestParam("Password-reset-token") String token,
+            @RequestBody PasswordRecoveryRequest passwordRecoveryRequest
+            ) {
+        return MessageResponse.empty(passwordRecoveryService.passwordRecovery(token, passwordRecoveryRequest));
     }
 
     @Operation(

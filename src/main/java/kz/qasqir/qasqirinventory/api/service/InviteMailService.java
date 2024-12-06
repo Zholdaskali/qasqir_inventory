@@ -14,7 +14,7 @@ public class InviteMailService {
         this.organizationService = organizationService;
     }
 
-    public void generateInviteEmail(String userName,String email,String password,String INVITE_LINK,String SUPPORT_EMAIL,String SUPPORT_PHONE,String COMPANY_CONTACT_INFO) {
+    public void sendInviteEmail(String userName, String email, String password, String INVITE_LINK, String SUPPORT_EMAIL, String SUPPORT_PHONE, String COMPANY_CONTACT_INFO) {
         String emailBody = String.format(
                 "Уважаемый(ая) %s,\n\n" +
                         "Мы рады пригласить вас присоединиться к нашей платформе QasqirInventory! Ваша учетная запись была создана, чтобы предоставить вам доступ к современным инструментам управления и учета.\n\n" +
@@ -29,7 +29,7 @@ public class InviteMailService {
                         "Если у вас возникнут вопросы, наша команда всегда готова помочь. Вы можете связаться с нами по %s или %s.\n\n" + // Контактная информация
                         "Спасибо за ваше доверие и участие!\n\n" +
                         "С уважением,\n" +
-                        "Команда QasqirInventory\n" +
+                        "Команда Qasqir Inventory\n" +
                         "%s", // Контактная информация компании
                 userName, email, password, INVITE_LINK, SUPPORT_EMAIL, SUPPORT_PHONE, COMPANY_CONTACT_INFO
         );

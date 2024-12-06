@@ -36,11 +36,25 @@ public class MailVerificationService {
 
         @Transactional
         public boolean generate(MailVerificationSendRequest request) {
-                MailVerification mailVerification = new  MailVerification(request.getEmail(), codeGenerate.generate());
+                MailVerification mailVerification = new MailVerification(request.getEmail(), codeGenerate.generate());
                 mailVerificationRepository.save(mailVerification);
-                mailService.send(request.getEmail(), "Подтверждение регистрации аккаунта", "Для подтверждения регистрации введите 6-значный код в поле ввода в приложении: " + mailVerification.getCode());
+                String message = String.format(
+                        "Здравствуйте!\n\n" +
+                                "Вы запросили подтверждение регистрации аккаунта. Пожалуйста, используйте указанный ниже код для завершения процесса регистрации:\n\n" +
+                                "Код подтверждения: **%s**\n\n" +
+                                "Если вы не запрашивали регистрацию, просто проигнорируйте это сообщение.\n\n" +
+                                "С уважением,\n" +
+                                "Команда Qasqir Inventory",
+                        mailVerification.getCode()
+                );
+                mailService.send(
+                        request.getEmail(),
+                        "Подтверждение регистрации аккаунта",
+                        message
+                );
                 return true;
         }
+
 
 
         @Transactional

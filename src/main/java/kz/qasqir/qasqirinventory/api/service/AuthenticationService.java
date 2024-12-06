@@ -4,10 +4,13 @@ import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.*;
 import kz.qasqir.qasqirinventory.api.model.entity.Session;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
+import kz.qasqir.qasqirinventory.api.model.request.RegisterInviteRequest;
 import kz.qasqir.qasqirinventory.api.util.encoder.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class AuthenticationService {
@@ -60,15 +63,20 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public String registerInvite(String userName, String email, String userNumber, String password) {
+    public String registerInvite(RegisterInviteRequest registerInviteRequest) {
         try {
-            validateDataService.ensureEmailIsUnique(email);
-            validateDataService.ensurePhoneNumberIsUnique(userNumber);
-            User savedUser = createUser(userName, email, userNumber, password);
+            validateDataService.ensureEmailIsUnique(registerInviteRequest.getEmail());
+            validateDataService.ensurePhoneNumberIsUnique(registerInviteRequest.getUserNumber());
+            User savedUser = createUser(registerInviteRequest.getUserName(), registerInviteRequest.getEmail(), registerInviteRequest.getUserNumber(), registerInviteRequest.getPassword());
             userService.saveUser(savedUser);
-            roleService.addForUser(savedUser.getId(), EMPLOYEE_ROLE_ID);
+            List<String> userRoles = registerInviteRequest.getUserRoles();
+
+            for (String userRole : userRoles) {
+                roleService.addForUser(savedUser.getId(), Long.valueOf(userRole));
+            }
+
             String inviteLink = inviteService.generate(INVITE_LINK, savedUser.getId()).getLink();
-            inviteMailService.generateInviteEmail(userName, email, password, inviteLink, SUPPORT_EMAIL, SUPPORT_PHONE, COMPANY_CONTACT_INFO);
+            inviteMailService.sendInviteEmail(registerInviteRequest.getUserName(), registerInviteRequest.getEmail(), registerInviteRequest.getPassword(), inviteLink, SUPPORT_EMAIL, SUPPORT_PHONE, COMPANY_CONTACT_INFO);
             return "Приглашение отправлено";
         } catch (EmailIsAlreadyRegisteredException | NumberIsAlreadyRegisteredException e) {
             throw e;

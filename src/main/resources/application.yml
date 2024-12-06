@@ -51,16 +51,16 @@ springdoc:
 
 # Роли пользователей
 userRoles:
-  warehouse_manager: warehouse_manager
   admin: admin
+  warehouse_manager: warehouse_manager
   storekeeper: storekeeper
   employee: employee
 
 # API пути
 api:
   path:
-    warehouse_manager: /api/v1/warehouse-manager
     admin: /api/v1/admin
+    warehouse_manager: /api/v1/warehouse-manager
     storekeeper: /api/v1/storekeeper
     employee: /api/v1/employee
 
@@ -86,6 +86,8 @@ roleIds:
 invite:
   link: http://localhost:5173/recover-password
 
+password-recovery:
+  link: http://localhost:5173/
 
 image:
   directory:

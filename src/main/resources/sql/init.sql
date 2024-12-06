@@ -23,6 +23,8 @@
 --############################## SELECT ##############################
 SELECT * FROM t_organizations;
 
+SELECT * FROM t_password_reset_tokens
+
 SELECT * FROM t_roles;
 
 SELECT * FROM t_images;

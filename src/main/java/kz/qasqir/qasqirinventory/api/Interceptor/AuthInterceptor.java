@@ -46,6 +46,9 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Value("${api.path.admin}")
     private String PATH_ADMIN_API;
 
+    @Value("${api.path.employee}")
+    private String PATH_EMPLOYEE_API;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
@@ -92,7 +95,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             return true;
         } else if (requestPath.startsWith(PATH_ADMIN_API) && roleNames.contains(ROLE_ADMIN)) {
             return true;
-        }
+        }else if (requestPath.startsWith(PATH_EMPLOYEE_API))
         return !requestPath.startsWith(PATH_WAREHOUSE_MANAGER_API) && !requestPath.startsWith(PATH_ADMIN_API);
     }
 

@@ -71,7 +71,7 @@ public class AdminController {
     )
     @PostMapping("/invite")
     public MessageResponse<String> inviteCreate(@RequestBody RegisterInviteRequest registerInviteRequest) {
-        return MessageResponse.empty(authenticationService.registerInvite(registerInviteRequest.getUserName(),registerInviteRequest.getEmail(),registerInviteRequest.getUserNumber() , registerInviteRequest.getPassword()));
+        return MessageResponse.empty(authenticationService.registerInvite(registerInviteRequest));
     }
 
     @Operation(

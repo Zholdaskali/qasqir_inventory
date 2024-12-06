@@ -1,10 +1,13 @@
 package kz.qasqir.qasqirinventory.api.model.request;
 
+import java.util.List;
+
 public class RegisterInviteRequest {
     private String userName;
     private String password;
     private String email;
     private String userNumber;
+    private List<String> userRoles;
 
     public String getEmail() {
         return email;
@@ -38,4 +41,11 @@ public class RegisterInviteRequest {
         this.password = password;
     }
 
+    public List<String> getUserRoles() {
+        return userRoles;
+    }
+
+    public void setUserRoles(List<String> userRoles) {
+        this.userRoles = userRoles;
+    }
 }
