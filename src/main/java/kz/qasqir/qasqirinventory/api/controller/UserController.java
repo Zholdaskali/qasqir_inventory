@@ -1,6 +1,7 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import kz.qasqir.qasqirinventory.api.model.dto.OrganizationDTO;
 import kz.qasqir.qasqirinventory.api.model.request.*;
 import kz.qasqir.qasqirinventory.api.model.dto.UserDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
@@ -9,6 +10,8 @@ import kz.qasqir.qasqirinventory.api.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.print.attribute.standard.Fidelity;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -20,15 +23,17 @@ public class UserController {
     private final SessionService sessionService;
     private final ImageService imageService;
     private final PasswordRecoveryService passwordRecoveryService;
+    private final OrganizationService organizationService;
 
     @Autowired
-    public UserController(UserService userService, PasswordResetService passwordResetService, MailVerificationService mailVerificationService, SessionService sessionService, ImageService imageService, PasswordRecoveryService passwordRecoveryService) {
+    public UserController(UserService userService, PasswordResetService passwordResetService, MailVerificationService mailVerificationService, SessionService sessionService, ImageService imageService, PasswordRecoveryService passwordRecoveryService, OrganizationService organizationService) {
         this.userService = userService;
         this.passwordResetService = passwordResetService;
         this.mailVerificationService = mailVerificationService;
         this.sessionService = sessionService;
         this.imageService = imageService;
         this.passwordRecoveryService = passwordRecoveryService;
+        this.organizationService = organizationService;
     }
 
     @Operation(
@@ -130,5 +135,14 @@ public class UserController {
     @DeleteMapping("/{userId}")
     public MessageResponse<Boolean> deleteUser(@PathVariable Long userId) {
         return MessageResponse.of(userService.deleteUserById(userId));
+    }
+
+    @Operation(
+            summary = "Вывод всех организаций",
+            description = "Возвращает список организаций"
+    )
+    @GetMapping("/organization")
+    public MessageResponse<OrganizationDTO> getOrganization() {
+        return MessageResponse.of(organizationService.getOrganization());
     }
 }

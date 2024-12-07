@@ -127,15 +127,6 @@ public class AdminController {
     }
 
     @Operation(
-            summary = "Вывод всех организаций",
-            description = "Возвращает список организаций"
-    )
-    @GetMapping("/organization")
-    public MessageResponse<OrganizationDTO> getOrganization() {
-        return MessageResponse.of(organizationService.getOrganization());
-    }
-
-    @Operation(
             summary = "Изменение параметров организации",
             description = "Возвращает измененную организацию"
     )
