@@ -49,6 +49,8 @@ SELECT * FROM t_exception_log
 
 SELECT * FROM flyway_schema_history
 
+SELECT * FROM t_warehouse_zones
+
 SELECT * FROM vw_users_roles
 
 --  Вывод всех действуюших приглашенных пользователей

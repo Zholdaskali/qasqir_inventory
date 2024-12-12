@@ -118,9 +118,6 @@ public class UserService {
 
     public UserDTO getUserProfileByUserId(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException :: new);
-        System.out.println(user.getImageId());
-        System.out.println(user.getId());
-        System.out.println(user.getUserName());
         return convertToUserDTO(user);
     }
 
@@ -136,7 +133,4 @@ public class UserService {
                 user.isEmailVerified(), roleNames, user.getRegistrationDate(), imagePath);
     }
 
-    public Optional<User> findById(Long userId) {
-        return userRepository.findById(userId);
-    }
 }
