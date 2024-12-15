@@ -1,34 +1,20 @@
-package kz.qasqir.qasqirinventory.api.model.entity;
+package kz.qasqir.qasqirinventory.api.model.dto;
 
-import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-@Table(name = "t_categories")
-public class Category {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
-    private String name;
-
-    @Column(name = "created_by")
-    private Long createdBy;
-
-    @Column(name = "updated_by")
-    private Long updatedBy;
-
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt = LocalDateTime.now();
+public class CategoryDTO {
+    private Long id; // Идентификатор категории
+    private String name; // Название категории
+    private Long createdBy; // ID пользователя, создавшего категорию
+    private Long updatedBy; // ID пользователя, обновившего категорию
+    private LocalDateTime createdAt; // Дата и время создания категории
+    private LocalDateTime updatedAt;
 
     public Long getId() {
         return id;
@@ -78,5 +64,3 @@ public class Category {
         this.updatedAt = updatedAt;
     }
 }
-
-

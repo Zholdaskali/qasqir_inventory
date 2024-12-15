@@ -8,6 +8,7 @@ import kz.qasqir.qasqirinventory.api.model.entity.WarehouseZone;
 import kz.qasqir.qasqirinventory.api.model.request.WarehouseZoneRequest;
 import kz.qasqir.qasqirinventory.api.repository.WarehouseRepository;
 import kz.qasqir.qasqirinventory.api.repository.WarehouseZoneRepository;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -30,13 +31,27 @@ public class WarehouseZoneService {
 
 
     public String deleteWarehouseZone(Long warehouseZoneId) {
+        Optional<WarehouseZone> warehouseZone = warehouseZoneRepository.findById(warehouseZoneId);
+
+        if (warehouseZone.isEmpty()) {
+            throw new WarehouseZoneException("Зона склада с ID " + warehouseZoneId + " не найдена");
+        }
+
         try {
+            // Удаление зоны из базы данных
             warehouseZoneRepository.deleteById(warehouseZoneId);
-            return "Зона на складе успешно удалена";
+            return "Зона склада с ID " + warehouseZoneId + " успешно удалена";
+        } catch (DataAccessException e) {
+            // Логирование ошибки и выброс исключения
+            String errorMessage = "Ошибка при удалении зоны склада: " + e.getMessage();
+            throw new WarehouseZoneException(errorMessage);
         } catch (Exception e) {
-            throw new WarehouseZoneException("Ошибка при удалении зоны склада: " + e.getMessage() + e);
+            // Общий случай для неожиданных ошибок
+            String errorMessage = "Неизвестная ошибка при удалении зоны склада: " + e.getMessage();
+            throw new WarehouseZoneException(errorMessage);
         }
     }
+
 
     public List<WarehouseZoneDTO> getAllWarehouseZoneByWarehouseId(Long warehouseId) {
         return warehouseZoneRepository.findAllByWarehouseId(warehouseId)
@@ -45,9 +60,9 @@ public class WarehouseZoneService {
                 .collect(Collectors.toList());
     }
 
-    public String addWarehouseZone(WarehouseZoneRequest warehouseZoneRequest, Long userId) {
+    public String addWarehouseZone(Long warehouseId, WarehouseZoneRequest warehouseZoneRequest, Long userId) {
         try {
-            Warehouse warehouse = getWarehouseById(warehouseZoneRequest.getWarehouseId());
+            Warehouse warehouse = getWarehouseById(warehouseId);
             WarehouseZone parentZone = Optional.ofNullable(warehouseZoneRequest.getParentId())
                     .map(this::getParentZoneById)
                     .orElse(null);
@@ -68,13 +83,13 @@ public class WarehouseZoneService {
         }
     }
 
-    public WarehouseZoneDTO updateWarehouseZone(WarehouseZoneRequest warehouseZoneRequest, Long userId) {
+    public WarehouseZoneDTO updateWarehouseZone(Long warehouseId ,WarehouseZoneRequest warehouseZoneRequest, Long userId) {
         try {
             WarehouseZone warehouseZone = warehouseZoneRepository.findById(warehouseZoneRequest.getId())
                     .orElseThrow(() -> new WarehouseZoneException("Зона склада не найдена с id: " + warehouseZoneRequest.getId()));
 
             updateBasicInfo(warehouseZone, warehouseZoneRequest, userId);
-            updateRelations(warehouseZone, warehouseZoneRequest);
+            updateRelations(warehouseZone, warehouseZoneRequest, warehouseId);
 
             warehouseZoneRepository.save(warehouseZone);
             return warehouseZoneMapper.toDto(warehouseZone); // Используем MapStruct для преобразования
@@ -89,8 +104,8 @@ public class WarehouseZoneService {
         zone.setUpdatedAt(Timestamp.from(Instant.now()).toLocalDateTime());
     }
 
-    private void updateRelations(WarehouseZone zone, WarehouseZoneRequest request) {
-        Warehouse warehouse = getWarehouseById(request.getWarehouseId());
+    private void updateRelations(WarehouseZone zone, WarehouseZoneRequest request, Long warehouseId) {
+        Warehouse warehouse = getWarehouseById(warehouseId);
         WarehouseZone parentZone = Optional.ofNullable(request.getParentId())
                 .map(this::getParentZoneById)
                 .orElse(null);

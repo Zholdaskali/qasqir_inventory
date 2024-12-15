@@ -55,8 +55,8 @@ public class WarehouseService {
         }
 
     }
-//ЖАНЫММММММ СУЙЕМИН
-    public String deleteOrganizationById(Long organizationById) {
+
+    public String deleteWarehouseById(Long organizationById) {
         try {
             warehouseRepository.deleteById(organizationById);
             return "Успешно удалено!";

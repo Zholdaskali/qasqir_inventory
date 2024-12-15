@@ -83,6 +83,11 @@ public class AdminController {
         return MessageResponse.of(inviteService.getInviteIdAndUserNameAndEmail());
     }
 
+
+    @Operation(
+            summary = "удаление инвайта пользователя",
+            description = "Возвращает сообщение об удалении"
+    )
     @DeleteMapping("/invites/{inviteId}")
     public MessageResponse<Boolean> deleteInvite(
             @PathVariable("inviteId") Long inviteId
