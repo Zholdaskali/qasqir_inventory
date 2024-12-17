@@ -1,33 +1,26 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import kz.qasqir.qasqirinventory.api.model.dto.CategoryDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.WarehouseDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.WarehouseZoneDTO;
 import kz.qasqir.qasqirinventory.api.model.request.*;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.service.CategoryService;
 import kz.qasqir.qasqirinventory.api.service.WarehouseService;
 import kz.qasqir.qasqirinventory.api.service.WarehouseZoneService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 
 @RestController
 @RequestMapping("/api/v1/warehouse-manager")
-public class WarehouseManagerController {
+public class WarehouseStructureController {
 
     private final WarehouseService warehouseService;
     private final WarehouseZoneService warehouseZoneService;
-    private final CategoryService categoryService;
 
-    public WarehouseManagerController(WarehouseService warehouseService, WarehouseZoneService warehouseZoneService, CategoryService categoryService) {
+    public WarehouseStructureController(WarehouseService warehouseService, WarehouseZoneService warehouseZoneService) {
         this.warehouseService = warehouseService;
         this.warehouseZoneService = warehouseZoneService;
-        this.categoryService = categoryService;
     }
-
 
     @Operation(
             summary = "Удаление склада",
@@ -99,47 +92,4 @@ public class WarehouseManagerController {
         return MessageResponse.empty(responseMessage);
     }
 
-    @Operation(
-            summary = "Получение списка всех категорий",
-            description = "Возвращает список категорий"
-    )
-    // Получение списка всех категорий
-    @GetMapping("/categories")
-    public MessageResponse<List<CategoryDTO>> getAllCategories() {
-        List<CategoryDTO> categories = categoryService.getAllCategory();
-        return MessageResponse.of(categories);
-    }
-
-    @Operation(
-            summary = "Создание новой категории",
-            description = "Возвращает сообщение о создании"
-    )
-    // Создание новой категории
-    @PostMapping("/categories")
-    public MessageResponse<String> createCategory(@RequestBody CategorySaveRequest categorySaveRequest, @RequestParam Long userId) {
-        String responseMessage = categoryService.saveCategory(categorySaveRequest, userId);
-        return MessageResponse.of(responseMessage);
-    }
-
-    @Operation(
-            summary = "Удаление категории по ID",
-            description = "Возвращает сообщение об удалении"
-    )
-    // Удаление категории по ID
-    @DeleteMapping("/categories/{categoryId}")
-    public MessageResponse<String> deleteCategory(@PathVariable Long categoryId) {
-        String responseMessage = categoryService.deleteCategory(categoryId);
-        return MessageResponse.of(responseMessage);
-    }
-
-    @Operation(
-            summary = "Обновление категории",
-            description = "Возвращает обновленный категорий"
-    )
-    // Обновление категории
-    @PutMapping("/categories")
-    public MessageResponse<CategoryDTO> updateCategory(@RequestBody CategoryUpdateRequest categoryUpdateRequest) {
-        CategoryDTO updatedCategory = categoryService.updateCategory(categoryUpdateRequest);
-        return MessageResponse.of(updatedCategory);
-    }
 }
