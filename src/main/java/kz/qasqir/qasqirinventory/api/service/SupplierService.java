@@ -64,4 +64,8 @@ public class SupplierService {
             throw new SupplierException("Ошибка при обновлении данных поставшика");
         }
     }
+
+    public Supplier getById(Long supplierId) {
+        return supplierRepository.findById(supplierId).orElseThrow(() -> new SupplierException("Поставшика не найден"));
+    }
 }

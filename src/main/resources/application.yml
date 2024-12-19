@@ -63,25 +63,6 @@ api:
     storekeeper: /api/v1/storekeeper
     employee: /api/v1/employee
 
-
-#    @Value("${userRoles.warehouse_manager}")
-#    private String ROLE_WAREHOUSE_MANAGER;
-#
-#    @Value("${userRoles.admin}")
-#    private String ROLE_ADMIN;
-#
-#    @Value("${api.path.warehouse_manager}")
-#    private String PATH_WAREHOUSE_MANAGER_API;
-#
-#    @Value("${api.path.admin}")
-#    private String PATH_ADMIN_API;
-
-
-# Роли пользователей с ID
-roleIds:
-  employee: 1
-  admin: 2
-
 # Ссылка для приглашений
 invite:
   link: http://localhost:5173/recover-password

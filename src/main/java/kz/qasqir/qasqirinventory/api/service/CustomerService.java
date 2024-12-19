@@ -60,4 +60,8 @@ public class CustomerService {
             throw new CustomerException("Ошибка при удалении покупателя");
         }
     }
+
+    public Customer getBuId(Long customerId) {
+        return customerRepository.findById(customerId).orElseThrow(() -> new CustomerException("Покупатель не найден"));
+    }
 }

@@ -113,6 +113,9 @@ public class NomenclatureService {
     }
 
 
+    public Nomenclature getById(Long nomenclatureId) {
+        return nomenclatureRepository.findById(nomenclatureId).orElseThrow(() -> new NomenclatureException("Номернклатура не найдена"));
+    }
 
 
 

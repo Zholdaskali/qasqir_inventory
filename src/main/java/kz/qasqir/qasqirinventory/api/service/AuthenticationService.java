@@ -24,12 +24,6 @@ public class AuthenticationService {
     private final InviteMailService inviteMailService;
     private final ValidateDataService validateDataService;
 
-    @Value("${roleIds.employee}")
-    private Long EMPLOYEE_ROLE_ID;
-
-    @Value("${roleIds.admin}")
-    private Long ADMIN_ROLE_ID;
-
     @Value("${invite.link}")
     private String INVITE_LINK;
 
