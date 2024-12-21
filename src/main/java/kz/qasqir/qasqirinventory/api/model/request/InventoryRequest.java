@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 
 
 @Data
-@AllArgsConstructor
 public class InventoryRequest {
     private Long nomenclatureId; // ID номенклатуры
     private Long warehouseZoneId; // ID зоны склада

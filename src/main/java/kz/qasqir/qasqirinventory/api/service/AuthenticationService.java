@@ -71,6 +71,7 @@ public class AuthenticationService {
 
             String inviteLink = inviteService.generate(INVITE_LINK, savedUser.getId()).getLink();
             inviteMailService.sendInviteEmail(registerInviteRequest.getUserName(), registerInviteRequest.getEmail(), registerInviteRequest.getPassword(), inviteLink, SUPPORT_EMAIL, SUPPORT_PHONE, COMPANY_CONTACT_INFO);
+            System.out.println("Контроллер: " + Thread.currentThread().getName());
             return "Приглашение отправлено";
         } catch (EmailIsAlreadyRegisteredException | NumberIsAlreadyRegisteredException e) {
             throw e;

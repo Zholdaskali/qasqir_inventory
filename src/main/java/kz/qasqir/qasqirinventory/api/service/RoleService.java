@@ -34,4 +34,8 @@ public class RoleService {
         roleRepository.deleteRoleFromUser(userId, roleId);
     }
 
+
+    public List<Object[]> getRolesForUsers() {
+        return roleRepository.findRolesForUsers();
+    }
 }

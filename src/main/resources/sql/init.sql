@@ -91,3 +91,89 @@ INSERT INTO t_images (id, image_path)
 UPDATE t_users
 SET image_id = 1
 WHERE id = 2;
+
+
+DELETE FROM flyway_schema_history WHERE version = '10';
+
+
+
+SELECT
+    nz.name AS nomenclature_name,
+    nz.article AS nomenclature_article,
+    nz.code AS nomenclature_code,
+    nz.measurement_unit AS nomenclature_unit,
+    i.quantity AS inventory_quantity,
+    wc.serial_number AS container_serial,
+    wz.name AS warehouse_zone_name,
+    w.location AS warehouse_location
+FROM
+    t_inventory i
+JOIN t_nomenclature nz ON i.nomenclature_id = nz.id
+JOIN t_warehouse_zones wz ON i.warehouse_zone_id = wz.id
+JOIN t_warehouses w ON wz.warehouse_id = w.id
+LEFT JOIN t_warehouse_containers wc ON i.container_serial = wc.serial_number;
+
+
+
+SELECT
+    w.id AS warehouse_id,
+    w.name AS warehouse_name,
+    w.location AS warehouse_location,
+    z.id AS zone_id,
+    z.name AS zone_name,
+    c.serial_number AS container_serial,
+    n.id AS nomenclature_id,
+    n.name AS nomenclature_name,
+    n.measurement_unit,
+    i.quantity
+FROM
+    t_warehouses w
+JOIN
+    t_warehouse_zones z ON z.warehouse_id = w.id
+LEFT JOIN
+    t_warehouse_containers c ON c.warehouse_zone_id = z.id
+LEFT JOIN
+    t_inventory i ON i.container_serial = c.serial_number
+LEFT JOIN
+    t_nomenclature n ON n.id = i.nomenclature_id
+WHERE
+    w.id = 1
+ORDER BY
+    z.id, c.serial_number, n.id;
+
+
+
+select
+wz1_0.id,
+wz1_0.created_at,
+wz1_0.created_by,
+wz1_0.name,
+p1_0.id,
+p1_0.created_at,
+p1_0.created_by,
+p1_0.name,
+p1_0.parent_id,
+p1_0.updated_at,
+p1_0.updated_by,
+p1_0.warehouse_id,
+w1_0.id,
+w1_0.created_at,
+w1_0.location,
+w1_0.name,
+w1_0.updated_at,
+wz1_0.updated_at,
+wz1_0.updated_by,
+wz1_0.warehouse_id,
+w2_0.id,
+w2_0.created_at,
+w2_0.location,
+w2_0.name,
+w2_0.updated_at
+from t_warehouse_zones wz1_0
+left join t_warehouse_zones p1_0
+on p1_0.id=wz1_0.parent_id
+left join t_warehouses w1_0
+on w1_0.id=p1_0.warehouse_id
+join t_warehouses w2_0
+on w2_0.id=wz1_0.warehouse_id
+where wz1_0.id=1

@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "t_users")
@@ -28,6 +29,14 @@ public class User {
     @Column(name = "image_id")
     private Long imageId;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "t_user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private List<Role> roles;
+
     public User() {
 
     }
@@ -42,6 +51,7 @@ public class User {
         this.password = password;
         this.registrationDate = new Timestamp(System.currentTimeMillis()).toLocalDateTime();
     }
+
 
     public String getPhoneNumber() {
         return phoneNumber;

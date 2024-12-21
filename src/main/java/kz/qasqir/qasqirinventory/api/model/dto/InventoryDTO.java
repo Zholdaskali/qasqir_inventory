@@ -1,14 +1,10 @@
 package kz.qasqir.qasqirinventory.api.model.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class InventoryDTO {
-    private Long nomenclatureId;
+    private Long id;
     private BigDecimal quantity;
     private Long warehouseZoneId;
     private String containerSerial;
@@ -16,7 +12,7 @@ public class InventoryDTO {
     private LocalDateTime updatedAt;
 
     public InventoryDTO(Long nomenclatureId, BigDecimal quantity, Long warehouseZoneId, String containerSerial, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.nomenclatureId = nomenclatureId;
+        this.id = nomenclatureId;
         this.quantity = quantity;
         this.warehouseZoneId = warehouseZoneId;
         this.containerSerial = containerSerial;
@@ -24,12 +20,12 @@ public class InventoryDTO {
         this.updatedAt = updatedAt;
     }
 
-    public Long getNomenclatureId() {
-        return nomenclatureId;
+    public Long getId() {
+        return id;
     }
 
-    public void setNomenclatureId(Long nomenclatureId) {
-        this.nomenclatureId = nomenclatureId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public BigDecimal getQuantity() {

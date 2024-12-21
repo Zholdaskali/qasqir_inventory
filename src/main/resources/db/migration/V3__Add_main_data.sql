@@ -7,7 +7,6 @@ VALUES
     (5, 'Bitrix User', '$2a$12$W3qpaw./1DZy/t3elNdtjeo.rttSOnPWywU.8tdOuWgTwNGIWvmhq', 'test@gmail.com', '+111111111', CURRENT_TIMESTAMP, false);
 
 
-
 INSERT INTO t_user_roles (id, user_id, role_id)
 VALUES
     (1, 1, 1),

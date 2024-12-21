@@ -28,7 +28,7 @@ public class Bitrix24Service {
     }
 
     public List<UserDTO> getUsers() {
-        return userService.getUserAll();
+        return userService.getAllUsers();
     }
 }
 

@@ -32,12 +32,12 @@ public class PartnerController {
         return MessageResponse.of(supplierService.getAllSuppliers());
     }
 
-    @DeleteMapping("/{supplierId}")
+    @DeleteMapping("/suppliers/{supplierId}")
     public MessageResponse<String> deleteSupplier(@PathVariable Long supplierId) {
         return MessageResponse.empty(supplierService.deleteSupplier(supplierId));
     }
 
-    @PutMapping("/{supplierId}")
+    @PutMapping("/suppliers/{supplierId}")
     public MessageResponse<SupplierDTO> updateSupplier(@RequestBody SupplierRequest supplierRequest, @PathVariable Long supplierId) {
         return MessageResponse.of(supplierService.updateSupplier(supplierRequest, supplierId));
     }
@@ -52,12 +52,12 @@ public class PartnerController {
         return MessageResponse.of(customerService.saveCustomer(customerRequest));
     }
 
-    @PutMapping("/{customerId}")
+    @PutMapping("/customers/{customerId}")
     public MessageResponse<CustomerDTO> updateCustomer(@RequestBody CustomerRequest customerRequest, Long customerId) {
         return MessageResponse.of(customerService.updateCustomer(customerRequest, customerId));
     }
 
-    @DeleteMapping("/{customerId}")
+    @DeleteMapping("/customers/{customerId}")
     public MessageResponse<String> deleteCustomer(@PathVariable Long customerId) {
         return MessageResponse.of(customerService.deleteCustomer(customerId));
     }

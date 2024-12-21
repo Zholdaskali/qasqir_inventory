@@ -33,4 +33,7 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     @Query(value = "DELETE FROM t_user_roles WHERE user_id = :userId AND role_id = :roleId", nativeQuery = true)
     void deleteRoleFromUser(@Param("userId") Long userId, @Param("roleId") Long roleId);
 
+
+    @Query("SELECT u.id, r.roleName FROM User u JOIN u.roles r")
+    List<Object[]> findRolesForUsers();
 }

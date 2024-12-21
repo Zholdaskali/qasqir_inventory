@@ -12,14 +12,14 @@ public class Inventory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nomenclature_id", nullable = false)
     private Nomenclature nomenclature;
 
     @Column(nullable = false, precision = 15, scale = 3)
     private BigDecimal quantity = BigDecimal.ZERO;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "warehouse_zone_id", nullable = false)
     private WarehouseZone warehouseZone;
 

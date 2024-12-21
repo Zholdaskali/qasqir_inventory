@@ -59,7 +59,6 @@ public class MailVerificationService {
 
         @Transactional
         public boolean verify(MailVerificationCheckRequest request) {
-                System.out.println(request.getEmail() + "  " + request.getCode());
                 MailVerification mailVerification = mailVerificationRepository.findByCodeAndEmail(request.getCode(), request.getEmail()).orElseThrow(InvalidVerificationCodeException::new);
                 mailVerificationRepository.delete(mailVerification);
                 User user = userRepository.findByEmail(request.getEmail()).orElseThrow(UserNotFoundException::new);

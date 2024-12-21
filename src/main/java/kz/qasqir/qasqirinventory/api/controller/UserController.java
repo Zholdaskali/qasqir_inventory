@@ -1,6 +1,7 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import kz.qasqir.qasqirinventory.api.model.dto.InventoryItemDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.OrganizationDTO;
 import kz.qasqir.qasqirinventory.api.model.request.*;
 import kz.qasqir.qasqirinventory.api.model.dto.UserDTO;
@@ -11,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.print.attribute.standard.Fidelity;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -24,9 +25,10 @@ public class UserController {
     private final ImageService imageService;
     private final PasswordRecoveryService passwordRecoveryService;
     private final OrganizationService organizationService;
+    private final InventoryService inventoryService;
 
     @Autowired
-    public UserController(UserService userService, PasswordResetService passwordResetService, MailVerificationService mailVerificationService, SessionService sessionService, ImageService imageService, PasswordRecoveryService passwordRecoveryService, OrganizationService organizationService) {
+    public UserController(UserService userService, PasswordResetService passwordResetService, MailVerificationService mailVerificationService, SessionService sessionService, ImageService imageService, PasswordRecoveryService passwordRecoveryService, OrganizationService organizationService, InventoryService inventoryService) {
         this.userService = userService;
         this.passwordResetService = passwordResetService;
         this.mailVerificationService = mailVerificationService;
@@ -34,6 +36,7 @@ public class UserController {
         this.imageService = imageService;
         this.passwordRecoveryService = passwordRecoveryService;
         this.organizationService = organizationService;
+        this.inventoryService = inventoryService;
     }
 
     @Operation(
@@ -144,5 +147,15 @@ public class UserController {
     @GetMapping("/organization")
     public MessageResponse<OrganizationDTO> getOrganization() {
         return MessageResponse.of(organizationService.getOrganization());
+    }
+
+    @GetMapping("/inventory/items")
+    public MessageResponse<List<InventoryItemDTO>> getAllInventoryItems() {
+        return MessageResponse.of(inventoryService.getAllInventoryItems());
+    }
+
+    @GetMapping("/inventory/items/{warehouseZoneId}")
+    public MessageResponse<List<InventoryItemDTO>> getAllInventoryItemsByWarehouseId(@PathVariable Long warehouseZoneId) {
+        return MessageResponse.of(inventoryService.getAllInventoryItemsByWarehouseId(warehouseZoneId));
     }
 }

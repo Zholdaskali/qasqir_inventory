@@ -53,7 +53,7 @@ public class AdminController {
     )
     @GetMapping("/user")
     public MessageResponse<List<UserDTO>> getUserAll() {
-        return MessageResponse.of(userService.getUserAll());
+        return MessageResponse.of(userService.getAllUsers());
     }
 
     @Operation(

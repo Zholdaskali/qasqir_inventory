@@ -5,13 +5,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class InviteMailService {
 
-    private final MailService mailService;
-    private final OrganizationService organizationService;
+    private final AsyncMailService mailService;
 
 
-    public InviteMailService(MailService mailService, OrganizationService organizationService) {
+    public InviteMailService(AsyncMailService mailService) {
         this.mailService = mailService;
-        this.organizationService = organizationService;
     }
 
     public void sendInviteEmail(String userName, String email, String password, String INVITE_LINK, String SUPPORT_EMAIL, String SUPPORT_PHONE, String COMPANY_CONTACT_INFO) {

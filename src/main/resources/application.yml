@@ -84,6 +84,12 @@ company:
 # Логирование
 logging:
   level:
-    org.flywaydb: DEBUG
+    org.springframework.mail: ERROR            # Отключение логов для почтовых операций в Spring
+    org.apache.commons.mail: ERROR             # Отключение логов для Apache Commons Mail (если используется)
+    org.hibernate.SQL: DEBUG                # Логирование SQL-запросов (по желанию)
+    org.flywaydb: DEBUG                      # Логирование Flyway миграций (если необходимо)
+
+
+
 bitrix24:
   webhook-url: "https://b24-mvtnvt.bitrix24.kz/rest/1/n7jy59tgz5tnu571/"

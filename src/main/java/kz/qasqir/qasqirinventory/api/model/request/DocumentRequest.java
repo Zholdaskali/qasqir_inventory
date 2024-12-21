@@ -6,7 +6,6 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@AllArgsConstructor
 public class DocumentRequest {
     private String documentType;
     private String documentNumber;

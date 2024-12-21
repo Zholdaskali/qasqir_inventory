@@ -40,7 +40,7 @@ public class NomenclatureService {
             nomenclature.setName(nomenclatureRequest.getName());
             nomenclature.setArticle(nomenclatureRequest.getArticle());
             nomenclature.setCode(nomenclatureRequest.getCode());
-            nomenclature.setType(nomenclature.getType());
+            nomenclature.setType(nomenclatureRequest.getType());
             nomenclature.setCategory(category);
             nomenclature.setMeasurementUnit(nomenclatureRequest.getMeasurement_unit());
             nomenclature.setTnvedCode(nomenclatureRequest.getTnved_code());

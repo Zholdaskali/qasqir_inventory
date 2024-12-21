@@ -1,12 +1,9 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
 import kz.qasqir.qasqirinventory.api.model.dto.InventoryDTO;
-import kz.qasqir.qasqirinventory.api.model.entity.Nomenclature;
 import kz.qasqir.qasqirinventory.api.model.request.InventoryRequest;
-import kz.qasqir.qasqirinventory.api.model.request.NomenclatureRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.service.InventoryService;
-import kz.qasqir.qasqirinventory.api.service.NomenclatureService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

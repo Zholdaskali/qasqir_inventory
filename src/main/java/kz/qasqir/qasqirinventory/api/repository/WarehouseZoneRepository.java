@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface WarehouseZoneRepository extends JpaRepository<WarehouseZone, Long> {
     List<WarehouseZone> findAllByWarehouseId(Long warehouseId);
+
 }

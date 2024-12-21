@@ -9,13 +9,12 @@ import kz.qasqir.qasqirinventory.api.model.request.UpdateUserRequest;
 import kz.qasqir.qasqirinventory.api.model.entity.Role;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
 import kz.qasqir.qasqirinventory.api.model.request.UserRoleResetRequest;
+import kz.qasqir.qasqirinventory.api.repository.RoleRepository;
 import kz.qasqir.qasqirinventory.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -133,4 +132,39 @@ public class UserService {
                 user.isEmailVerified(), roleNames, user.getRegistrationDate(), imagePath);
     }
 
+
+    public List<UserDTO> getAllUsers() {
+        // Шаг 1: Получить всех пользователей
+        List<User> users = userRepository.findAll();
+
+        // Шаг 2: Получить роли для пользователей
+        Map<Long, List<String>> userRolesMap = new HashMap<>();
+        List<Object[]> rolesData = roleService.getRolesForUsers();
+
+        for (Object[] row : rolesData) {
+            Long userId = (Long) row[0];
+            String roleName = (String) row[1];
+            userRolesMap.computeIfAbsent(userId, k -> new ArrayList<>()).add(roleName);
+        }
+
+        // Шаг 3: Преобразовать пользователей в DTO
+        return users.stream()
+                .map(user -> {
+                    List<String> roles = userRolesMap.getOrDefault(user.getId(), Collections.emptyList());
+                    String imagePath = (user.getImageId() != null) ? "/images/" + user.getImageId() : null;
+
+                    return new UserDTO(
+                            user.getId(),
+                            user.getUserName(),
+                            user.getEmail(),
+                            user.getPhoneNumber(),
+                            user.isEmailVerified(),
+                            roles,
+                            user.getRegistrationDate(),
+                            imagePath
+                    );
+                })
+                .collect(Collectors.toList());
+
+    }
 }
