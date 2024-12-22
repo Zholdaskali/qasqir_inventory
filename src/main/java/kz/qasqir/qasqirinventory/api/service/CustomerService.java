@@ -16,7 +16,9 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
 
-    public CustomerService(CustomerRepository customerRepository, CustomerMapper customerMapper) {
+    public CustomerService(CustomerRepository customerRepository,
+                           CustomerMapper customerMapper)
+    {
         this.customerRepository = customerRepository;
         this.customerMapper = customerMapper;
     }

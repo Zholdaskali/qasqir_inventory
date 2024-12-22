@@ -87,8 +87,7 @@ public class DocumentService {
         }
     }
 
-    public DocumentDTO getById(Long documentId) {
-        Document document = documentRepository.findById(documentId).orElseThrow(() -> new DocumentException("Документ не найден"));
-        return documentMapper.toDto(document);
+    public Document getById(Long documentId) {
+        return documentRepository.findById(documentId).orElseThrow(() -> new DocumentException("Документ не найден"));
     }
 }

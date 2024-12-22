@@ -64,7 +64,7 @@ public class WarehouseZoneService {
         try {
             Warehouse warehouse = getWarehouseById(warehouseId);
             WarehouseZone parentZone = Optional.ofNullable(warehouseZoneRequest.getParentId())
-                    .map(this::getWarehouseZoneById)
+                    .map(this::getById)
                     .orElse(null);
 
             WarehouseZone warehouseZone = new WarehouseZone();
@@ -107,7 +107,7 @@ public class WarehouseZoneService {
     private void updateRelations(WarehouseZone zone, WarehouseZoneRequest request, Long warehouseId) {
         Warehouse warehouse = getWarehouseById(warehouseId);
         WarehouseZone parentZone = Optional.ofNullable(request.getParentId())
-                .map(this::getWarehouseZoneById)
+                .map(this::getById)
                 .orElse(null);
 
         zone.setWarehouse(warehouse);
@@ -119,7 +119,7 @@ public class WarehouseZoneService {
                 .orElseThrow(() -> new WarehouseZoneException("Склад не найден с id: " + warehouseId));
     }
 
-    public WarehouseZone getWarehouseZoneById(Long warehouseZoneId) {
+    public WarehouseZone getById(Long warehouseZoneId) {
         return warehouseZoneRepository.findById(warehouseZoneId)
                 .orElseThrow(() -> new WarehouseZoneException("Родительская зона не найдена с id: " + warehouseZoneId));
     }

@@ -7,9 +7,7 @@ import kz.qasqir.qasqirinventory.api.model.dto.InventoryItemDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.Inventory;
 import kz.qasqir.qasqirinventory.api.model.entity.Nomenclature;
 import kz.qasqir.qasqirinventory.api.model.entity.WarehouseZone;
-import kz.qasqir.qasqirinventory.api.model.request.DocumentRequest;
 import kz.qasqir.qasqirinventory.api.model.request.InventoryRequest;
-import kz.qasqir.qasqirinventory.api.model.request.NomenclatureRequest;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +35,7 @@ public class InventoryService {
         try {
             Inventory inventory = new Inventory();
             Nomenclature nomenclature = nomenclatureService.getById(inventoryRequest.getNomenclatureId());
-            WarehouseZone warehouseZone = warehouseZoneService.getWarehouseZoneById(warehouseZoneId);
+            WarehouseZone warehouseZone = warehouseZoneService.getById(warehouseZoneId);
 
             inventory.setNomenclature(nomenclature);
             inventory.setWarehouseZone(warehouseZone);
@@ -66,7 +64,7 @@ public class InventoryService {
             }
 
             if (inventoryRequest.getWarehouseZoneId() != null) {
-                WarehouseZone warehouseZone = warehouseZoneService.getWarehouseZoneById(inventoryRequest.getWarehouseZoneId());
+                WarehouseZone warehouseZone = warehouseZoneService.getById(inventoryRequest.getWarehouseZoneId());
                 existingInventory.setWarehouseZone(warehouseZone);
             }
 
