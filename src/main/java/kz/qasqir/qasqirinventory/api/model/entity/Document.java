@@ -29,6 +29,9 @@ public class Document {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
+    @Column(name = "status")
+    private String status;
+
     @Column(name = "created_by")
     private Long createdBy;
 
@@ -43,6 +46,14 @@ public class Document {
 
     // Getters and setters
 
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public Long getId() {
         return id;

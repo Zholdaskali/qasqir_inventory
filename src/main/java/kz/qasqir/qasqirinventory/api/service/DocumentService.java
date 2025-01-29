@@ -6,7 +6,6 @@ import kz.qasqir.qasqirinventory.api.model.dto.DocumentDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.Customer;
 import kz.qasqir.qasqirinventory.api.model.entity.Document;
 import kz.qasqir.qasqirinventory.api.model.entity.Supplier;
-import kz.qasqir.qasqirinventory.api.model.entity.User;
 import kz.qasqir.qasqirinventory.api.model.request.DocumentRequest;
 import kz.qasqir.qasqirinventory.api.repository.DocumentRepository;
 import org.springframework.stereotype.Service;
@@ -20,21 +19,18 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final SupplierService supplierService;
     private final CustomerService customerService;
-    private final UserService userService;
     private final DocumentMapper documentMapper;
 
-    public DocumentService(DocumentRepository documentRepository, SupplierService supplierService, CustomerService customerService, UserService userService, DocumentMapper documentMapper) {
+    public DocumentService(DocumentRepository documentRepository, SupplierService supplierService, CustomerService customerService, DocumentMapper documentMapper) {
         this.documentRepository = documentRepository;
         this.supplierService = supplierService;
         this.customerService = customerService;
-        this.userService = userService;
         this.documentMapper = documentMapper;
     }
 
-    public DocumentDTO addDocument(DocumentRequest documentRequest, Long userId) {
+    public DocumentDTO addDocument(DocumentRequest documentRequest) {
         Supplier supplier = supplierService.getById(documentRequest.getSupplierId());
         Customer customer = customerService.getBuId(documentRequest.getCustomerId());
-        User createdBy = userService.getByUserId(documentRequest.getCreatedBy());
         try {
             Document document = new Document();
             document.setDocumentType(documentRequest.getDocumentType());
@@ -89,5 +85,9 @@ public class DocumentService {
 
     public Document getById(Long documentId) {
         return documentRepository.findById(documentId).orElseThrow(() -> new DocumentException("Документ не найден"));
+    }
+
+    public void saveDocument(Document document) {
+        documentRepository.save(document);
     }
 }

@@ -7,7 +7,7 @@ public class WarehouseZoneRequest {
     private String name;
     private Long parentId;
 
-    public WarehouseZoneRequest(Long warehouseId, String name, Long parentId) {
+    public WarehouseZoneRequest(String name, Long parentId) {
         this.name = name;
         this.parentId = parentId;
     }

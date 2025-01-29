@@ -37,7 +37,7 @@ public class SessionService {
         String token = tokenGenerator.generate();
         session.setToken(token);
         session.setUserId(userId);
-        session.setExpiration(LocalDateTime.now().plusMinutes(30));
+        session.setExpiration(LocalDateTime.now().plusDays(1));
         return sessionRepository.save(session);
     }
 

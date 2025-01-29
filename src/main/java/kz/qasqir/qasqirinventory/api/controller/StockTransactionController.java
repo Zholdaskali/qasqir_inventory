@@ -2,6 +2,7 @@ package kz.qasqir.qasqirinventory.api.controller;
 
 import kz.qasqir.qasqirinventory.api.model.dto.DocumentDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.InventoryDTO;
+import kz.qasqir.qasqirinventory.api.model.request.DocumentRequest;
 import kz.qasqir.qasqirinventory.api.model.request.InventoryRequest;
 import kz.qasqir.qasqirinventory.api.model.request.ReturnRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
@@ -12,16 +13,17 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/warehouse-manager")
 public class StockTransactionController {
+
     private final InventoryService inventoryService;
     private final StockTransactionService stockTransactionService;
 
     public StockTransactionController(InventoryService inventoryService,
-                                      StockTransactionService stockTransactionService
-    ) {
+                                      StockTransactionService stockTransactionService) {
         this.inventoryService = inventoryService;
         this.stockTransactionService = stockTransactionService;
     }
 
+    // Инвентаризация
     @PostMapping("/inventory")
     public MessageResponse<InventoryDTO> addInventory(@RequestBody InventoryRequest request, @RequestParam Long warehouseZoneId) {
         InventoryDTO inventoryDTO = inventoryService.addInventory(request, warehouseZoneId);
@@ -43,26 +45,10 @@ public class StockTransactionController {
     @DeleteMapping("/inventory/{inventoryId}")
     public MessageResponse<String> deleteInventory(@PathVariable Long inventoryId) {
         inventoryService.deleteInventory(inventoryId);
-        return MessageResponse.empty("Inventory deleted successfully");
+        return MessageResponse.empty("Инвентарь успешно удален");
     }
 
-    // New Endpoints
+// Эндпоинты для транзакций
 
-    @PostMapping("/transactions/incoming")
-    public MessageResponse<String> processIncomingGoods(@RequestBody DocumentDTO documentDTO) {
-        stockTransactionService.processIncomingGoods(documentDTO);
-        return MessageResponse.empty("Incoming goods processed successfully");
-    }
 
-    @PostMapping("/transactions/import")
-    public MessageResponse<String> processImport(@RequestBody DocumentDTO documentDTO) {
-        stockTransactionService.processImport(documentDTO);
-        return MessageResponse.empty("Import processed successfully");
-    }
-
-    @PostMapping("/transactions/return")
-    public MessageResponse<String> processReturn(@RequestBody ReturnRequest returnRequest) {
-        stockTransactionService.processReturn(returnRequest);
-        return MessageResponse.empty("Return processed successfully");
-    }
 }

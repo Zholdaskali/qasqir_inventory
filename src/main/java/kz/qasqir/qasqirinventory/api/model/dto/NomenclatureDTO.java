@@ -1,7 +1,15 @@
 package kz.qasqir.qasqirinventory.api.model.dto;
 
-import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class NomenclatureDTO {
     private Long id;
     private String name;
@@ -16,20 +24,7 @@ public class NomenclatureDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public NomenclatureDTO(Long id, String name, String article, String code, String type, Long categoryId, String measurement, String tnved, Long createdBy, Long updatedBy, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.name = name;
-        this.article = article;
-        this.code = code;
-        this.type = type;
-        this.categoryId = categoryId;
-        this.measurement = measurement;
-        this.tnved = tnved;
-        this.createdBy = createdBy;
-        this.updatedBy = updatedBy;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
+
 
     public Long getId() {
         return id;

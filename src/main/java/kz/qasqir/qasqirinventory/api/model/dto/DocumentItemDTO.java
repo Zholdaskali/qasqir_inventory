@@ -79,7 +79,7 @@ public class DocumentItemDTO {
 
     @Override
     public String toString() {
-        return "DocumentItemDTO{" +
+        return "DocumentItemDTO {" +
                 "nomenclatureId=" + nomenclatureId +
                 ", nomenclatureName='" + nomenclatureName + '\'' +
                 ", quantity=" + quantity +

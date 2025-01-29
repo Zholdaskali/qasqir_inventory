@@ -13,4 +13,5 @@ public class WarehouseDTO {
     private String location;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private int zonesCount;
 }

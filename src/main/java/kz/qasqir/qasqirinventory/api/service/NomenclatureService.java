@@ -31,11 +31,9 @@ public class NomenclatureService {
 
     public String saveNomenclature(NomenclatureRequest nomenclatureRequest, Long categoryId) {
         try {
-            // Проверяем существование категории
             Category category = categoryRepository.findById(categoryId)
                     .orElseThrow(() -> new CategoryException("Категория с id " + categoryId + " не найдена"));
 
-            // Создаем номенклатуру
             Nomenclature nomenclature = new Nomenclature();
             nomenclature.setName(nomenclatureRequest.getName());
             nomenclature.setArticle(nomenclatureRequest.getArticle());
@@ -49,26 +47,21 @@ public class NomenclatureService {
             nomenclature.setCreatedAt(Timestamp.from(Instant.now()).toLocalDateTime());
             nomenclature.setUpdatedAt(Timestamp.from(Instant.now()).toLocalDateTime());
 
-            // Сохраняем номенклатуру
             nomenclatureRepository.save(nomenclature);
 
             return "Номенклатура успешно создана";
         } catch (CategoryException e) {
-            // Логирование или обработка ошибки категории
             return "Ошибка: " + e.getMessage();
         } catch (Exception e) {
-            // Логирование или обработка других ошибок
             return "Произошла непредвиденная ошибка: " + e.getMessage();
         }
     }
 
     public String deleteNomenclature(Long nomenclatureId) {
         try {
-            // Проверяем существование номенклатуры
             Nomenclature nomenclature = nomenclatureRepository.findById(nomenclatureId)
                     .orElseThrow(() -> new NomenclatureException("Номенклатура не найдена"));
 
-            // Удаляем номенклатуру
             nomenclatureRepository.delete(nomenclature);
 
             return "Номенклатура успешно удалена";

@@ -33,7 +33,6 @@ public class Return {
 
     // Getters and setters
 
-
     public Long getId() {
         return id;
     }

@@ -16,9 +16,11 @@ import java.util.List;
 @Service
 public class WarehouseService {
     private final WarehouseRepository warehouseRepository;
+    private final WarehouseZoneService warehouseZoneService;
 
-    public WarehouseService(WarehouseRepository warehouseRepository) {
+    public WarehouseService(WarehouseRepository warehouseRepository, WarehouseZoneService warehouseZoneService) {
         this.warehouseRepository = warehouseRepository;
+        this.warehouseZoneService = warehouseZoneService;
     }
 
     public String saveWarehouse(WareHouseSaveRequest request) {
@@ -67,7 +69,11 @@ public class WarehouseService {
     }
 
     private WarehouseDTO convertToWarehouseDTO(Warehouse warehouse) {
-        return new WarehouseDTO(warehouse.getId(), warehouse.getName(), warehouse.getLocation(), warehouse.getCreatedAt(), warehouse.getUpdatedAt());
+        return new WarehouseDTO(warehouse.getId(), warehouse.getName(), warehouse.getLocation(), warehouse.getCreatedAt(), warehouse.getUpdatedAt(), getZonesCount(warehouse.getId()));
+    }
+
+    private int getZonesCount(Long WarehouseId) {
+        return warehouseZoneService.getAllWarehouseZoneByWarehouseId(WarehouseId).size();
     }
 
     public Warehouse getWarehouseById(Long warehouseId) {

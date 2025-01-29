@@ -18,7 +18,6 @@ public class ActionLog {
     private String endpoint;
     @Column(name = "timestamp", nullable = false)
     private Timestamp timestamp;
-
     public Long getId() {
         return id;
     }

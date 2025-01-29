@@ -93,3 +93,10 @@ logging:
 
 bitrix24:
   webhook-url: "https://b24-mvtnvt.bitrix24.kz/rest/1/n7jy59tgz5tnu571/"
+
+
+
+servlet:
+  multipart:
+    max-file-size: 10MB
+    max-request-size: 10MB

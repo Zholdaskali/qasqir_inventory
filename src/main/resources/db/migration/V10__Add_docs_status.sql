@@ -1,0 +1,1 @@
+ALTER TABLE t_documents ADD COLUMN status VARCHAR(25);

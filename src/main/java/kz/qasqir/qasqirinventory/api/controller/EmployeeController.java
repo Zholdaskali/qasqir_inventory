@@ -1,9 +1,13 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import kz.qasqir.qasqirinventory.api.model.dto.CategoryDTO;
+import kz.qasqir.qasqirinventory.api.model.dto.NomenclatureDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.WarehouseDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.WarehouseZoneDTO;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
+import kz.qasqir.qasqirinventory.api.service.CategoryService;
+import kz.qasqir.qasqirinventory.api.service.NomenclatureService;
 import kz.qasqir.qasqirinventory.api.service.WarehouseService;
 import kz.qasqir.qasqirinventory.api.service.WarehouseZoneService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,10 +23,14 @@ public class EmployeeController {
 
     private final WarehouseService warehouseService;
     private final WarehouseZoneService warehouseZoneService;
+    private final NomenclatureService nomenclatureService;
+    private final CategoryService categoryService;
 
-    public EmployeeController(WarehouseService warehouseService, WarehouseZoneService warehouseZoneService) {
+    public EmployeeController(WarehouseService warehouseService, WarehouseZoneService warehouseZoneService, NomenclatureService nomenclatureService, CategoryService categoryService) {
         this.warehouseService = warehouseService;
         this.warehouseZoneService = warehouseZoneService;
+        this.nomenclatureService = nomenclatureService;
+        this.categoryService = categoryService;
     }
 
     @Operation(
@@ -40,9 +48,26 @@ public class EmployeeController {
             summary = "Просмотр зон склада по warehouseId",
             description = "Возвращает зоды определенного склада"
     )
-    // Просмотр зон склада по warehouseId
     @GetMapping("/warehouses/{warehouseId}/zones")
     public MessageResponse<List<WarehouseZoneDTO>> getZonesByWarehouseId(@PathVariable Long warehouseId) {
         return MessageResponse.of(warehouseZoneService.getAllWarehouseZoneByWarehouseId(warehouseId));
+    }
+
+    @Operation(
+            summary = "Просмотр списка номенклатуры по categoryId",
+            description = "Возвращает номенклатуры определенного категория"
+    )
+    @GetMapping("/categories/{categoryId}/nomenclatures")
+    public MessageResponse<List<NomenclatureDTO>> getNomenclatures(@PathVariable Long categoryId) {
+        return MessageResponse.of(nomenclatureService.getAllNomenclature(categoryId));
+    }
+
+    @Operation(
+            summary = "Просмотр списка категории",
+            description = "Возвращает общий список категорий"
+    )
+    @GetMapping("/categories")
+    public MessageResponse<List<CategoryDTO>> getCategories() {
+        return MessageResponse.of(categoryService.getAllCategory());
     }
 }
