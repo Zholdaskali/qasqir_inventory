@@ -1,12 +1,16 @@
 package kz.qasqir.qasqirinventory.api.model.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "t_inventory")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Inventory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,8 +36,11 @@ public class Inventory {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    // Getters and setters
-
+    public Inventory(Nomenclature nomenclature, BigDecimal quantity, WarehouseZone warehouseZone) {
+        this.nomenclature = nomenclature;
+        this.quantity = quantity;
+        this.warehouseZone = warehouseZone;
+    }
 
     public Long getId() {
         return id;

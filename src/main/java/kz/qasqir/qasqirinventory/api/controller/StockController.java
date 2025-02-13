@@ -63,10 +63,10 @@ public class StockController {
             description = "Возвращает обновленный категорий"
     )
     // Обновление категории
-    @PutMapping("/categories")
-    public MessageResponse<CategoryDTO> updateCategory(@RequestBody CategoryUpdateRequest categoryUpdateRequest) {
-        CategoryDTO updatedCategory = categoryService.updateCategory(categoryUpdateRequest);
-        return MessageResponse.of(updatedCategory);
+    @PutMapping("/categories/{categoryId}")
+    public MessageResponse<String> updateCategory(@RequestBody CategoryUpdateRequest categoryUpdateRequest, @PathVariable Long categoryId) {
+        System.out.println(categoryId);
+        return MessageResponse.of(categoryService.updateCategory(categoryUpdateRequest, categoryId));
     }
 
     @Operation(

@@ -1,22 +1,12 @@
 package kz.qasqir.qasqirinventory.api.model.request;
 
 public class WarehouseUpdateRequest {
-    private Long id;
     private String name;
     private String location;
 
-    public WarehouseUpdateRequest(Long id, String name, String location) {
-        this.id = id;
+    public WarehouseUpdateRequest(String name, String location) {
         this.name = name;
         this.location = location;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {

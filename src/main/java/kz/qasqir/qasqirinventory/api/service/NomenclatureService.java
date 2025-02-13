@@ -87,7 +87,11 @@ public class NomenclatureService {
             nomenclature.setTnvedCode(nomenclatureRequest.getTnved_code());
             nomenclature.setUpdatedBy(nomenclatureRequest.getUpdated_by());
             nomenclature.setUpdatedAt(LocalDateTime.now());
-
+            nomenclature.setCategory(categoryRepository.findById(nomenclatureRequest.getCategoryId()).orElseThrow(() -> new CategoryException(" При изменении категории в номенклатуре. Категория не найдена")));
+            nomenclature.setHeight(nomenclatureRequest.getHeight());
+            nomenclature.setLength(nomenclatureRequest.getLength());
+            nomenclature.setWidth(nomenclatureRequest.getWidth());
+            nomenclature.setVolume(nomenclatureRequest.getVolume());
             // Сохраняем обновленную номенклатуру
             nomenclatureRepository.save(nomenclature);
 

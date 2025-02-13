@@ -13,4 +13,9 @@ public class NomenclatureRequest {
     private Long updated_by;
     private String tnved_code;
     private String measurement_unit;
+    private Long categoryId;
+    private Double width;
+    private Double height;
+    private Double length;
+    private Double volume;
 }

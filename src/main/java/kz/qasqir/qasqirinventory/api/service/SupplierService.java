@@ -66,6 +66,6 @@ public class SupplierService {
     }
 
     public Supplier getById(Long supplierId) {
-        return supplierRepository.findById(supplierId).orElseThrow(() -> new SupplierException("Поставшика не найден"));
+        return supplierRepository.findById(supplierId).orElseThrow(() -> new SupplierException("Поставшик не найден"));
     }
 }

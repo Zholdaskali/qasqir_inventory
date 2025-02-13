@@ -31,12 +31,6 @@ public class WarehouseZoneService {
 
 
     public String deleteWarehouseZone(Long warehouseZoneId) {
-        Optional<WarehouseZone> warehouseZone = warehouseZoneRepository.findById(warehouseZoneId);
-
-        if (warehouseZone.isEmpty()) {
-            throw new WarehouseZoneException("Зона склада с ID " + warehouseZoneId + " не найдена");
-        }
-
         try {
             // Удаление зоны из базы данных
             warehouseZoneRepository.deleteById(warehouseZoneId);
@@ -71,6 +65,9 @@ public class WarehouseZoneService {
             warehouseZone.setName(warehouseZoneRequest.getName());
             warehouseZone.setParent(parentZone);
             warehouseZone.setWarehouse(warehouse);
+            warehouseZone.setWidth(warehouseZoneRequest.getWidth());
+            warehouseZone.setHeight(warehouseZoneRequest.getHeight());
+            warehouseZone.setLength(warehouseZoneRequest.getLength());
             warehouseZone.setCreatedBy(userId);
             warehouseZone.setUpdatedBy(userId);
             warehouseZone.setCreatedAt(Timestamp.from(Instant.now()).toLocalDateTime());
@@ -101,6 +98,9 @@ public class WarehouseZoneService {
     private void updateBasicInfo(WarehouseZone zone, WarehouseZoneRequest request, Long userId) {
         zone.setName(request.getName());
         zone.setUpdatedBy(userId);
+        zone.setLength(request.getLength());
+        zone.setWidth(request.getWidth());
+        zone.setHeight(request.getHeight());
         zone.setUpdatedAt(Timestamp.from(Instant.now()).toLocalDateTime());
     }
 

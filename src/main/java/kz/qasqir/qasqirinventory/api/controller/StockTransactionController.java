@@ -1,13 +1,9 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
-import kz.qasqir.qasqirinventory.api.model.dto.DocumentDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.InventoryDTO;
-import kz.qasqir.qasqirinventory.api.model.request.DocumentRequest;
 import kz.qasqir.qasqirinventory.api.model.request.InventoryRequest;
-import kz.qasqir.qasqirinventory.api.model.request.ReturnRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.service.InventoryService;
-import kz.qasqir.qasqirinventory.api.service.StockTransactionService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,12 +11,9 @@ import org.springframework.web.bind.annotation.*;
 public class StockTransactionController {
 
     private final InventoryService inventoryService;
-    private final StockTransactionService stockTransactionService;
 
-    public StockTransactionController(InventoryService inventoryService,
-                                      StockTransactionService stockTransactionService) {
+    public StockTransactionController(InventoryService inventoryService) {
         this.inventoryService = inventoryService;
-        this.stockTransactionService = stockTransactionService;
     }
 
     // Инвентаризация

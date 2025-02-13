@@ -58,13 +58,14 @@ public class CategoryService {
         }
     }
 
-    public CategoryDTO updateCategory(CategoryUpdateRequest categoryUpdateRequest) {
+    public String updateCategory(CategoryUpdateRequest categoryUpdateRequest, Long categoryId) {
         try {
-            Category category = categoryRepository.findById(categoryUpdateRequest.getCategoryId()).orElseThrow(()-> new CategoryException("Категория не найдено"));
+            Category category = categoryRepository.findById(categoryId).orElseThrow(()-> new CategoryException("Категория не найдено"));
             category.setName(categoryUpdateRequest.getName());
             category.setUpdatedBy(categoryUpdateRequest.getUpdateBy());
             category.setUpdatedAt(Timestamp.from(Instant.now()).toLocalDateTime());
-            return categoryMapper.toDto(category);
+            categoryRepository.save(category);
+            return "Успешное изменено";
         } catch (RuntimeException e) {
             throw new CatalogException("Ошибка при изменении данных категории");
         }

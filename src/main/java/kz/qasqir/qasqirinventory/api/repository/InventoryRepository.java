@@ -19,7 +19,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
             "WHERE wz.id = :warehouseZoneId")
     List<Inventory> findAllByWarehouseZoneId(@Param("warehouseZoneId") Long warehouseZoneId);
 
-    Inventory findByNomenclatureIdAndWarehouseZoneId(Long nomenclatureId, Long warehouseZoneId);
+    Optional<Inventory> findByNomenclatureIdAndWarehouseZoneId(Long nomenclatureId, Long warehouseZoneId);
 
     Optional<Inventory> findByNomenclatureId(Long nomenclatureId);
 }

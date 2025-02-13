@@ -7,6 +7,7 @@ import kz.qasqir.qasqirinventory.api.model.entity.Customer;
 import kz.qasqir.qasqirinventory.api.model.entity.Document;
 import kz.qasqir.qasqirinventory.api.model.entity.Supplier;
 import kz.qasqir.qasqirinventory.api.model.request.DocumentRequest;
+import kz.qasqir.qasqirinventory.api.model.request.TransferRequest;
 import kz.qasqir.qasqirinventory.api.repository.DocumentRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ import java.util.List;
 
 @Service
 public class DocumentService {
+
     private final DocumentRepository documentRepository;
     private final SupplierService supplierService;
     private final CustomerService customerService;
@@ -28,65 +30,129 @@ public class DocumentService {
         this.documentMapper = documentMapper;
     }
 
-    public DocumentDTO addDocument(DocumentRequest documentRequest) {
-        Supplier supplier = supplierService.getById(documentRequest.getSupplierId());
-        Customer customer = customerService.getBuId(documentRequest.getCustomerId());
+    // Общий метод для создания документа
+    private Document createDocument(String documentType, String documentNumber, Long supplierId, Long customerId, String createdBy, String updatedBy) {
+        if (supplierId == null && customerId == null) {
+            throw new DocumentException("Необходимо указать либо поставщика, либо клиента.");
+        }
+
+        Supplier supplier = null;
+        Customer customer = null;
+
+        if (supplierId != null) {
+            supplier = supplierService.getById(supplierId);
+        }
+
+        if (customerId != null) {
+            customer = customerService.getBuId(customerId);
+        }
+
+        if (supplier != null && customer != null) {
+            throw new DocumentException("Нельзя указать одновременно и поставщика, и клиента.");
+        }
+
+        Document document = new Document();
+        document.setDocumentType(documentType);
+        document.setDocumentNumber(documentNumber);
+        document.setDocumentDate(LocalDate.now());
+        document.setSupplier(supplier);
+        document.setCustomer(customer);
+        document.setCreatedBy(Long.valueOf(createdBy));
+        document.setUpdatedBy(Long.valueOf(updatedBy));
+        document.setCreatedAt(LocalDateTime.now());
+        document.setUpdatedAt(LocalDateTime.now());
+
+        return document;
+    }
+
+    // Метод для добавления документа на основе TransferRequest
+    public Document addTransferDocument(TransferRequest transferRequest) {
         try {
-            Document document = new Document();
-            document.setDocumentType(documentRequest.getDocumentType());
-            document.setDocumentNumber(documentRequest.getDocumentNumber());
-            document.setDocumentDate(LocalDate.now());
-            document.setSupplier(supplier);
-            document.setCustomer(customer);
-            document.setCreatedBy(documentRequest.getCreatedBy());
-            document.setUpdatedBy(documentRequest.getUpdatedBy());
-            document.setCreatedAt(LocalDateTime.now());
-            document.setUpdatedAt(LocalDateTime.now());
-            documentRepository.save(document);
-            return documentMapper.toDto(document);
+            return documentRepository.save(
+                    createDocument(
+                            transferRequest.getDocumentType(),
+                            transferRequest.getDocumentNumber(),
+                            transferRequest.getSupplierId(),
+                            transferRequest.getCustomerId(),
+                            transferRequest.getCreatedBy().toString(),
+                            transferRequest.getUpdatedBy().toString()
+                    )
+            );
         } catch (DocumentException e) {
-            throw new DocumentException("Ощибка при создании документа");
+            throw new DocumentException("Ошибка при создании документа: " + e.getMessage());
         }
     }
 
+    // Метод для добавления документа на основе DocumentRequest
+    public Document addDocument(DocumentRequest documentRequest) {
+        try {
+            return documentRepository.save(
+                    createDocument(
+                            documentRequest.getDocumentType(),
+                            documentRequest.getDocumentNumber(),
+                            documentRequest.getSupplierId(),
+                            documentRequest.getCustomerId(),
+                            documentRequest.getCreatedBy().toString(),
+                            documentRequest.getUpdatedBy().toString()
+                    )
+            );
+        } catch (DocumentException e) {
+            throw new DocumentException("Ошибка при создании документа: " + e.getMessage());
+        }
+    }
+
+    // Метод для обновления документа
     public DocumentDTO updateDocument(DocumentRequest documentRequest, Long documentId) {
-        Document document = documentRepository.findById(documentId).orElseThrow(() -> new DocumentException("Документ не найден"));
-        Supplier supplier = supplierService.getById(documentRequest.getSupplierId());
-        Customer customer = customerService.getBuId(documentRequest.getCustomerId());
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new DocumentException("Документ не найден"));
 
         try {
             document.setDocumentType(documentRequest.getDocumentType());
             document.setDocumentNumber(documentRequest.getDocumentNumber());
             document.setDocumentDate(LocalDate.now());
-            document.setSupplier(supplier);
-            document.setCustomer(customer);
+            document.setSupplier(supplierService.getById(documentRequest.getSupplierId()));
+            document.setCustomer(customerService.getBuId(documentRequest.getCustomerId()));
             document.setUpdatedBy(documentRequest.getUpdatedBy());
-            document.setCreatedAt(LocalDateTime.now());
             document.setUpdatedAt(LocalDateTime.now());
+
             documentRepository.save(document);
             return documentMapper.toDto(document);
         } catch (DocumentException e) {
-            throw new DocumentException("Ощибка при изменении документа");
+            throw new DocumentException("Ошибка при изменении документа: " + e.getMessage());
         }
     }
 
+    // Метод для получения всех документов
     public List<DocumentDTO> getAllDocument() {
-        return documentRepository.findAll().stream().map(documentMapper::toDto).toList();
+        return documentRepository.findAll()
+                .stream()
+                .map(documentMapper::toDto)
+                .toList();
     }
 
+    // Метод для удаления документа по ID
     public String deleteById(Long documentId) {
         try {
             documentRepository.deleteById(documentId);
             return "Документ успешно удален";
-        } catch (DocumentException e) {
-            throw new DocumentException("Ощибка при удалении");
+        } catch (Exception e) {
+            throw new DocumentException("Ошибка при удалении документа: " + e.getMessage());
         }
     }
 
-    public Document getById(Long documentId) {
-        return documentRepository.findById(documentId).orElseThrow(() -> new DocumentException("Документ не найден"));
+    // Метод для поиска документа по номеру
+    public Document getByDocumentNumber(String documentNumber) {
+        return documentRepository.findByDocumentNumber(documentNumber)
+                .orElseThrow(() -> new DocumentException("Документ с таким номером не найден"));
     }
 
+    // Метод для поиска документа по ID
+    public Document getById(Long documentId) {
+        return documentRepository.findById(documentId)
+                .orElseThrow(() -> new DocumentException("Документ не найден"));
+    }
+
+    // Метод для сохранения документа
     public void saveDocument(Document document) {
         documentRepository.save(document);
     }

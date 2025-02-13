@@ -15,18 +15,24 @@ public interface WarehouseZoneMapper {
 
     @Mapping(source = "warehouse.id", target = "warehouseId")
     @Mapping(source = "parent.id", target = "parentId")
-    @Mapping(source = "createdBy", target = "createBy")  // Маппинг для createBy
-    @Mapping(source = "updatedBy", target = "updateBy")  // Маппинг для updateBy
-    @Mapping(source = "createdAt", target = "createAt")  // Маппинг для createAt
-    @Mapping(source = "updatedAt", target = "updateAt")  // Маппинг для updateAt
+    @Mapping(source = "createdBy", target = "createBy")
+    @Mapping(source = "updatedBy", target = "updateBy")
+    @Mapping(source = "createdAt", target = "createAt")
+    @Mapping(source = "updatedAt", target = "updateAt")
+    @Mapping(source = "height", target = "height")
+    @Mapping(source = "length", target = "length")
+    @Mapping(source = "width", target = "width")
     WarehouseZoneDTO toDto(WarehouseZone warehouseZone);
 
     @Mapping(source = "warehouseId", target = "warehouse.id")
     @Mapping(source = "parentId", target = "parent.id")
-    @Mapping(source = "createBy", target = "createdBy")  // Обратный маппинг для createBy
-    @Mapping(source = "updateBy", target = "updatedBy")  // Обратный маппинг для updateBy
-    @Mapping(source = "createAt", target = "createdAt")  // Обратный маппинг для createAt
-    @Mapping(source = "updateAt", target = "updatedAt")  // Обратный маппинг для updateAt
+    @Mapping(source = "createBy", target = "createdBy")
+    @Mapping(source = "updateBy", target = "updatedBy")
+    @Mapping(source = "createAt", target = "createdAt")
+    @Mapping(source = "updateAt", target = "updatedAt")
+    @Mapping(source = "height", target = "height")
+    @Mapping(source = "length", target = "length")
+    @Mapping(source = "width", target = "width")
     WarehouseZone toEntity(WarehouseZoneDTO warehouseZoneDTO);
 }
 

@@ -1,11 +1,13 @@
 package kz.qasqir.qasqirinventory.api.model.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "t_warehouse_zones")
+@Data
 public class WarehouseZone {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,6 +35,17 @@ public class WarehouseZone {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @Column(name = "height")
+    private Double height;
+
+    @Column(name = "length")
+    private Double length;
+
+    @Column(name = "width")
+    private Double width;
+
+    // Getters and setters
 
     public Long getId() {
         return id;
@@ -98,6 +111,28 @@ public class WarehouseZone {
         this.updatedAt = updatedAt;
     }
 
-    // Getters and setters
+    public Double getHeight() {
+        return height;
+    }
+
+    public void setHeight(Double height) {
+        this.height = height;
+    }
+
+    public Double getLength() {
+        return length;
+    }
+
+    public void setLength(Double length) {
+        this.length = length;
+    }
+
+    public Double getWidth() {
+        return width;
+    }
+
+    public void setWidth(Double width) {
+        this.width = width;
+    }
 }
 

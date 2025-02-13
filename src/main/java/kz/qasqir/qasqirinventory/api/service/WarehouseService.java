@@ -43,9 +43,9 @@ public class WarehouseService {
         return warehouseRepository.findAll().stream().map(this::convertToWarehouseDTO).toList();
     }
 
-    public WarehouseDTO updateWarehouse(WarehouseUpdateRequest request) {
+    public WarehouseDTO updateWarehouse(WarehouseUpdateRequest request, Long warehouseId) {
         try {
-            Warehouse warehouse = getWarehouseById(request.getId());
+            Warehouse warehouse = getById(warehouseId);
 
             warehouse.setName(request.getName());
             warehouse.setLocation(request.getLocation());
@@ -76,7 +76,7 @@ public class WarehouseService {
         return warehouseZoneService.getAllWarehouseZoneByWarehouseId(WarehouseId).size();
     }
 
-    public Warehouse getWarehouseById(Long warehouseId) {
+    public Warehouse getById(Long warehouseId) {
         return warehouseRepository.findById(warehouseId)
                 .orElseThrow(() -> new WarehouseException("Склад не найден"));
     }

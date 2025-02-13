@@ -48,9 +48,9 @@ public class WarehouseStructureController {
             description = "Возвращает сообщение об обновлении"
     )
     // Обновление информации о складе
-    @PutMapping("/warehouses")
-    public MessageResponse<WarehouseDTO> updateWarehouse(@RequestBody WarehouseUpdateRequest request) {
-        return MessageResponse.of(warehouseService.updateWarehouse(request));
+    @PutMapping("/warehouses/{warehouseId}")
+    public MessageResponse<WarehouseDTO> updateWarehouse(@RequestBody WarehouseUpdateRequest request, @PathVariable Long warehouseId) {
+        return MessageResponse.of(warehouseService.updateWarehouse(request, warehouseId));
     }
 
     @Operation(
