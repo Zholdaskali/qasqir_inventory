@@ -28,8 +28,14 @@ public class WarehouseContainer {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    // Getters and setters
+    @Column(name = "width")
+    private Double width;
 
+    @Column(name = "height")
+    private Double height;
+
+    @Column(name = "length")
+    private Double length;
 
     public Long getId() {
         return id;
@@ -77,6 +83,30 @@ public class WarehouseContainer {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Double getWidth() {
+        return width;
+    }
+
+    public void setWidth(Double width) {
+        this.width = width;
+    }
+
+    public Double getHeight() {
+        return height;
+    }
+
+    public void setHeight(Double height) {
+        this.height = height;
+    }
+
+    public Double getLength() {
+        return length;
+    }
+
+    public void setLength(Double length) {
+        this.length = length;
     }
 }
 

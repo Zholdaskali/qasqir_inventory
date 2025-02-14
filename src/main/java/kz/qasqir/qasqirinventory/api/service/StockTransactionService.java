@@ -9,6 +9,7 @@ import kz.qasqir.qasqirinventory.api.model.entity.*;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
 import kz.qasqir.qasqirinventory.api.repository.ReturnRepository;
 import kz.qasqir.qasqirinventory.api.repository.TransactionRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import kz.qasqir.qasqirinventory.api.repository.InventoryAuditRepository;
 import kz.qasqir.qasqirinventory.api.repository.InventoryAuditResultRepository;
@@ -18,6 +19,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class StockTransactionService {
 
     private final InventoryRepository inventoryRepository;
@@ -30,29 +32,14 @@ public class StockTransactionService {
     private final InventoryAuditRepository inventoryAuditRepository;
     private final InventoryAuditResultRepository inventoryAuditResultRepository;
     private final UserService userService;
+    private final WarehouseContainerService warehouseContainerService;
 
-    public StockTransactionService(InventoryRepository inventoryRepository,
-                                   NomenclatureService nomenclatureService,
-                                   WarehouseZoneService warehouseZoneService,
-                                   TransactionRepository transactionRepository,
-                                   DocumentService documentService,
-                                   ReturnRepository returnRepository, WarehouseService warehouseService, InventoryAuditRepository inventoryAuditRepository, InventoryAuditResultRepository inventoryAuditResultRepository, UserService userService) {
-        this.inventoryRepository = inventoryRepository;
-        this.nomenclatureService = nomenclatureService;
-        this.warehouseZoneService = warehouseZoneService;
-        this.transactionRepository = transactionRepository;
-        this.documentService = documentService;
-        this.returnRepository = returnRepository;
-        this.warehouseService = warehouseService;
-        this.inventoryAuditRepository = inventoryAuditRepository;
-        this.inventoryAuditResultRepository = inventoryAuditResultRepository;
-        this.userService = userService;
-    }
+
 
     @Transactional(rollbackOn = Exception.class)
     public void processIncomingGoods(DocumentRequest documentDTO) {
         if (!"INCOMING".equals(documentDTO.getDocumentType())) {
-            throw new DocumentException("Тип документа должен быть IMPORT для обработки импорта");
+            throw new DocumentException("Тип документа должен быть INCOMING для обработки импорта");
         }
         if (documentDTO == null || documentDTO.getItems() == null || documentDTO.getItems().isEmpty()) {
             throw new DocumentException("Документ или позиции документа не могут быть пустыми");
@@ -66,10 +53,15 @@ public class StockTransactionService {
                 throw new DocumentException("Некорректные данные позиции документа");
             }
 
+            WarehouseContainer container = warehouseContainerService.getById(item.getContainerId());
             Nomenclature nomenclature = nomenclatureService.getById(item.getNomenclatureId());
+
+            validateItemSizeOrVolume(nomenclature, container);
+
             WarehouseZone warehouseZone = warehouseZoneService.getById(item.getWarehouseZoneId());
 
-            Inventory inventory = inventoryRepository.findByNomenclatureIdAndWarehouseZoneId(nomenclature.getId(), warehouseZone.getId())
+            Inventory inventory = inventoryRepository.findByNomenclatureIdAndWarehouseZoneId(
+                            nomenclature.getId(), warehouseZone.getId())
                     .orElseGet(() -> {
                         Inventory newInventory = new Inventory();
                         newInventory.setNomenclature(nomenclature);
@@ -90,6 +82,7 @@ public class StockTransactionService {
             transactionRepository.save(transaction);
         }
     }
+
 
     @Transactional(rollbackOn = Exception.class)
     public void processImport(DocumentRequest documentDTO) {
@@ -312,4 +305,44 @@ public class StockTransactionService {
         audit.setStatus("COMPLETED");
         inventoryAuditRepository.save(audit);
     }
+
+    private void validateItemSizeOrVolume(Nomenclature nomenclature, WarehouseContainer container) {
+        boolean hasDimensions = nomenclature.getHeight() != null
+                && nomenclature.getWidth() != null
+                && nomenclature.getLength() != null;
+        boolean hasVolume = nomenclature.getVolume() != null;
+
+        if (hasDimensions && hasVolume) {
+            throw new DocumentException("Товар не может одновременно иметь габариты и объем.");
+        }
+
+        if (!hasDimensions && !hasVolume) {
+            throw new DocumentException("Товар должен иметь либо габариты, либо объем.");
+        }
+
+        // Если есть габариты — проверяем размеры и объем контейнера
+        if (hasDimensions) {
+            double itemVolume = nomenclature.getHeight() * nomenclature.getWidth() * nomenclature.getLength();
+            double containerVolume = container.getHeight() * container.getWidth() * container.getLength();
+
+            if (nomenclature.getHeight() > container.getHeight() ||
+                    nomenclature.getWidth() > container.getWidth() ||
+                    nomenclature.getLength() > container.getLength()) {
+                throw new DocumentException("Размеры товара превышают размеры контейнера.");
+            }
+
+            if (itemVolume > containerVolume) {
+                throw new DocumentException("Объем товара превышает объем контейнера.");
+            }
+        }
+
+        // Если есть только объем — сравниваем объемы
+        if (hasVolume) {
+            double containerVolume = container.getHeight() * container.getWidth() * container.getLength();
+            if (nomenclature.getVolume() > containerVolume) {
+                throw new DocumentException("Объем товара превышает объем контейнера.");
+            }
+        }
+    }
+
 }

@@ -5,6 +5,7 @@ import kz.qasqir.qasqirinventory.api.model.dto.WarehouseDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.WarehouseZoneDTO;
 import kz.qasqir.qasqirinventory.api.model.request.*;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
+import kz.qasqir.qasqirinventory.api.service.WarehouseContainerService;
 import kz.qasqir.qasqirinventory.api.service.WarehouseService;
 import kz.qasqir.qasqirinventory.api.service.WarehouseZoneService;
 import org.springframework.web.bind.annotation.*;
@@ -16,10 +17,12 @@ public class WarehouseStructureController {
 
     private final WarehouseService warehouseService;
     private final WarehouseZoneService warehouseZoneService;
+    private final WarehouseContainerService warehouseContainersService;
 
-    public WarehouseStructureController(WarehouseService warehouseService, WarehouseZoneService warehouseZoneService) {
+    public WarehouseStructureController(WarehouseService warehouseService, WarehouseZoneService warehouseZoneService, WarehouseContainerService warehouseContainersService) {
         this.warehouseService = warehouseService;
         this.warehouseZoneService = warehouseZoneService;
+        this.warehouseContainersService = warehouseContainersService;
     }
 
     @Operation(
@@ -91,5 +94,16 @@ public class WarehouseStructureController {
         String responseMessage = warehouseZoneService.deleteWarehouseZone(warehouseZoneId);
         return MessageResponse.empty(responseMessage);
     }
+
+    @PostMapping("/warehouse/container")
+    public MessageResponse<String> saveWarehouseContainer(@RequestBody WarehouseContainersRequest warehouseContainersRequest) {
+        return MessageResponse.of(warehouseContainersService.addWarehouseContainer(warehouseContainersRequest));
+    }
+
+    @DeleteMapping("/warehouse/container/{warehouseContainerId}")
+    public MessageResponse<String> deleteWarehouseContainer(@PathVariable Long warehouseContainerId) {
+        return MessageResponse.of(warehouseContainersService.deleteByWarehouseContainerId(warehouseContainerId));
+    }
+
 
 }

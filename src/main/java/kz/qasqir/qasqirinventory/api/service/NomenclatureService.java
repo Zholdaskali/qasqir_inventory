@@ -46,6 +46,10 @@ public class NomenclatureService {
             nomenclature.setUpdatedBy(nomenclatureRequest.getUpdated_by());
             nomenclature.setCreatedAt(Timestamp.from(Instant.now()).toLocalDateTime());
             nomenclature.setUpdatedAt(Timestamp.from(Instant.now()).toLocalDateTime());
+            nomenclature.setHeight(nomenclatureRequest.getHeight());
+            nomenclature.setLength(nomenclatureRequest.getLength());
+            nomenclature.setWidth(nomenclatureRequest.getWidth());
+            nomenclature.setVolume(nomenclatureRequest.getVolume());
 
             nomenclatureRepository.save(nomenclature);
 
@@ -74,11 +78,9 @@ public class NomenclatureService {
 
     public String updateNomenclature(Long id, NomenclatureRequest nomenclatureRequest) {
         try {
-            // Проверяем, существует ли номенклатура
             Nomenclature nomenclature = nomenclatureRepository.findById(id)
                     .orElseThrow(() -> new NomenclatureException("Номенклатура не найдена"));
 
-            // Обновляем данные номенклатуры
             nomenclature.setName(nomenclatureRequest.getName());
             nomenclature.setArticle(nomenclatureRequest.getArticle());
             nomenclature.setCode(nomenclatureRequest.getCode());
@@ -92,7 +94,6 @@ public class NomenclatureService {
             nomenclature.setLength(nomenclatureRequest.getLength());
             nomenclature.setWidth(nomenclatureRequest.getWidth());
             nomenclature.setVolume(nomenclatureRequest.getVolume());
-            // Сохраняем обновленную номенклатуру
             nomenclatureRepository.save(nomenclature);
 
             return "Номенклатура успешно обновлена";
@@ -113,7 +114,6 @@ public class NomenclatureService {
     public Nomenclature getById(Long nomenclatureId) {
         return nomenclatureRepository.findById(nomenclatureId).orElseThrow(() -> new NomenclatureException("Номернклатура не найдена"));
     }
-
 
 
 }
