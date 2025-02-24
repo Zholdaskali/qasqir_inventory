@@ -31,7 +31,7 @@ public class DocumentService {
     }
 
     // Общий метод для создания документа
-    private Document createDocument(String documentType, String documentNumber, Long supplierId, Long customerId, String createdBy, String updatedBy) {
+    private Document createDocument(String documentType, String documentNumber, Long supplierId, Long customerId, String createdBy) {
         if (supplierId == null && customerId == null) {
             throw new DocumentException("Необходимо указать либо поставщика, либо клиента.");
         }
@@ -58,7 +58,6 @@ public class DocumentService {
         document.setSupplier(supplier);
         document.setCustomer(customer);
         document.setCreatedBy(Long.valueOf(createdBy));
-        document.setUpdatedBy(Long.valueOf(updatedBy));
         document.setCreatedAt(LocalDateTime.now());
         document.setUpdatedAt(LocalDateTime.now());
 
@@ -74,8 +73,7 @@ public class DocumentService {
                             transferRequest.getDocumentNumber(),
                             transferRequest.getSupplierId(),
                             transferRequest.getCustomerId(),
-                            transferRequest.getCreatedBy().toString(),
-                            transferRequest.getUpdatedBy().toString()
+                            transferRequest.getCreatedBy().toString()
                     )
             );
         } catch (DocumentException e) {
@@ -92,8 +90,7 @@ public class DocumentService {
                             documentRequest.getDocumentNumber(),
                             documentRequest.getSupplierId(),
                             documentRequest.getCustomerId(),
-                            documentRequest.getCreatedBy().toString(),
-                            documentRequest.getUpdatedBy().toString()
+                            documentRequest.getCreatedBy().toString()
                     )
             );
         } catch (DocumentException e) {
@@ -112,7 +109,6 @@ public class DocumentService {
             document.setDocumentDate(LocalDate.now());
             document.setSupplier(supplierService.getById(documentRequest.getSupplierId()));
             document.setCustomer(customerService.getBuId(documentRequest.getCustomerId()));
-            document.setUpdatedBy(documentRequest.getUpdatedBy());
             document.setUpdatedAt(LocalDateTime.now());
 
             documentRepository.save(document);

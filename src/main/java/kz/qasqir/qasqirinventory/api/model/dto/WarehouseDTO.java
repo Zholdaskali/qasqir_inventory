@@ -14,4 +14,5 @@ public class WarehouseDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private int zonesCount;
+    private Double warehouseCapacity;
 }

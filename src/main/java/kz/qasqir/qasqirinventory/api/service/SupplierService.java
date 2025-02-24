@@ -59,6 +59,7 @@ public class SupplierService {
             supplier.setName(supplierRequest.getName());
             supplier.setUpdatedAt(Timestamp.from(Instant.now()).toLocalDateTime());
             supplier.setContactInfo(supplierRequest.getContactInfo());
+            supplierRepository.save(supplier);
             return supplierMapper.toDto(supplier);
         } catch (RuntimeException e) {
             throw new SupplierException("Ошибка при обновлении данных поставшика");

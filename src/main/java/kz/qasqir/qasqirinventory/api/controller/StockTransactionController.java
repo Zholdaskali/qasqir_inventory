@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/warehouse-manager")
-public class StockTransactionController {
+public class    StockTransactionController {
 
     private final InventoryService inventoryService;
 

@@ -1,6 +1,7 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import kz.qasqir.qasqirinventory.api.model.dto.WarehouseContainerDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.WarehouseDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.WarehouseZoneDTO;
 import kz.qasqir.qasqirinventory.api.model.request.*;
@@ -9,6 +10,8 @@ import kz.qasqir.qasqirinventory.api.service.WarehouseContainerService;
 import kz.qasqir.qasqirinventory.api.service.WarehouseService;
 import kz.qasqir.qasqirinventory.api.service.WarehouseZoneService;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -105,5 +108,9 @@ public class WarehouseStructureController {
         return MessageResponse.of(warehouseContainersService.deleteByWarehouseContainerId(warehouseContainerId));
     }
 
+    @GetMapping("warehouse/container/{zoneId}")
+    public MessageResponse<List<WarehouseContainerDTO>> getAllByZoneId(@PathVariable Long zoneId) {
+        return MessageResponse.of(warehouseContainersService.getAllByZoneId(zoneId));
+    }
 
 }

@@ -10,4 +10,5 @@ import java.util.List;
 public interface WarehouseZoneRepository extends JpaRepository<WarehouseZone, Long> {
     List<WarehouseZone> findAllByWarehouseId(Long warehouseId);
 
+    boolean existsByParentId(Long id);
 }

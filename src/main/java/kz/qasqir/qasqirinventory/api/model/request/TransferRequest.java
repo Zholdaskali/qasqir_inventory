@@ -22,7 +22,4 @@ public class TransferRequest {
     private String tnvedCode; // Код
     private List<TransferItemsRequest> items; // Товары
     private Long createdBy;
-    private Long updatedBy;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }

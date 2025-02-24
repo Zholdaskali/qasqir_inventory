@@ -48,7 +48,7 @@ public class PartnerController {
     }
 
     @PostMapping("/customers")
-    public MessageResponse<CustomerDTO> saveCustomer(@RequestBody CustomerRequest customerRequest, Long customerId) {
+    public MessageResponse<CustomerDTO> saveCustomer(@RequestBody CustomerRequest customerRequest) {
         return MessageResponse.of(customerService.saveCustomer(customerRequest));
     }
 

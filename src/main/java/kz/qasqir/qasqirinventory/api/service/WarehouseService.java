@@ -2,7 +2,9 @@ package kz.qasqir.qasqirinventory.api.service;
 
 import kz.qasqir.qasqirinventory.api.exception.WarehouseException;
 import kz.qasqir.qasqirinventory.api.model.dto.WarehouseDTO;
+import kz.qasqir.qasqirinventory.api.model.dto.WarehouseZoneDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.Warehouse;
+import kz.qasqir.qasqirinventory.api.model.entity.WarehouseZone;
 import kz.qasqir.qasqirinventory.api.model.request.WareHouseSaveRequest;
 import kz.qasqir.qasqirinventory.api.model.request.WarehouseUpdateRequest;
 import kz.qasqir.qasqirinventory.api.repository.WarehouseRepository;
@@ -12,6 +14,9 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class WarehouseService {
@@ -69,11 +74,50 @@ public class WarehouseService {
     }
 
     private WarehouseDTO convertToWarehouseDTO(Warehouse warehouse) {
-        return new WarehouseDTO(warehouse.getId(), warehouse.getName(), warehouse.getLocation(), warehouse.getCreatedAt(), warehouse.getUpdatedAt(), getZonesCount(warehouse.getId()));
+        return new WarehouseDTO(warehouse.getId(), warehouse.getName(), warehouse.getLocation(), warehouse.getCreatedAt(), warehouse.getUpdatedAt(), getZonesCount(warehouse.getId()), getTotalCapacity(warehouse.getId()));
     }
 
     private int getZonesCount(Long WarehouseId) {
         return warehouseZoneService.getAllWarehouseZoneByWarehouseId(WarehouseId).size();
+    }
+
+    private Double getTotalCapacity(Long warehouseId) {
+        List<WarehouseZoneDTO> zones = warehouseZoneService.getAllWarehouseZoneByWarehouseId(warehouseId);
+
+        if (zones == null || zones.isEmpty()) {
+            return 0.0;
+        }
+
+        Set<Long> zoneIds = zones.stream()
+                .filter(Objects::nonNull)
+                .map(WarehouseZoneDTO::getId)
+                .collect(Collectors.toSet());
+
+        List<WarehouseZoneDTO> filteredZones = zones.stream()
+                .filter(Objects::nonNull)
+                .filter(zone -> {
+                    if (zone.getParentId() != null) {
+                        return true;
+                    }
+                    return zones.stream()
+                            .noneMatch(childZone -> zone.getId().equals(childZone.getParentId()));
+                })
+                .toList();
+
+        double totalVolume = filteredZones.stream()
+                .mapToDouble(zone -> zone.getWidth() * zone.getHeight() * zone.getLength())
+                .sum();
+
+        double freeVolume = filteredZones.stream()
+                .mapToDouble(zone -> zone.getCapacity() != null ? zone.getCapacity() : 0.0)
+                .sum();
+
+        if (totalVolume == 0) {
+            return 0.0;
+        }
+
+        System.out.println(freeVolume + "/" + totalVolume);
+        return (freeVolume / totalVolume) * 100;
     }
 
     public Warehouse getById(Long warehouseId) {

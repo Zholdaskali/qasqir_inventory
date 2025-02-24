@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import kz.qasqir.qasqirinventory.api.repository.InventoryAuditRepository;
 import kz.qasqir.qasqirinventory.api.repository.InventoryAuditResultRepository;
 
+import java.awt.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -35,12 +36,9 @@ public class StockTransactionService {
     private final WarehouseContainerService warehouseContainerService;
 
 
-
+    //Сделано +
     @Transactional(rollbackOn = Exception.class)
     public void processIncomingGoods(DocumentRequest documentDTO) {
-        if (!"INCOMING".equals(documentDTO.getDocumentType())) {
-            throw new DocumentException("Тип документа должен быть INCOMING для обработки импорта");
-        }
         if (documentDTO == null || documentDTO.getItems() == null || documentDTO.getItems().isEmpty()) {
             throw new DocumentException("Документ или позиции документа не могут быть пустыми");
         }
@@ -50,15 +48,24 @@ public class StockTransactionService {
 
         for (ItemRequest item : documentItems) {
             if (item.getNomenclatureId() == null || item.getWarehouseZoneId() == null || item.getQuantity() == null) {
-                throw new DocumentException("Некорректные данные позиции документа");
+                throw new DocumentException("Некорректные данные позиции товаров");
             }
 
-            WarehouseContainer container = warehouseContainerService.getById(item.getContainerId());
             Nomenclature nomenclature = nomenclatureService.getById(item.getNomenclatureId());
-
-            validateItemSizeOrVolume(nomenclature, container);
-
             WarehouseZone warehouseZone = warehouseZoneService.getById(item.getWarehouseZoneId());
+
+            if (item.getContainerId() != null) {
+                WarehouseContainer container = warehouseContainerService.getById(item.getContainerId());
+                validateItemSizeOrVolume(nomenclature, container, item.getQuantity());
+
+                if (container.getCapacity().compareTo(BigDecimal.valueOf(0)) > 0) {
+                    containerCapacityControl(nomenclature, container, item.getQuantity().doubleValue());
+                } else {
+                    throw new RuntimeException("В контейнере нет места");
+                }
+            } else {
+                zoneCapacityControl(nomenclature, warehouseZone, item.getQuantity().doubleValue());
+            }
 
             Inventory inventory = inventoryRepository.findByNomenclatureIdAndWarehouseZoneId(
                             nomenclature.getId(), warehouseZone.getId())
@@ -78,11 +85,11 @@ public class StockTransactionService {
             transaction.setDocument(document);
             transaction.setNomenclature(nomenclature);
             transaction.setQuantity(item.getQuantity());
+            transaction.setCreatedBy(userService.getByUserId(document.getCreatedBy()));
             transaction.setDate(documentDTO.getDocumentDate());
             transactionRepository.save(transaction);
         }
     }
-
 
     @Transactional(rollbackOn = Exception.class)
     public void processImport(DocumentRequest documentDTO) {
@@ -138,6 +145,7 @@ public class StockTransactionService {
         transaction.setNomenclature(nomenclature);
         transaction.setQuantity(returnRequest.getQuantity().negate());
         transaction.setDate(document.getDocumentDate());
+        transaction.setCreatedBy(userService.getByUserId(document.getCreatedBy()));
         transactionRepository.save(transaction);
     }
 
@@ -151,7 +159,7 @@ public class StockTransactionService {
         processTransaction(productionDocument, "PRODUCTION");
     }
 
-
+    @Transactional(rollbackOn = Exception.class)
     private void processTransaction(DocumentRequest documentDTO, String transactionType) {
         Document document = documentService.addDocument(documentDTO);
         List<ItemRequest> items = documentDTO.getItems();
@@ -175,6 +183,7 @@ public class StockTransactionService {
             transaction.setNomenclature(nomenclature);
             transaction.setQuantity(item.getQuantity());
             transaction.setDate(documentDTO.getDocumentDate());
+            transaction.setCreatedBy(userService.getByUserId(document.getCreatedBy()));
             transactionRepository.save(transaction);
         }
 
@@ -184,35 +193,42 @@ public class StockTransactionService {
 
     // Списывание
     @Transactional(rollbackOn = Exception.class)
-    public void processWriteOff(DocumentRequest documentDTO) {
-        Document document = documentService.addDocument(documentDTO);
-        List<ItemRequest> items = documentDTO.getItems();
-
-        for (ItemRequest item : items) {
-            Nomenclature nomenclature = nomenclatureService.getById(item.getNomenclatureId());
-            WarehouseZone warehouseZone = warehouseZoneService.getById(item.getWarehouseZoneId());
-
-            Inventory inventory = inventoryRepository.findByNomenclatureIdAndWarehouseZoneId(nomenclature.getId(), warehouseZone.getId())
-                    .orElseThrow(() -> new NomenclatureException("Запись инвентаризации не найдена"));
-
-            if (inventory.getQuantity().compareTo(item.getQuantity()) < 0) {
-                throw new InsufficientStockException("Недостаточно запаса для списания");
-            }
-
-            inventory.setQuantity(inventory.getQuantity().subtract(item.getQuantity()));
-            inventoryRepository.save(inventory);
-
-            Transaction transaction = new Transaction();
-            transaction.setTransactionType("WRITE_OFF");
-            transaction.setDocument(document);
-            transaction.setNomenclature(nomenclature);
-            transaction.setQuantity(item.getQuantity().negate());
-            transaction.setDate(documentDTO.getDocumentDate());
-            transactionRepository.save(transaction);
+    public void processWriteOff(ReturnRequest writeOffRequest) {
+        if (writeOffRequest == null || writeOffRequest.getNomenclatureId() == null || writeOffRequest.getQuantity() == null) {
+            throw new DocumentException("Некорректные данные запроса на списание");
         }
 
-        document.setStatus("COMPLETED");
-        documentService.saveDocument(document);
+        Nomenclature nomenclature = nomenclatureService.getById(writeOffRequest.getNomenclatureId());
+        Document document = documentService.getById(writeOffRequest.getRelatedDocumentId());
+
+        Return returnItem = new Return();
+        returnItem.setReturnType(writeOffRequest.getReturnType());
+        returnItem.setRelatedDocument(document);
+        returnItem.setNomenclature(nomenclature);
+        returnItem.setQuantity(writeOffRequest.getQuantity());
+        returnItem.setReason(writeOffRequest.getReason());
+
+        returnRepository.save(returnItem);
+
+        Inventory inventory = inventoryRepository.findByNomenclatureId(nomenclature.getId())
+                .orElseThrow(() -> new NomenclatureException("Номенклатура не найдена: " + nomenclature.getId()));
+
+        BigDecimal updatedQuantity = inventory.getQuantity().subtract(writeOffRequest.getQuantity());
+        if (updatedQuantity.compareTo(BigDecimal.ZERO) < 0) {
+            throw new NomenclatureException("Недостаточно запаса для списания");
+        }
+        inventory.setQuantity(updatedQuantity);
+        inventoryRepository.save(inventory);
+
+        Transaction transaction = new Transaction();
+        transaction.setTransactionType("WRITE-OFF");
+        transaction.setDocument(document);
+        transaction.setNomenclature(nomenclature);
+        transaction.setQuantity(writeOffRequest.getQuantity().negate());
+        transaction.setDate(document.getDocumentDate());
+        transaction.setCreatedBy(userService.getByUserId(document.getCreatedBy()));
+
+        transactionRepository.save(transaction);
     }
 
     // Перемещение
@@ -254,6 +270,8 @@ public class StockTransactionService {
             transaction.setNomenclature(nomenclature);
             transaction.setQuantity(item.getQuantity());
             transaction.setDate(documentDTO.getDocumentDate());
+            transaction.setCreatedBy(userService.getByUserId(document.getCreatedBy()));
+
             transactionRepository.save(transaction);
         }
 
@@ -264,7 +282,7 @@ public class StockTransactionService {
 
     // Начало инвентаризации
     @Transactional(rollbackOn = Exception.class)
-    public InventoryAudit startInventoryCheck(Long warehouseId, Long createdBy) {
+    public String startInventoryCheck(Long warehouseId, Long createdBy) {
         Warehouse warehouse = warehouseService.getById(warehouseId);
         InventoryAudit audit = new InventoryAudit();
         audit.setWarehouse(warehouse);
@@ -272,7 +290,7 @@ public class StockTransactionService {
         audit.setStatus("IN_PROGRESS");
         audit.setCreatedBy(userService.getByUserId(createdBy));
         inventoryAuditRepository.save(audit);
-        return audit;
+        return "Инвентаризация началось";
     }
 
     // Процесс инвентаризации
@@ -306,7 +324,7 @@ public class StockTransactionService {
         inventoryAuditRepository.save(audit);
     }
 
-    private void validateItemSizeOrVolume(Nomenclature nomenclature, WarehouseContainer container) {
+    private void validateItemSizeOrVolume(Nomenclature nomenclature, WarehouseContainer container, BigDecimal quantity) {
         boolean hasDimensions = nomenclature.getHeight() != null
                 && nomenclature.getWidth() != null
                 && nomenclature.getLength() != null;
@@ -320,9 +338,10 @@ public class StockTransactionService {
             throw new DocumentException("Товар должен иметь либо габариты, либо объем.");
         }
 
-        // Если есть габариты — проверяем размеры и объем контейнера
+        double quantityDouble = quantity.doubleValue();
+
         if (hasDimensions) {
-            double itemVolume = nomenclature.getHeight() * nomenclature.getWidth() * nomenclature.getLength();
+            double itemVolume = (nomenclature.getHeight() * nomenclature.getWidth() * nomenclature.getLength()) * quantityDouble;
             double containerVolume = container.getHeight() * container.getWidth() * container.getLength();
 
             if (nomenclature.getHeight() > container.getHeight() ||
@@ -336,12 +355,29 @@ public class StockTransactionService {
             }
         }
 
-        // Если есть только объем — сравниваем объемы
         if (hasVolume) {
             double containerVolume = container.getHeight() * container.getWidth() * container.getLength();
-            if (nomenclature.getVolume() > containerVolume) {
+            if (BigDecimal.valueOf(nomenclature.getVolume()).doubleValue() > containerVolume) {
                 throw new DocumentException("Объем товара превышает объем контейнера.");
             }
+        }
+    }
+
+    private void containerCapacityControl(Nomenclature nomenclature, WarehouseContainer container, double quantity) {
+        if (nomenclature.getVolume() == null) {
+            double itemVolume = (nomenclature.getHeight() * nomenclature.getWidth() * nomenclature.getLength()) * quantity;
+            container.setCapacity(container.getCapacity().subtract(BigDecimal.valueOf(itemVolume)));
+        } else {
+            container.setCapacity(container.getCapacity().subtract(BigDecimal.valueOf(nomenclature.getVolume() * quantity)));
+        }
+    }
+
+    private void zoneCapacityControl(Nomenclature nomenclature, WarehouseZone zone, double quantity) {
+        if (nomenclature.getVolume() == null) {
+            double itemVolume = (nomenclature.getHeight() * nomenclature.getWidth() * nomenclature.getLength()) * quantity;
+            zone.setCapacity(zone.getCapacity().subtract(BigDecimal.valueOf(itemVolume)));
+        } else {
+            zone.setCapacity(zone.getCapacity().subtract(BigDecimal.valueOf(nomenclature.getVolume() * quantity)));
         }
     }
 

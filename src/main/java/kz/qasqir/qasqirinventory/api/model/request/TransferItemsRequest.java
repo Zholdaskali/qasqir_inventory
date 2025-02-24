@@ -12,9 +12,7 @@ import java.math.BigDecimal;
 public class TransferItemsRequest {
     private Long nomenclatureId;
     private BigDecimal quantity;
-    private String measurementUnit;
     private Long toWarehouseZoneId;
     private Long fromWarehouseZoneId;
-    private String containerSerial;
-    private boolean isReturnable;
+    private Long containerId;
 }

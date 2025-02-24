@@ -22,4 +22,5 @@ public class WarehouseZoneDTO {
     private Double height;
     private Double length;
     private Double width;
+    private Double capacity;
 }

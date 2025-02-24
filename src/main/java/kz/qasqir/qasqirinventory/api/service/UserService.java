@@ -1,15 +1,12 @@
 package kz.qasqir.qasqirinventory.api.service;
 
 import jakarta.transaction.Transactional;
-import kz.qasqir.qasqirinventory.api.exception.EmailIsAlreadyRegisteredException;
-import kz.qasqir.qasqirinventory.api.exception.NumberIsAlreadyRegisteredException;
 import kz.qasqir.qasqirinventory.api.exception.UserNotFoundException;
 import kz.qasqir.qasqirinventory.api.model.dto.UserDTO;
 import kz.qasqir.qasqirinventory.api.model.request.UpdateUserRequest;
 import kz.qasqir.qasqirinventory.api.model.entity.Role;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
 import kz.qasqir.qasqirinventory.api.model.request.UserRoleResetRequest;
-import kz.qasqir.qasqirinventory.api.repository.RoleRepository;
 import kz.qasqir.qasqirinventory.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

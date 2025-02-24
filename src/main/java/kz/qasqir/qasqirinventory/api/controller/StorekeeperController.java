@@ -2,13 +2,13 @@ package kz.qasqir.qasqirinventory.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.transaction.Transactional;
+import kz.qasqir.qasqirinventory.api.model.dto.InventoryAuditDTO;
+import kz.qasqir.qasqirinventory.api.model.dto.TransactionDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.Document;
 import kz.qasqir.qasqirinventory.api.model.entity.InventoryAudit;
 import kz.qasqir.qasqirinventory.api.model.request.*;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.service.DocumentFileService;
-import kz.qasqir.qasqirinventory.api.service.DocumentService;
-import kz.qasqir.qasqirinventory.api.service.StockTransactionService;
+import kz.qasqir.qasqirinventory.api.service.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,11 +23,15 @@ public class StorekeeperController {
     private final DocumentService documentService;
     private final StockTransactionService stockTransactionService;
     private final DocumentFileService documentFileService;
+    private final InventoryAuditService inventoryAuditService;
+    private final TransactionService transactionService;
 
-    public StorekeeperController(DocumentService documentService, StockTransactionService stockTransactionService, DocumentFileService documentFileService) {
+    public StorekeeperController(DocumentService documentService, StockTransactionService stockTransactionService, DocumentFileService documentFileService, InventoryAuditService inventoryAuditService, TransactionService transactionService) {
         this.documentService = documentService;
         this.stockTransactionService = stockTransactionService;
         this.documentFileService = documentFileService;
+        this.inventoryAuditService = inventoryAuditService;
+        this.transactionService = transactionService;
     }
 
     @Transactional
@@ -98,8 +102,8 @@ public class StorekeeperController {
             description = "Возвращает сообщение о создании"
     )
     @PostMapping("/write-off")
-    public MessageResponse<String> processWriteOff(@RequestBody DocumentRequest documentDTO) {
-        stockTransactionService.processWriteOff(documentDTO);
+    public MessageResponse<String> processWriteOff(@RequestBody ReturnRequest writeOffRequest) {
+        stockTransactionService.processWriteOff(writeOffRequest);
         return MessageResponse.empty("Списание успешно обработано");
     }
 
@@ -121,8 +125,7 @@ public class StorekeeperController {
     )
     @PostMapping("/inventory-check/start")
     public MessageResponse<String> startInventoryCheck(@RequestParam Long warehouseId, @RequestParam Long createdBy) {
-        InventoryAudit audit = stockTransactionService.startInventoryCheck(warehouseId, createdBy);
-        return MessageResponse.of(audit.getId() + " Инвентаризация успешно начата");
+        return MessageResponse.empty(stockTransactionService.startInventoryCheck(warehouseId, createdBy));
     }
 
     // ИНВЕНТАРИЗАЦИЯ: Завершение инвентаризации
@@ -154,5 +157,30 @@ public class StorekeeperController {
         } catch (Exception e) {
             return MessageResponse.empty("Ошибка при сохранении файла: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/inventory-check/in-progress")
+    public MessageResponse<List<InventoryAuditDTO>> getInventoryCheckInProgress() {
+        return MessageResponse.of(inventoryAuditService.getAllInProgressInventoryAudit());
+    }
+
+    @GetMapping("/inventory-check/completed")
+    public MessageResponse<List<InventoryAuditDTO>> getInventoryCheckCompleted() {
+        return MessageResponse.of(inventoryAuditService.getAllInCompletedInventoryAudit());
+    }
+
+    @GetMapping("/inventory-check")
+    public MessageResponse<List<InventoryAuditDTO>> getAllInventoryCheck() {
+        return MessageResponse.of(inventoryAuditService.getAllInventoryAudit());
+    }
+
+    @GetMapping("/inventory-check/{inventoryId}")
+    public MessageResponse<InventoryAuditDTO> getByInventoryAuditId(@PathVariable Long inventoryId) {
+        return MessageResponse.of(inventoryAuditService.getById(inventoryId));
+    }
+
+    @GetMapping("/transaction")
+    public MessageResponse<List<TransactionDTO>> getAllTransaction() {
+        return MessageResponse.of(transactionService.getAllTransaction());
     }
 }

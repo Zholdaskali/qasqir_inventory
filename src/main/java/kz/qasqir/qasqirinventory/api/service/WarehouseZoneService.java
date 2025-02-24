@@ -11,6 +11,7 @@ import kz.qasqir.qasqirinventory.api.repository.WarehouseZoneRepository;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
@@ -60,6 +61,25 @@ public class WarehouseZoneService {
             WarehouseZone parentZone = Optional.ofNullable(warehouseZoneRequest.getParentId())
                     .map(this::getById)
                     .orElse(null);
+            if (warehouseZoneRequest.getParentId() != null) {
+                if (parentZone == null) {
+                    throw new RuntimeException("Родительская зона не найдена");
+                }
+
+                if (warehouseZoneRequest.getWidth() > parentZone.getWidth() ||
+                        warehouseZoneRequest.getLength() > parentZone.getLength() ||
+                        warehouseZoneRequest.getHeight() > parentZone.getHeight()) {
+                    throw new RuntimeException("Размеры дочерней зоны превышают размеры родительской зоны");
+                }
+
+                double newZoneVolume = warehouseZoneRequest.getHeight() * warehouseZoneRequest.getWidth() * warehouseZoneRequest.getLength();
+
+                if (parentZone.getCapacity().compareTo(BigDecimal.valueOf(newZoneVolume)) < 0) {
+                    throw new RuntimeException("Зона переполнена: недостаточно места для новой зоны");
+                }
+
+                parentZone.setCapacity(parentZone.getCapacity().subtract(BigDecimal.valueOf(newZoneVolume)));
+            }
 
             WarehouseZone warehouseZone = new WarehouseZone();
             warehouseZone.setName(warehouseZoneRequest.getName());
@@ -72,11 +92,30 @@ public class WarehouseZoneService {
             warehouseZone.setUpdatedBy(userId);
             warehouseZone.setCreatedAt(Timestamp.from(Instant.now()).toLocalDateTime());
             warehouseZone.setUpdatedAt(Timestamp.from(Instant.now()).toLocalDateTime());
-
+            warehouseZone.setCapacity(BigDecimal.valueOf(warehouseZoneRequest.getWidth() * warehouseZoneRequest.getHeight() * warehouseZoneRequest.getLength()));
             warehouseZoneRepository.save(warehouseZone);
+
+            updateCanStoreItems(warehouseZone);
+
             return "Зона на складе успешно инициализирована";
         } catch (Exception e) {
-            throw new WarehouseZoneException("Ошибка при создании зоны: " + e.getMessage() + e);
+            throw new WarehouseZoneException("Ошибка при создании зоны: " + e.getMessage());
+        }
+    }
+
+    public void save(WarehouseZone warehouseZone) {
+        warehouseZoneRepository.save(warehouseZone);
+    }
+
+    private void updateCanStoreItems(WarehouseZone warehouseZone) {
+        boolean hasChildren = warehouseZoneRepository.existsByParentId(warehouseZone.getId());
+        warehouseZone.setCanStoreItems(!hasChildren);
+        warehouseZoneRepository.save(warehouseZone);
+
+        if (warehouseZone.getParent() != null) {
+            WarehouseZone parentZone = warehouseZone.getParent();
+            parentZone.setCanStoreItems(false);
+            warehouseZoneRepository.save(parentZone);
         }
     }
 

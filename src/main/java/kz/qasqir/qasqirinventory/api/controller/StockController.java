@@ -84,7 +84,7 @@ public class StockController {
     )
     @GetMapping("/{categoryId}/nomenclatures")
     public MessageResponse<List<NomenclatureDTO>> getAllByCategoryId(@PathVariable Long categoryId) {
-        return  MessageResponse.of(nomenclatureService.getAllNomenclature(categoryId));
+        return  MessageResponse.of(nomenclatureService.getAllNomenclatureByCategoryId(categoryId));
     }
 
     @Operation(
@@ -103,5 +103,10 @@ public class StockController {
     @DeleteMapping("/{nomenclatureId}/nomenclatures")
     public MessageResponse<String> deleteNomenclature(@PathVariable Long nomenclatureId) {
         return MessageResponse.of(nomenclatureService.deleteNomenclature(nomenclatureId));
+    }
+
+    @GetMapping("/nomenclatures")
+    public MessageResponse<List<NomenclatureDTO>> getAllNomenclatures() {
+        return MessageResponse.of(nomenclatureService.getAllNomenclature());
     }
 }

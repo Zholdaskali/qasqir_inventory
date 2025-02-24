@@ -59,7 +59,7 @@ public class EmployeeController {
     )
     @GetMapping("/categories/{categoryId}/nomenclatures")
     public MessageResponse<List<NomenclatureDTO>> getNomenclatures(@PathVariable Long categoryId) {
-        return MessageResponse.of(nomenclatureService.getAllNomenclature(categoryId));
+        return MessageResponse.of(nomenclatureService.getAllNomenclatureByCategoryId(categoryId));
     }
 
     @Operation(
