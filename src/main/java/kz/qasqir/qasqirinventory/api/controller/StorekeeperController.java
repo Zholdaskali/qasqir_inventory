@@ -2,44 +2,43 @@ package kz.qasqir.qasqirinventory.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.transaction.Transactional;
+import kz.qasqir.qasqirinventory.api.model.dto.DocumentDTO;
+import kz.qasqir.qasqirinventory.api.model.dto.DocumentFileDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.InventoryAuditDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.TransactionDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.Document;
-import kz.qasqir.qasqirinventory.api.model.entity.InventoryAudit;
+import kz.qasqir.qasqirinventory.api.model.entity.DocumentFile;
 import kz.qasqir.qasqirinventory.api.model.request.*;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.service.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
 import java.util.List;
 
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/storekeeper")
 public class StorekeeperController {
 
     private final DocumentService documentService;
-    private final StockTransactionService stockTransactionService;
+    private final ProcessSalesAndTransferService processSalesAndTransferService;
     private final DocumentFileService documentFileService;
     private final InventoryAuditService inventoryAuditService;
     private final TransactionService transactionService;
-
-    public StorekeeperController(DocumentService documentService, StockTransactionService stockTransactionService, DocumentFileService documentFileService, InventoryAuditService inventoryAuditService, TransactionService transactionService) {
-        this.documentService = documentService;
-        this.stockTransactionService = stockTransactionService;
-        this.documentFileService = documentFileService;
-        this.inventoryAuditService = inventoryAuditService;
-        this.transactionService = transactionService;
-    }
+    private final ProcessIncomingService processIncomingService;
+    private final ProcessInventoryCheckService processInventoryCheck;
+    private final ProcessTransferService processTransferService;
+    private final ProcessReturnService processReturnService;
+    private final ProcessWriteOffService writeOffService;
 
     @Transactional
     @PostMapping("/document/add")
     public MessageResponse<Document> saveDocument(@RequestBody DocumentRequest documentRequest) {
         return MessageResponse.of(documentService.addDocument(documentRequest));
     }
-
 
     @Operation(
             summary = "Создание ПОСТУПЛЕНИЕ",
@@ -48,7 +47,7 @@ public class StorekeeperController {
     // ПОСТУПЛЕНИЕ
     @PostMapping("/incoming")
     public MessageResponse<String> processIncomingGoods(@RequestBody DocumentRequest documentDTO) {
-        stockTransactionService.processIncomingGoods(documentDTO);
+        processIncomingService.processIncomingGoods(documentDTO);
         return MessageResponse.empty("Поступление товаров успешно обработано");
     }
 
@@ -59,7 +58,7 @@ public class StorekeeperController {
     )
     @PostMapping("/import")
     public MessageResponse<String> processImport(@RequestBody DocumentRequest documentDTO) {
-        stockTransactionService.processImport(documentDTO);
+        processIncomingService.processImport(documentDTO);
         return MessageResponse.empty("Импорт успешно обработан");
     }
 
@@ -70,7 +69,7 @@ public class StorekeeperController {
     )
     @PostMapping("/return")
     public MessageResponse<String> processReturn(@RequestBody ReturnRequest returnRequest) {
-        stockTransactionService.processReturn(returnRequest);
+        processReturnService.processReturn(returnRequest);
         return MessageResponse.empty("Возврат успешно обработан");
     }
 
@@ -81,7 +80,7 @@ public class StorekeeperController {
     )
     @PostMapping("/sales")
     public MessageResponse<String> processSales(@RequestBody DocumentRequest salesDocument) {
-        stockTransactionService.processSales(salesDocument);
+        processSalesAndTransferService.processSales(salesDocument);
         return MessageResponse.empty("Продажи успешно обработаны");
     }
 
@@ -92,7 +91,7 @@ public class StorekeeperController {
     )
     @PostMapping("/production-transfer")
     public MessageResponse<String> processProductionTransfer(@RequestBody DocumentRequest productionDocument) {
-        stockTransactionService.processProductionTransfer(productionDocument);
+        processSalesAndTransferService.processProductionTransfer(productionDocument);
         return MessageResponse.empty("Передача в производство успешно обработана");
     }
 
@@ -103,7 +102,7 @@ public class StorekeeperController {
     )
     @PostMapping("/write-off")
     public MessageResponse<String> processWriteOff(@RequestBody ReturnRequest writeOffRequest) {
-        stockTransactionService.processWriteOff(writeOffRequest);
+        writeOffService.processWriteOff(writeOffRequest);
         return MessageResponse.empty("Списание успешно обработано");
     }
 
@@ -114,7 +113,7 @@ public class StorekeeperController {
     )
     @PostMapping("/transfer")
     public MessageResponse<String> processTransfer(@RequestBody TransferRequest transferRequest) {
-        stockTransactionService.processTransfer(transferRequest);
+        processTransferService.processTransfer(transferRequest);
         return MessageResponse.empty("Перемещение успешно обработано");
     }
 
@@ -125,7 +124,7 @@ public class StorekeeperController {
     )
     @PostMapping("/inventory-check/start")
     public MessageResponse<String> startInventoryCheck(@RequestParam Long warehouseId, @RequestParam Long createdBy) {
-        return MessageResponse.empty(stockTransactionService.startInventoryCheck(warehouseId, createdBy));
+        return MessageResponse.empty(processInventoryCheck.startInventoryCheck(warehouseId, createdBy));
     }
 
     // ИНВЕНТАРИЗАЦИЯ: Завершение инвентаризации
@@ -135,7 +134,7 @@ public class StorekeeperController {
     )
     @PostMapping("/inventory-check/process")
     public MessageResponse<String> processInventoryCheck(@RequestParam Long auditId, @RequestBody List<InventoryAuditResultRequest> results) {
-        stockTransactionService.processInventoryCheck(auditId, results);
+        processInventoryCheck.processInventoryCheck(auditId, results);
         return MessageResponse.empty("Инвентаризация успешно завершена");
     }
 
@@ -153,7 +152,7 @@ public class StorekeeperController {
             request.setFileName(file.getOriginalFilename());
             request.setFileData(fileData);
 
-            return MessageResponse.empty(documentFileService.saveDocumentFile(request));
+            return MessageResponse.of(documentFileService.saveDocumentFile(request));
         } catch (Exception e) {
             return MessageResponse.empty("Ошибка при сохранении файла: " + e.getMessage());
         }
@@ -182,5 +181,10 @@ public class StorekeeperController {
     @GetMapping("/transaction")
     public MessageResponse<List<TransactionDTO>> getAllTransaction() {
         return MessageResponse.of(transactionService.getAllTransaction());
+    }
+
+    @GetMapping("/file")
+    public MessageResponse<List<DocumentFileDTO>> getDocumentFile() {
+        return MessageResponse.of(documentFileService.getDocumentFile());
     }
 }

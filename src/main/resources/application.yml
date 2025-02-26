@@ -13,6 +13,11 @@ spring:
     hibernate:
       ddl-auto: none
     show-sql: true
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true  # Включаем поддержку LOB для Hibernate
   mail:
     host: smtp.gmail.com       # SMTP-сервер Gmail
     port: 587                  # Порт для STARTTLS
@@ -24,6 +29,7 @@ spring:
       mail.smtp.starttls.enable: true  # Включение STARTTLS
   jackson:
     time-zone: Asia/Aqtobe
+
 
 
 
