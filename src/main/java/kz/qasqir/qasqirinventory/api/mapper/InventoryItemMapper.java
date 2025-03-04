@@ -12,38 +12,40 @@ import java.math.BigDecimal;
 @Mapper(componentModel = "spring")
 public interface InventoryItemMapper {
 
-    @Mapping(source = "nomenclature.name", target = "itemName")
-    @Mapping(source = "nomenclature.article", target = "article")
-    @Mapping(source = "nomenclature.code", target = "code")
-    @Mapping(source = "inventory.nomenclature.measurementUnit", target = "unit")
+    @Mapping(source = "id", target = "inventoryId")
+    @Mapping(source = "nomenclature.id", target = "nomenclatureId")
+    @Mapping(source = "nomenclature.name", target = "nomenclatureName")
+    @Mapping(source = "nomenclature.measurementUnit", target = "measurementUnit")
 
+    @Mapping(source = "nomenclature.code", target = "code")
     @Mapping(source = "quantity", target = "quantity")
-    @Mapping(source = "warehouseZone.name", target = "warehouseZoneName")
-    @Mapping(source = "warehouseZone.warehouse.location", target = "warehouseLocation")
-    @Mapping(source = "warehouseZone.warehouse.name", target = "warehouseName")
-    @Mapping(source = "containerSerial", target = "containerSerial")
+    @Mapping(source = "warehouseZone.id", target = "warehouseId")
+    @Mapping(source = "warehouseZone.name", target = "warehouseName")
+    @Mapping(source = "warehouseContainer.id", target = "containerId")
+    @Mapping(source = "warehouseContainer.serialNumber", target = "containerName")
     InventoryItemDTO toDto(Inventory inventory);
 
-    @Mapping(source = "itemName", target = "nomenclature.name")
-    @Mapping(source = "article", target = "nomenclature.article")
-    @Mapping(source = "code", target = "nomenclature.code")
-    @Mapping(source = "unit", target = "nomenclature.measurementUnit")
+//    private Long inventoryId;
+//    private Long nomenclatureId;
+//    private String nomenclatureName;
+//    private String measurementUnit;
+//    private String code;
+//    private BigDecimal quantity;
+//    private Long warehouseId;
+//    private String warehouseName;
+//    private Long containerId;
+//    private String containerName;
 
-    @Mapping(source = "quantity", target = "quantity")
-    @Mapping(source = "warehouseZoneName", target = "warehouseZone.name")
-    @Mapping(source = "warehouseLocation", target = "warehouseZone.warehouse.location")
-    @Mapping(source = "warehouseName", target = "warehouseZone.warehouse.name")
-    @Mapping(source = "containerSerial", target = "containerSerial")
+
+//    @Mapping(source = "itemName", target = "nomenclature.name")
+//    @Mapping(source = "article", target = "nomenclature.article")
+//    @Mapping(source = "code", target = "nomenclature.code")
+//    @Mapping(source = "unit", target = "nomenclature.measurementUnit")
+//
+//    @Mapping(source = "quantity", target = "quantity")
+//    @Mapping(source = "warehouseZoneName", target = "warehouseZone.name")
+//    @Mapping(source = "warehouseLocation", target = "warehouseZone.warehouse.location")
+//    @Mapping(source = "warehouseName", target = "warehouseZone.warehouse.name")
     Inventory toEntity(InventoryItemDTO inventoryItemDTO);
 
-
-//
-//    private String itemName; // Название товара
-//    private String article; // Артикул товара
-//    private String code; // Код товара
-//    private String unit; // Единица измерения
-//    private BigDecimal quantity; // Количество товара
-//    private String containerSerial; // Серийный номер контейнера (если применимо)
-//    private String warehouseZoneName; // Название зоны на складе
-//    private String warehouseLocation;
 }

@@ -10,14 +10,15 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class InventoryItemDTO {
-    private String itemName;
-    private String article;
+    private Long inventoryId;
+    private Long nomenclatureId;
+    private String nomenclatureName;
+    private String measurementUnit;
     private String code;
-    private String unit;
     private BigDecimal quantity;
-    private String containerSerial;
-    private String warehouseZoneName;
-    private String warehouseLocation;
+    private Long warehouseId;
     private String warehouseName;
+    private Long containerId;
+    private String containerName;
 }
 

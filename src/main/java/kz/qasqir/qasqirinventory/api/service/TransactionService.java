@@ -27,7 +27,7 @@ public class TransactionService {
 
     public void addTransaction(String typeTransaction, Document document, Nomenclature nomenclature, BigDecimal itemQuantity, LocalDate date, User user) {
         Transaction transaction = new Transaction();
-        transaction.setTransactionType("TRANSFER");
+        transaction.setTransactionType(typeTransaction);
         transaction.setDocument(document);
         transaction.setNomenclature(nomenclature);
         transaction.setQuantity(itemQuantity);
@@ -39,7 +39,7 @@ public class TransactionService {
 
     private TransactionDTO convertToDto(Transaction transaction) {
         String userName;
-        if (transaction.getCreatedBy() == null) {
+        if (transaction.getCreatedBy().getUserName() == null) {
             userName = "Не определен";
         } else {
             userName = transaction.getCreatedBy().getUserName();

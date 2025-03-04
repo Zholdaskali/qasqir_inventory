@@ -35,7 +35,6 @@ CREATE INDEX idx_documents_updated_by ON t_documents(updated_by);
 -- Индексы для таблицы t_inventory
 CREATE INDEX idx_inventory_nomenclature_id ON t_inventory(nomenclature_id);
 CREATE INDEX idx_inventory_warehouse_zone_id ON t_inventory(warehouse_zone_id);
-CREATE INDEX idx_inventory_container_serial ON t_inventory(container_serial);
 
 -- Индексы для таблицы t_transactions
 CREATE INDEX idx_transactions_transaction_type ON t_transactions(transaction_type);

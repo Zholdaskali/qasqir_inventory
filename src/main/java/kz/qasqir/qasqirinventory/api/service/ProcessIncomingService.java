@@ -35,44 +35,46 @@ public class ProcessIncomingService {
         List<ItemRequest> documentItems = documentDTO.getItems();
 
         for (ItemRequest item : documentItems) {
-            if (item.getNomenclatureId() == null || item.getWarehouseZoneId() == null || item.getQuantity() == null) {
-                throw new DocumentException("Некорректные данные позиции товаров");
-            }
+            validateItemRequest(item); // Проверка данных позиции товара
 
             Nomenclature nomenclature = nomenclatureService.getById(item.getNomenclatureId());
             WarehouseZone warehouseZone = warehouseZoneService.getById(item.getWarehouseZoneId());
+            WarehouseContainer container;
 
             if (item.getContainerId() != null) {
-                WarehouseContainer container = warehouseContainerService.getById(item.getContainerId());
+                container = warehouseContainerService.getById(item.getContainerId());
                 validateItemSizeOrVolume(nomenclature, container, item.getQuantity());
 
-                if (container.getCapacity().compareTo(BigDecimal.valueOf(0)) > 0) {
+                if (container.getCapacity().compareTo(BigDecimal.ZERO) > 0) {
                     containerCapacityControl(nomenclature, container, item.getQuantity().doubleValue());
                 } else {
-                    throw new RuntimeException("В контейнере нет места");
+                    throw new DocumentException("В контейнере нет места");
                 }
             } else {
+                container = null;
                 zoneCapacityControl(nomenclature, warehouseZone, item.getQuantity().doubleValue());
             }
 
-            Inventory inventory = inventoryRepository.findByNomenclatureIdAndWarehouseZoneId(
-                            nomenclature.getId(), warehouseZone.getId())
+            Inventory inventory = inventoryRepository.findByNomenclatureIdAndWarehouseZoneIdAndWarehouseContainerId(
+                            nomenclature.getId(), warehouseZone.getId(), item.getContainerId())
                     .orElseGet(() -> {
                         Inventory newInventory = new Inventory();
                         newInventory.setNomenclature(nomenclature);
                         newInventory.setWarehouseZone(warehouseZone);
+                        newInventory.setWarehouseContainer(container); // Сохраняем контейнер в инвентарь
                         newInventory.setQuantity(BigDecimal.ZERO);
                         return newInventory;
                     });
 
             inventory.setQuantity(inventory.getQuantity().add(item.getQuantity()));
+            if (inventory.getQuantity().compareTo(BigDecimal.ZERO) < 0) {
+                throw new DocumentException("Количество товара не может быть отрицательным");
+            }
             inventoryRepository.save(inventory);
 
             transactionService.addTransaction("INCOMING", document, nomenclature, item.getQuantity(), document.getDocumentDate(), userService.getByUserId(document.getCreatedBy()));
         }
     }
-
-
     @Transactional(rollbackOn = Exception.class)
     public void processImport(DocumentRequest documentDTO) {
         if (documentDTO == null || documentDTO.getTnvedCode() == null || documentDTO.getDocumentType() == null) {
@@ -83,11 +85,22 @@ public class ProcessIncomingService {
             throw new DocumentException("Тип документа должен быть IMPORT для обработки импорта");
         }
 
-        Document document = documentService.addDocument(documentDTO);
+        documentService.addDocument(documentDTO);
         processIncomingGoods(documentDTO);
     }
 
+    // Проверка данных позиции товара
+    private void validateItemRequest(ItemRequest item) {
+        if (item.getNomenclatureId() == null || item.getWarehouseZoneId() == null || item.getQuantity() == null) {
+            throw new DocumentException("Некорректные данные позиции товаров");
+        }
 
+        if (item.getQuantity().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new DocumentException("Количество товара должно быть положительным числом");
+        }
+    }
+
+    // Проверка габаритов или объема товара
     private void validateItemSizeOrVolume(Nomenclature nomenclature, WarehouseContainer container, BigDecimal quantity) {
         boolean hasDimensions = nomenclature.getHeight() != null
                 && nomenclature.getWidth() != null
@@ -127,23 +140,39 @@ public class ProcessIncomingService {
         }
     }
 
-
-
+    // Контроль емкости контейнера
     private void containerCapacityControl(Nomenclature nomenclature, WarehouseContainer container, double quantity) {
+        BigDecimal remainingCapacity = container.getCapacity();
+
         if (nomenclature.getVolume() == null) {
             double itemVolume = (nomenclature.getHeight() * nomenclature.getWidth() * nomenclature.getLength()) * quantity;
-            container.setCapacity(container.getCapacity().subtract(BigDecimal.valueOf(itemVolume)));
+            remainingCapacity = remainingCapacity.subtract(BigDecimal.valueOf(itemVolume));
         } else {
-            container.setCapacity(container.getCapacity().subtract(BigDecimal.valueOf(nomenclature.getVolume() * quantity)));
+            remainingCapacity = remainingCapacity.subtract(BigDecimal.valueOf(nomenclature.getVolume() * quantity));
         }
+
+        if (remainingCapacity.compareTo(BigDecimal.ZERO) < 0) {
+            throw new DocumentException("Недостаточно места в контейнере");
+        }
+
+        container.setCapacity(remainingCapacity);
     }
 
+    // Контроль емкости зоны
     private void zoneCapacityControl(Nomenclature nomenclature, WarehouseZone zone, double quantity) {
+        BigDecimal remainingCapacity = zone.getCapacity();
+
         if (nomenclature.getVolume() == null) {
             double itemVolume = (nomenclature.getHeight() * nomenclature.getWidth() * nomenclature.getLength()) * quantity;
-            zone.setCapacity(zone.getCapacity().subtract(BigDecimal.valueOf(itemVolume)));
+            remainingCapacity = remainingCapacity.subtract(BigDecimal.valueOf(itemVolume));
         } else {
-            zone.setCapacity(zone.getCapacity().subtract(BigDecimal.valueOf(nomenclature.getVolume() * quantity)));
+            remainingCapacity = remainingCapacity.subtract(BigDecimal.valueOf(nomenclature.getVolume() * quantity));
         }
+
+        if (remainingCapacity.compareTo(BigDecimal.ZERO) < 0) {
+            throw new DocumentException("Недостаточно места в зоне");
+        }
+
+        zone.setCapacity(remainingCapacity);
     }
 }

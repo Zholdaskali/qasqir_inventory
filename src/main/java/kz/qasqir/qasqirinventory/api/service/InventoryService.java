@@ -21,13 +21,15 @@ public class InventoryService {
     private final WarehouseZoneService warehouseZoneService;
     private final InventoryMapper inventoryMapper;
     private final InventoryItemMapper inventoryItemMapper;
+    private final WarehouseContainerService warehouseContainerService;
 
-    public InventoryService(InventoryRepository inventoryRepository, NomenclatureService nomenclatureService, WarehouseZoneService warehouseZoneService, InventoryMapper inventoryMapper, InventoryItemMapper inventoryItemMapper) {
+    public InventoryService(InventoryRepository inventoryRepository, NomenclatureService nomenclatureService, WarehouseZoneService warehouseZoneService, InventoryMapper inventoryMapper, InventoryItemMapper inventoryItemMapper, WarehouseContainerService warehouseContainerService) {
         this.inventoryRepository = inventoryRepository;
         this.nomenclatureService = nomenclatureService;
         this.warehouseZoneService = warehouseZoneService;
         this.inventoryMapper = inventoryMapper;
         this.inventoryItemMapper = inventoryItemMapper;
+        this.warehouseContainerService = warehouseContainerService;
     }
 
     // Добавление новой записи в инвентаризацию
@@ -40,7 +42,7 @@ public class InventoryService {
             inventory.setNomenclature(nomenclature);
             inventory.setWarehouseZone(warehouseZone);
             inventory.setQuantity(inventoryRequest.getQuantity());
-            inventory.setContainerSerial(inventoryRequest.getContainerSerial());
+            inventory.setWarehouseContainer(warehouseContainerService.getById(inventoryRequest.getContainerId()));
             inventory.setCreatedAt(LocalDateTime.now());
             inventory.setUpdatedAt(LocalDateTime.now());
 
@@ -72,8 +74,8 @@ public class InventoryService {
                 existingInventory.setQuantity(inventoryRequest.getQuantity());
             }
 
-            if (inventoryRequest.getContainerSerial() != null) {
-                existingInventory.setContainerSerial(inventoryRequest.getContainerSerial());
+            if (inventoryRequest.getContainerId() != null) {
+                existingInventory.setWarehouseContainer(warehouseContainerService.getById(inventoryRequest.getContainerId()));
             }
 
             existingInventory.setUpdatedAt(LocalDateTime.now());

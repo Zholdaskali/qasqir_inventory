@@ -11,6 +11,6 @@ public class InventoryRequest {
     private Long nomenclatureId; // ID номенклатуры
     private Long warehouseZoneId; // ID зоны склада
     private BigDecimal quantity; // Количество
-    private String containerSerial; // Серийный номер контейнера
+    private Long containerId; // Серийный номер контейнера
 }
 

@@ -33,15 +33,25 @@ public class WarehouseZoneService {
 
     public String deleteWarehouseZone(Long warehouseZoneId) {
         try {
-            // Удаление зоны из базы данных
+            WarehouseZone warehouseZone = warehouseZoneRepository.findById(warehouseZoneId)
+                    .orElseThrow(() -> new WarehouseZoneException("Зона склада с ID " + warehouseZoneId + " не найдена"));
+            boolean hasChildren = warehouseZoneRepository.existsByParentId(warehouseZoneId);
+            if (hasChildren) {
+                throw new WarehouseZoneException("Невозможно удалить зону, так как она содержит дочерние зоны");
+            }
+            if (warehouseZone.getParent() != null) {
+                WarehouseZone parentZone = warehouseZone.getParent();
+                BigDecimal zoneVolume = warehouseZone.getCapacity();
+                parentZone.setCapacity(parentZone.getCapacity().add(zoneVolume)); // Восстанавливаем объем
+                warehouseZoneRepository.save(parentZone); // Сохраняем обновленную родительскую зону
+            }
             warehouseZoneRepository.deleteById(warehouseZoneId);
+
             return "Зона склада с ID " + warehouseZoneId + " успешно удалена";
         } catch (DataAccessException e) {
-            // Логирование ошибки и выброс исключения
             String errorMessage = "Ошибка при удалении зоны склада: " + e.getMessage();
             throw new WarehouseZoneException(errorMessage);
         } catch (Exception e) {
-            // Общий случай для неожиданных ошибок
             String errorMessage = "Неизвестная ошибка при удалении зоны склада: " + e.getMessage();
             throw new WarehouseZoneException(errorMessage);
         }

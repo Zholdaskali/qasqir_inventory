@@ -22,6 +22,8 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     Optional<Inventory> findByNomenclatureIdAndWarehouseZoneId(Long nomenclatureId, Long warehouseZoneId);
 
     Optional<Inventory> findByNomenclatureId(Long nomenclatureId);
+
+    Optional<Inventory> findByNomenclatureIdAndWarehouseZoneIdAndWarehouseContainerId(Long id, Long id1, Long containerId);
 }
 
 

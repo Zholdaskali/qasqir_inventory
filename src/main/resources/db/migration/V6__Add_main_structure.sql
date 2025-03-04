@@ -97,19 +97,32 @@ CREATE TABLE IF NOT EXISTS t_documents
     FOREIGN KEY (updated_by) REFERENCES t_users (id) ON DELETE SET NULL
 );
 
+-- Таблица для хранения данных о контейнерах на складе
+CREATE TABLE IF NOT EXISTS t_warehouse_containers
+(
+    id BIGSERIAL PRIMARY KEY, -- Уникальный идентификатор контейнера
+    warehouse_zone_id BIGINT NOT NULL, -- ID зоны склада
+    serial_number VARCHAR(100) NOT NULL, -- Серийный номер контейнера
+    capacity NUMERIC(15, 3), -- Вместимость контейнера
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Дата и время создания записи
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Дата и время последнего изменения записи
+    FOREIGN KEY (warehouse_zone_id) REFERENCES t_warehouse_zones (id) ON DELETE CASCADE
+);
+
 -- Таблица для учета текущего состояния товаров на складе (инвентаризация)
 CREATE TABLE IF NOT EXISTS t_inventory
 (
     id BIGSERIAL PRIMARY KEY, -- Уникальный идентификатор записи
     nomenclature_id BIGINT NOT NULL, -- ID товара
     quantity NUMERIC(15, 3) DEFAULT 0, -- Текущее количество товара
-    warehouse_zone_id BIGINT NOT NULL, -- ID зоны/места хранения
-    container_serial VARCHAR(100), -- Серийный номер контейнера
+    warehouse_zone_id BIGINT, -- ID зоны/места хранения
+    warehouse_container_id BIGINT, -- Серийный номер контейнера
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Дата создания записи
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Дата последнего изменения записи
     FOREIGN KEY (nomenclature_id) REFERENCES t_nomenclature (id) ON DELETE CASCADE,
-    FOREIGN KEY (warehouse_zone_id) REFERENCES t_warehouse_zones (id) ON DELETE CASCADE
-);
+    FOREIGN KEY (warehouse_zone_id) REFERENCES t_warehouse_zones (id) ON DELETE CASCADE,
+    FOREIGN KEY (warehouse_container_id) REFERENCES t_warehouse_containers (id) ON DELETE CASCADE
+    );
 
 -- Таблица для хранения данных о движении товаров на складе (операции)
 CREATE TABLE IF NOT EXISTS t_transactions
@@ -141,14 +154,3 @@ CREATE TABLE IF NOT EXISTS t_returns
     FOREIGN KEY (nomenclature_id) REFERENCES t_nomenclature (id) ON DELETE CASCADE
 );
 
--- Таблица для хранения данных о контейнерах на складе
-CREATE TABLE IF NOT EXISTS t_warehouse_containers
-(
-    id BIGSERIAL PRIMARY KEY, -- Уникальный идентификатор контейнера
-    warehouse_zone_id BIGINT NOT NULL, -- ID зоны склада
-    serial_number VARCHAR(100) NOT NULL, -- Серийный номер контейнера
-    capacity NUMERIC(15, 3), -- Вместимость контейнера
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Дата и время создания записи
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Дата и время последнего изменения записи
-    FOREIGN KEY (warehouse_zone_id) REFERENCES t_warehouse_zones (id) ON DELETE CASCADE
-);
