@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class InventoryItemDTO {
-    private Long inventoryId;
+    private Long id;
     private Long nomenclatureId;
     private String nomenclatureName;
     private String measurementUnit;

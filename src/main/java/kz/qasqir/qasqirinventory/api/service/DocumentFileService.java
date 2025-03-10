@@ -48,12 +48,11 @@ public class DocumentFileService {
     }
 
     private DocumentFileDTO convertToDto(DocumentFile documentFile) {
-        byte[] fileData = Base64.getDecoder().decode(documentFile.getFileData());
         return new DocumentFileDTO(
                 documentFile.getId(),
                 documentFile.getDocumentId(),
                 documentFile.getFileName(),
-                fileData,
+                documentFile.getFileData(), // Используем байты напрямую, без Base64-декодирования
                 documentFile.getUploadedAt()
         );
     }

@@ -117,9 +117,9 @@ public class InventoryService {
         }
     }
 
-    public List<InventoryItemDTO> getAllInventoryItemsByWarehouseId(Long WarehouseZoneId) {
+    public List<InventoryItemDTO> getAllInventoryItemsByWarehouseZoneId(Long warehouseZoneId) {
         try {
-            return inventoryRepository.findAllByWarehouseZoneId(WarehouseZoneId).stream().map(inventoryItemMapper :: toDto).toList();
+            return inventoryRepository.findAllByWarehouseZoneId(warehouseZoneId).stream().map(inventoryItemMapper :: toDto).toList();
         } catch (RuntimeException e) {
             throw new RuntimeException("Ошибка при выводе всех продуктов");
         }

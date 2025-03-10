@@ -63,7 +63,7 @@ public class CustomerService {
         }
     }
 
-    public Customer getBuId(Long customerId) {
+    public Customer getById(Long customerId) {
         return customerRepository.findById(customerId).orElseThrow(() -> new CustomerException("Покупатель не найден"));
     }
 }

@@ -2,10 +2,7 @@ package kz.qasqir.qasqirinventory.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.transaction.Transactional;
-import kz.qasqir.qasqirinventory.api.model.dto.DocumentDTO;
-import kz.qasqir.qasqirinventory.api.model.dto.DocumentFileDTO;
-import kz.qasqir.qasqirinventory.api.model.dto.InventoryAuditDTO;
-import kz.qasqir.qasqirinventory.api.model.dto.TransactionDTO;
+import kz.qasqir.qasqirinventory.api.model.dto.*;
 import kz.qasqir.qasqirinventory.api.model.entity.Document;
 import kz.qasqir.qasqirinventory.api.model.entity.DocumentFile;
 import kz.qasqir.qasqirinventory.api.model.request.*;
@@ -33,6 +30,7 @@ public class StorekeeperController {
     private final ProcessTransferService processTransferService;
     private final ProcessReturnService processReturnService;
     private final ProcessWriteOffService writeOffService;
+    private final InventoryAuditResultService inventoryAuditResultService;
 
     @Transactional
     @PostMapping("/document/add")
@@ -132,10 +130,9 @@ public class StorekeeperController {
             summary = "Создание ИНВЕНТАРИЗАЦИЯ: Завершение инвентаризации",
             description = "Возвращает сообщение о создании"
     )
-    @PostMapping("/inventory-check/process")
-    public MessageResponse<String> processInventoryCheck(@RequestParam Long auditId, @RequestBody List<InventoryAuditResultRequest> results) {
-        processInventoryCheck.processInventoryCheck(auditId, results);
-        return MessageResponse.empty("Инвентаризация успешно завершена");
+    @PostMapping("/inventory-check/process/{inventoryId}")
+    public MessageResponse<String> processInventoryCheck(@PathVariable Long inventoryId, @RequestBody List<InventoryAuditResultRequest> results) {
+        return MessageResponse.empty(processInventoryCheck.processInventoryCheck(inventoryId, results));
     }
 
     @Operation(
@@ -186,5 +183,10 @@ public class StorekeeperController {
     @GetMapping("/file")
     public MessageResponse<List<DocumentFileDTO>> getDocumentFile() {
         return MessageResponse.of(documentFileService.getDocumentFile());
+    }
+
+    @GetMapping("/inventory-check/result/{auditId}")
+    public MessageResponse<List<InventoryAuditResultDTO>> getInventoryAudit(@PathVariable Long auditId) {
+        return MessageResponse.of(inventoryAuditResultService.getAllByAuditId(auditId));
     }
 }

@@ -155,7 +155,7 @@ public class UserController {
     }
 
     @GetMapping("/inventory/items/{warehouseZoneId}")
-    public MessageResponse<List<InventoryItemDTO>> getAllInventoryItemsByWarehouseId(@PathVariable Long warehouseZoneId) {
-        return MessageResponse.of(inventoryService.getAllInventoryItemsByWarehouseId(warehouseZoneId));
+    public MessageResponse<List<InventoryItemDTO>> getAllInventoryItemsByWarehouseZoneId(@PathVariable Long warehouseZoneId) {
+        return MessageResponse.of(inventoryService.getAllInventoryItemsByWarehouseZoneId(warehouseZoneId));
     }
 }

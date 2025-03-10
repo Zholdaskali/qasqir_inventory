@@ -106,8 +106,8 @@ public class NomenclatureService {
 
     public List<NomenclatureDTO> getAllNomenclatureByCategoryId(Long categoryId) {
         return nomenclatureRepository.findAllByCategoryId(categoryId).stream()
-                .map(nomenclatureMapper::toDto) // Преобразуем каждую сущность Nomenclature в NomenclatureDTO
-                .collect(Collectors.toList()); // Собираем в список
+                .map(nomenclatureMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     public List<NomenclatureDTO> getAllNomenclature() {

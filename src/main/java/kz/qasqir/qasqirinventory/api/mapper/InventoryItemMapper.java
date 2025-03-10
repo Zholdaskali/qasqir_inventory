@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @Mapper(componentModel = "spring")
 public interface InventoryItemMapper {
 
-    @Mapping(source = "id", target = "inventoryId")
+    @Mapping(source = "id", target = "id")
     @Mapping(source = "nomenclature.id", target = "nomenclatureId")
     @Mapping(source = "nomenclature.name", target = "nomenclatureName")
     @Mapping(source = "nomenclature.measurementUnit", target = "measurementUnit")

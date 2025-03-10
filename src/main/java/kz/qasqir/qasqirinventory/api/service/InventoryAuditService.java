@@ -30,7 +30,7 @@ public class InventoryAuditService {
     }
 
     public List<InventoryAuditDTO> getAllInCompletedInventoryAudit() {
-        return inventoryAuditRepository.findByStatus("COMPLETES").stream()
+        return inventoryAuditRepository.findByStatus("COMPLETED").stream()
                 .map(this::convertInventoryAudit)
                 .collect(Collectors.toList());
     }

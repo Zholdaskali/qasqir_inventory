@@ -30,25 +30,43 @@ public class DocumentService {
         this.documentMapper = documentMapper;
     }
 
-    // Общий метод для создания документа
     private Document createDocument(String documentType, String documentNumber, Long supplierId, Long customerId, String createdBy) {
+        Long createdById;
+        try {
+            createdById = Long.valueOf(createdBy);
+        } catch (NumberFormatException e) {
+            throw new DocumentException("Некорректный идентификатор пользователя: " + createdBy);
+        }
+
+        if ("TRANSFER".equals(documentType)) {
+            Document transferDocument = new Document();
+            transferDocument.setDocumentType(documentType);
+            transferDocument.setDocumentNumber(documentNumber);
+            transferDocument.setDocumentDate(LocalDate.now());
+            transferDocument.setSupplier(null);
+            transferDocument.setCustomer(null);
+            transferDocument.setCreatedBy(createdById);
+            transferDocument.setCreatedAt(LocalDateTime.now());
+            transferDocument.setUpdatedAt(LocalDateTime.now());
+            return transferDocument;
+        }
+
         if (supplierId == null && customerId == null) {
             throw new DocumentException("Необходимо указать либо поставщика, либо клиента.");
         }
 
-        Supplier supplier = null;
-        Customer customer = null;
-
-        if (supplierId != null) {
-            supplier = supplierService.getById(supplierId);
-        }
-
-        if (customerId != null) {
-            customer = customerService.getBuId(customerId);
-        }
+        Supplier supplier = (supplierId != null) ? supplierService.getById(supplierId) : null;
+        Customer customer = (customerId != null) ? customerService.getById(customerId) : null;
 
         if (supplier != null && customer != null) {
             throw new DocumentException("Нельзя указать одновременно и поставщика, и клиента.");
+        }
+
+        if (supplierId != null && supplier == null) {
+            throw new DocumentException("Поставщик с ID " + supplierId + " не найден.");
+        }
+        if (customerId != null && customer == null) {
+            throw new DocumentException("Клиент с ID " + customerId + " не найден.");
         }
 
         Document document = new Document();
@@ -57,12 +75,13 @@ public class DocumentService {
         document.setDocumentDate(LocalDate.now());
         document.setSupplier(supplier);
         document.setCustomer(customer);
-        document.setCreatedBy(Long.valueOf(createdBy));
+        document.setCreatedBy(createdById);
         document.setCreatedAt(LocalDateTime.now());
         document.setUpdatedAt(LocalDateTime.now());
 
         return document;
     }
+
 
     // Метод для добавления документа на основе TransferRequest
     public Document addTransferDocument(TransferRequest transferRequest) {
@@ -71,8 +90,8 @@ public class DocumentService {
                     createDocument(
                             transferRequest.getDocumentType(),
                             transferRequest.getDocumentNumber(),
-                            transferRequest.getSupplierId(),
-                            transferRequest.getCustomerId(),
+                            null,
+                            null,
                             transferRequest.getCreatedBy().toString()
                     )
             );
@@ -108,7 +127,7 @@ public class DocumentService {
             document.setDocumentNumber(documentRequest.getDocumentNumber());
             document.setDocumentDate(LocalDate.now());
             document.setSupplier(supplierService.getById(documentRequest.getSupplierId()));
-            document.setCustomer(customerService.getBuId(documentRequest.getCustomerId()));
+            document.setCustomer(customerService.getById(documentRequest.getCustomerId()));
             document.setUpdatedAt(LocalDateTime.now());
 
             documentRepository.save(document);
