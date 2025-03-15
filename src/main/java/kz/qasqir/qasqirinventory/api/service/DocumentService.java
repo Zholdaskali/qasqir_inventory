@@ -1,51 +1,47 @@
 package kz.qasqir.qasqirinventory.api.service;
 
+import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.DocumentException;
-import kz.qasqir.qasqirinventory.api.mapper.DocumentMapper;
 import kz.qasqir.qasqirinventory.api.model.dto.DocumentDTO;
+import kz.qasqir.qasqirinventory.api.model.dto.DocumentWithTransactionsDTO;
+import kz.qasqir.qasqirinventory.api.model.dto.TransactionDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.Customer;
 import kz.qasqir.qasqirinventory.api.model.entity.Document;
 import kz.qasqir.qasqirinventory.api.model.entity.Supplier;
+import kz.qasqir.qasqirinventory.api.model.entity.Transaction;
 import kz.qasqir.qasqirinventory.api.model.request.DocumentRequest;
 import kz.qasqir.qasqirinventory.api.model.request.TransferRequest;
 import kz.qasqir.qasqirinventory.api.repository.DocumentRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final SupplierService supplierService;
     private final CustomerService customerService;
-    private final DocumentMapper documentMapper;
+    private final TransactionService transactionService;
 
-    public DocumentService(DocumentRepository documentRepository, SupplierService supplierService, CustomerService customerService, DocumentMapper documentMapper) {
-        this.documentRepository = documentRepository;
-        this.supplierService = supplierService;
-        this.customerService = customerService;
-        this.documentMapper = documentMapper;
-    }
+    @Transactional(rollbackOn = Exception.class)
+    protected Document createDocument(String documentType, String documentNumber, Long supplierId, Long customerId, Long createdBy) {
 
-    private Document createDocument(String documentType, String documentNumber, Long supplierId, Long customerId, String createdBy) {
-        Long createdById;
-        try {
-            createdById = Long.valueOf(createdBy);
-        } catch (NumberFormatException e) {
-            throw new DocumentException("Некорректный идентификатор пользователя: " + createdBy);
-        }
-
-        if ("TRANSFER".equals(documentType)) {
+            if ("TRANSFER".equals(documentType) || "WRITE-OFF".equals(documentType)) {
             Document transferDocument = new Document();
             transferDocument.setDocumentType(documentType);
             transferDocument.setDocumentNumber(documentNumber);
             transferDocument.setDocumentDate(LocalDate.now());
             transferDocument.setSupplier(null);
             transferDocument.setCustomer(null);
-            transferDocument.setCreatedBy(createdById);
+            transferDocument.setCreatedBy(createdBy);
             transferDocument.setCreatedAt(LocalDateTime.now());
             transferDocument.setUpdatedAt(LocalDateTime.now());
             return transferDocument;
@@ -75,7 +71,7 @@ public class DocumentService {
         document.setDocumentDate(LocalDate.now());
         document.setSupplier(supplier);
         document.setCustomer(customer);
-        document.setCreatedBy(createdById);
+        document.setCreatedBy(createdBy);
         document.setCreatedAt(LocalDateTime.now());
         document.setUpdatedAt(LocalDateTime.now());
 
@@ -84,6 +80,7 @@ public class DocumentService {
 
 
     // Метод для добавления документа на основе TransferRequest
+    @Transactional(rollbackOn = Exception.class)
     public Document addTransferDocument(TransferRequest transferRequest) {
         try {
             return documentRepository.save(
@@ -92,7 +89,7 @@ public class DocumentService {
                             transferRequest.getDocumentNumber(),
                             null,
                             null,
-                            transferRequest.getCreatedBy().toString()
+                            transferRequest.getCreatedBy()
                     )
             );
         } catch (DocumentException e) {
@@ -109,7 +106,7 @@ public class DocumentService {
                             documentRequest.getDocumentNumber(),
                             documentRequest.getSupplierId(),
                             documentRequest.getCustomerId(),
-                            documentRequest.getCreatedBy().toString()
+                            documentRequest.getCreatedBy()
                     )
             );
         } catch (DocumentException e) {
@@ -117,7 +114,7 @@ public class DocumentService {
         }
     }
 
-    // Метод для обновления документа
+    @Transactional(rollbackOn = Exception.class)
     public DocumentDTO updateDocument(DocumentRequest documentRequest, Long documentId) {
         Document document = documentRepository.findById(documentId)
                 .orElseThrow(() -> new DocumentException("Документ не найден"));
@@ -131,7 +128,7 @@ public class DocumentService {
             document.setUpdatedAt(LocalDateTime.now());
 
             documentRepository.save(document);
-            return documentMapper.toDto(document);
+            return convertToDto(document);
         } catch (DocumentException e) {
             throw new DocumentException("Ошибка при изменении документа: " + e.getMessage());
         }
@@ -141,7 +138,7 @@ public class DocumentService {
     public List<DocumentDTO> getAllDocument() {
         return documentRepository.findAll()
                 .stream()
-                .map(documentMapper::toDto)
+                .map(this::convertToDto)
                 .toList();
     }
 
@@ -171,4 +168,39 @@ public class DocumentService {
     public void saveDocument(Document document) {
         documentRepository.save(document);
     }
+
+    public List<DocumentWithTransactionsDTO> getDocumentsWithTransactions(LocalDate startDate, LocalDate endDate) {
+        List<DocumentDTO> documents = documentRepository.findByDocumentDateBetween(startDate, endDate).stream().map(this::convertToDto).toList();
+
+        List<Long> documentIds = documents.stream().map(DocumentDTO::getId).collect(Collectors.toList());
+
+        List<TransactionDTO> transactions = transactionService.findByDocumentIdIn(documentIds);
+
+        Map<Long, List<TransactionDTO>> transactionsMap = transactions.stream()
+                .collect(Collectors.groupingBy(TransactionDTO::getDocumentId));
+        System.out.println("Document IDs: " + documentIds); // Логируем ID документов
+        System.out.println("Transactions found: " + transactions.size()); // Логируем количество транзакций
+        return documents.stream().map(document -> {
+            List<TransactionDTO> docTransactions = transactionsMap.getOrDefault(document.getId(), new ArrayList<>());
+            return new DocumentWithTransactionsDTO(document, docTransactions);
+        }).collect(Collectors.toList());
+    }
+
+    protected DocumentDTO convertToDto(Document document) {
+        String supplierName = (document.getSupplier() != null) ? document.getSupplier().getName() : "Не имеется";
+        String customerName = (document.getCustomer() != null) ? document.getSupplier().getName() : "Не имеется";
+
+        return new DocumentDTO(
+                document.getId(),
+                document.getDocumentType(),
+                document.getDocumentNumber(),
+                document.getDocumentDate(),
+                supplierName,
+                customerName,
+                document.getCreatedAt(),
+                document.getCreatedBy()
+        );
+    }
+
+
 }

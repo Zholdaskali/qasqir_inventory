@@ -1,20 +1,24 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
 import kz.qasqir.qasqirinventory.api.model.dto.InventoryDTO;
+import kz.qasqir.qasqirinventory.api.model.dto.TicketDTO;
 import kz.qasqir.qasqirinventory.api.model.request.InventoryRequest;
+import kz.qasqir.qasqirinventory.api.model.request.TicketRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.service.InventoryService;
+import kz.qasqir.qasqirinventory.api.service.TicketService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/warehouse-manager")
-public class    StockTransactionController {
+@RequiredArgsConstructor
+public class StockTransactionController {
 
+    private final TicketService ticketService;
     private final InventoryService inventoryService;
-
-    public StockTransactionController(InventoryService inventoryService) {
-        this.inventoryService = inventoryService;
-    }
 
     // Инвентаризация
     @PostMapping("/inventory")
@@ -42,6 +46,18 @@ public class    StockTransactionController {
     }
 
 // Эндпоинты для транзакций
+    @PostMapping("/ticket/write-off")
+    public MessageResponse<String> addTicked(@RequestBody TicketRequest ticketRequest) {
+        return MessageResponse.of(ticketService.addTicket(ticketRequest, "WRITE-OFF"));
+    }
 
+    @PutMapping("/ticket/write-off/{ticketId}")
+    public MessageResponse<String> addTicked(@PathVariable Long ticketId) {
+        return MessageResponse.of(ticketService.completedTicket(ticketId));
+    }
 
+    @GetMapping("ticket/write-off")
+    public MessageResponse<List<TicketDTO>> getWriteOffTickets() {
+        return MessageResponse.of(ticketService.getAllTicked("WRITE-OFF"));
+    }
 }

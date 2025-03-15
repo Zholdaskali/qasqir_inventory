@@ -6,45 +6,56 @@ import kz.qasqir.qasqirinventory.api.model.entity.DocumentFile;
 import kz.qasqir.qasqirinventory.api.model.request.DocumentFileRequest;
 import kz.qasqir.qasqirinventory.api.repository.DocumentFileRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class DocumentFileService {
 
-    private final DocumentFileRepository documentFileRepository;
+    private static final Logger logger = LoggerFactory.getLogger(DocumentFileService.class);
 
+    private final DocumentFileRepository documentFileRepository;
 
     @Transactional
     public String saveDocumentFile(DocumentFileRequest request) {
+        try {
+            Optional<DocumentFile> existingFile = documentFileRepository.findByDocumentIdAndFileName(request.getDocumentId(), request.getFileName());
+            if (existingFile.isPresent()) {
+                return "Файл с таким именем уже существует для данного документа";
+            }
+
             DocumentFile documentFile = new DocumentFile();
             documentFile.setDocumentId(request.getDocumentId());
             documentFile.setFileName(request.getFileName());
             documentFile.setFileData(request.getFileData());
-            if (documentFileRepository.saveDocumentFile(request.getDocumentId(), request.getFileName(), request.getFileData()) > 0){
-                return "Файл успешно сохранен";
-            }else {
-                return "Ошибка при сохранении файла1";
-            }
+
+            documentFileRepository.save(documentFile);
+            return "Файл успешно сохранен";
+        } catch (Exception e) {
+            logger.error("Ошибка при сохранении файла", e);
+            return "Ошибка при сохранении файла";
+        }
     }
 
-    public List<DocumentFileDTO> getDocumentFile() {
+    public List<DocumentFileDTO> getDocumentFiles() {
         try {
-            List<DocumentFile> files = documentFileRepository.findAllFiles();
-            return files.stream()
+            return documentFileRepository.findAll().stream()
                     .map(this::convertToDto)
-                    .toList();
+                    .collect(Collectors.toList());
         } catch (Exception e) {
-            System.out.println("Ошибка при получении файлов документов" + e);
-            throw e;
+            logger.error("Ошибка при получении файлов документов", e);
+            throw new RuntimeException("Ошибка при получении файлов документов", e);
         }
     }
 
     public List<DocumentFile> getAll() {
-        return documentFileRepository.findAllFiles();
+        return documentFileRepository.findAll();
     }
 
     private DocumentFileDTO convertToDto(DocumentFile documentFile) {
@@ -52,8 +63,13 @@ public class DocumentFileService {
                 documentFile.getId(),
                 documentFile.getDocumentId(),
                 documentFile.getFileName(),
-                documentFile.getFileData(), // Используем байты напрямую, без Base64-декодирования
+                documentFile.getFileData(),
                 documentFile.getUploadedAt()
         );
+    }
+
+    public DocumentFile getDocumentFileById(Long id) {
+        return documentFileRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Файл не найден"));
     }
 }

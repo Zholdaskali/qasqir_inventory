@@ -19,4 +19,5 @@ public class TransactionDTO {
     private LocalDate date;
     private String createdBy;
     private LocalDateTime createdAt;
+    private Long documentId;
 }

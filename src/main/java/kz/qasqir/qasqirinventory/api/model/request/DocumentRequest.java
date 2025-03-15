@@ -11,7 +11,6 @@ public class DocumentRequest {
     private LocalDate documentDate;
     private Long supplierId;
     private Long customerId;
-    private String tnvedCode; // Код
-    private List<ItemRequest> items; // Товары
+    private List<ItemRequest> items;
     private Long createdBy;
 }

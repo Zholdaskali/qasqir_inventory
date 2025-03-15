@@ -35,7 +35,7 @@ public class ProcessIncomingService {
         List<ItemRequest> documentItems = documentDTO.getItems();
 
         for (ItemRequest item : documentItems) {
-            validateItemRequest(item); // Проверка данных позиции товара
+            validateItemRequest(item);
 
             Nomenclature nomenclature = nomenclatureService.getById(item.getNomenclatureId());
             WarehouseZone warehouseZone = warehouseZoneService.getById(item.getWarehouseZoneId());
@@ -77,7 +77,7 @@ public class ProcessIncomingService {
     }
     @Transactional(rollbackOn = Exception.class)
     public void processImport(DocumentRequest documentDTO) {
-        if (documentDTO == null || documentDTO.getTnvedCode() == null || documentDTO.getDocumentType() == null) {
+        if (documentDTO == null || documentDTO.getDocumentType() == null) {
             throw new DocumentException("Некорректные данные документа импорта");
         }
 

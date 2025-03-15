@@ -4,10 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import kz.qasqir.qasqirinventory.api.model.dto.*;
 import kz.qasqir.qasqirinventory.api.model.request.OrganizationResetRequest;
 import kz.qasqir.qasqirinventory.api.model.request.RegisterInviteRequest;
+import kz.qasqir.qasqirinventory.api.model.request.TicketCompleteRequest;
 import kz.qasqir.qasqirinventory.api.model.request.UserRoleResetRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.service.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/admin")
+@RequiredArgsConstructor
 public class AdminController {
 
     private final AuthenticationService authenticationService;
@@ -26,17 +28,8 @@ public class AdminController {
     private final LoginLogService loginLogService;
     private final InviteService inviteService;
     private final OrganizationService organizationService;
+    private final TicketService ticketService;
 
-    @Autowired
-    public AdminController(AuthenticationService authenticationService, UserService userService, ActionLogService actionLogService, ExceptionLogService exceptionLogService, LoginLogService loginLogService, InviteService inviteService, OrganizationService organizationService) {
-        this.authenticationService = authenticationService;
-        this.userService = userService;
-        this.exceptionLogService = exceptionLogService;
-        this.actionLogService = actionLogService;
-        this.loginLogService = loginLogService;
-        this.inviteService = inviteService;
-        this.organizationService = organizationService;
-    }
 
     @Operation(
             summary = "Удаление пользователя",
@@ -140,6 +133,10 @@ public class AdminController {
         return MessageResponse.of(organizationService.resetOrganization(organizationResetRequest));
     }
 
+    @PutMapping("/ticket/write-off/allowed")
+    public MessageResponse<String> allowedTicket(@RequestBody TicketCompleteRequest ticketCompleteRequest) {
+        return MessageResponse.of(ticketService.allowedTicket(ticketCompleteRequest.getTicketId(), ticketCompleteRequest.getManaged_id()));
+    }
 
 //        {
 //            "userName": "superAdmin1@gmail.com",

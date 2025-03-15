@@ -1,6 +1,7 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.model.dto.*;
 import kz.qasqir.qasqirinventory.api.model.entity.Document;
@@ -9,9 +10,14 @@ import kz.qasqir.qasqirinventory.api.model.request.*;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.service.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -155,14 +161,24 @@ public class StorekeeperController {
         }
     }
 
+    @GetMapping("/document")
+    public MessageResponse<List<DocumentDTO>> getAllDocument() {
+        return MessageResponse.of(documentService.getAllDocument());
+    }
+
+
     @GetMapping("/inventory-check/in-progress")
-    public MessageResponse<List<InventoryAuditDTO>> getInventoryCheckInProgress() {
-        return MessageResponse.of(inventoryAuditService.getAllInProgressInventoryAudit());
+    public MessageResponse<List<InventoryAuditDTO>> getInventoryCheckInProgress(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate)  {
+        return MessageResponse.of(inventoryAuditService.getAllInProgressInventoryAudit(startDate, endDate));
     }
 
     @GetMapping("/inventory-check/completed")
-    public MessageResponse<List<InventoryAuditDTO>> getInventoryCheckCompleted() {
-        return MessageResponse.of(inventoryAuditService.getAllInCompletedInventoryAudit());
+    public MessageResponse<List<InventoryAuditDTO>> getInventoryCheckCompleted(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate)  {
+        return MessageResponse.of(inventoryAuditService.getAllInCompletedInventoryAudit(startDate, endDate));
     }
 
     @GetMapping("/inventory-check")
@@ -175,14 +191,23 @@ public class StorekeeperController {
         return MessageResponse.of(inventoryAuditService.getById(inventoryId));
     }
 
-    @GetMapping("/transaction")
-    public MessageResponse<List<TransactionDTO>> getAllTransaction() {
-        return MessageResponse.of(transactionService.getAllTransaction());
+    @GetMapping("/document/transaction")
+    public MessageResponse<List<DocumentWithTransactionsDTO>> getAllDocumentWithTransactions(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                                   @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        return MessageResponse.of(documentService.getDocumentsWithTransactions(startDate, endDate));
     }
 
-    @GetMapping("/file")
-    public MessageResponse<List<DocumentFileDTO>> getDocumentFile() {
-        return MessageResponse.of(documentFileService.getDocumentFile());
+    @GetMapping("/file/download/{id}")
+    public void downloadDocumentFile(@PathVariable Long id, HttpServletResponse response) throws IOException {
+        DocumentFile documentFile = documentFileService.getDocumentFileById(id);
+
+        // Устанавливаем заголовки для скачивания файла
+        response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + documentFile.getFileName() + "\"");
+
+        // Записываем файл в выходной поток
+        response.getOutputStream().write(documentFile.getFileData());
+        response.getOutputStream().flush();
     }
 
     @GetMapping("/inventory-check/result/{auditId}")

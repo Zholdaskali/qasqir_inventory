@@ -25,7 +25,7 @@ public class ProcessSalesAndTransferService {
 
     @Transactional(rollbackOn = Exception.class)
     public void processSales(DocumentRequest salesDocument) {
-        processTransaction(salesDocument, "OUTGOING");
+        processTransaction(salesDocument, "SALES");
     }
 
     @Transactional(rollbackOn = Exception.class)
@@ -34,7 +34,7 @@ public class ProcessSalesAndTransferService {
     }
 
     @Transactional(rollbackOn = Exception.class)
-    private void processTransaction(DocumentRequest documentDTO, String transactionType) {
+    protected void processTransaction(DocumentRequest documentDTO, String transactionType) {
         Document document = documentService.addDocument(documentDTO);
         List<ItemRequest> items = documentDTO.getItems();
 

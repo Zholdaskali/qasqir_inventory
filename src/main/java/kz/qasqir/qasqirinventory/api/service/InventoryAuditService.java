@@ -4,8 +4,10 @@ import kz.qasqir.qasqirinventory.api.model.dto.InventoryAuditDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.InventoryAudit;
 import kz.qasqir.qasqirinventory.api.repository.InventoryAuditRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,16 +25,22 @@ public class InventoryAuditService {
                 .collect(Collectors.toList());
     }
 
-    public List<InventoryAuditDTO> getAllInProgressInventoryAudit() {
-        return inventoryAuditRepository.findByStatus("IN_PROGRESS").stream()
+    public List<InventoryAuditDTO> getAllInventoryAuditByStatus(LocalDate startDate, LocalDate endDate, String status) {
+        LocalDateTime startDateTime = startDate.atStartOfDay(); // Начало дня
+        LocalDateTime endDateTime = endDate.atStartOfDay().plusDays(1).minusSeconds(1); // Конец дня
+
+        return inventoryAuditRepository.findAllByCreatedAtBetweenAndStatus(startDateTime, endDateTime, status)
+                .stream()
                 .map(this::convertInventoryAudit)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    public List<InventoryAuditDTO> getAllInCompletedInventoryAudit() {
-        return inventoryAuditRepository.findByStatus("COMPLETED").stream()
-                .map(this::convertInventoryAudit)
-                .collect(Collectors.toList());
+    public List<InventoryAuditDTO> getAllInProgressInventoryAudit(LocalDate startDate, LocalDate endDate) {
+        return getAllInventoryAuditByStatus(startDate, endDate, "IN_PROGRESS");
+    }
+
+    public List<InventoryAuditDTO> getAllInCompletedInventoryAudit(LocalDate startDate, LocalDate endDate) {
+        return getAllInventoryAuditByStatus(startDate, endDate, "COMPLETED");
     }
 
     public InventoryAuditDTO getById(Long inventoryId) {

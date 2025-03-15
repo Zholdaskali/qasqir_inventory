@@ -49,7 +49,7 @@ public class ProcessTransferService {
                         newInventory.setNomenclature(nomenclature);
                         newInventory.setWarehouseZone(toZone);
                         newInventory.setQuantity(BigDecimal.ZERO);
-                        return newInventory;
+                        return inventoryRepository.saveAndFlush(newInventory); // Немедленно сохраняем
                     });
 
             fromInventory.setQuantity(fromInventory.getQuantity().subtract(item.getQuantity()));
@@ -64,4 +64,5 @@ public class ProcessTransferService {
         document.setStatus("COMPLETED");
         documentService.saveDocument(document);
     }
+
 }

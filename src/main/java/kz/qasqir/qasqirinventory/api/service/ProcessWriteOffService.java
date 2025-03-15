@@ -3,10 +3,7 @@ package kz.qasqir.qasqirinventory.api.service;
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.DocumentException;
 import kz.qasqir.qasqirinventory.api.exception.NomenclatureException;
-import kz.qasqir.qasqirinventory.api.model.entity.Document;
-import kz.qasqir.qasqirinventory.api.model.entity.Inventory;
-import kz.qasqir.qasqirinventory.api.model.entity.Nomenclature;
-import kz.qasqir.qasqirinventory.api.model.entity.Return;
+import kz.qasqir.qasqirinventory.api.model.entity.*;
 import kz.qasqir.qasqirinventory.api.model.request.ReturnRequest;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
 import kz.qasqir.qasqirinventory.api.repository.ReturnRepository;
@@ -55,6 +52,30 @@ public class ProcessWriteOffService {
         inventoryRepository.save(inventory);
 
         transactionService.addTransaction("WRITE-OFF", document, nomenclature, writeOffRequest.getQuantity(), document.getDocumentDate(), userService.getByUserId(document.getCreatedBy()));
+    }
+
+
+    @Transactional (rollbackOn = Exception.class)
+    public void processTicketWriteOff(Ticket ticket) {
+
+        Inventory inventory = inventoryRepository.findById(ticket.getInventoryId()).orElseThrow(() -> new RuntimeException("Инвентарь не найден"));
+        Return returnItem = new Return();
+        returnItem.setReturnType(ticket.getType());
+        returnItem.setRelatedDocument(ticket.getDocument());
+        returnItem.setNomenclature(inventory.getNomenclature());
+        returnItem.setQuantity(ticket.getQuantity());
+        returnItem.setReason(ticket.getComment());
+
+        returnRepository.save(returnItem);
+
+        BigDecimal updatedQuantity = inventory.getQuantity().subtract(ticket.getQuantity());
+        if (updatedQuantity.compareTo(BigDecimal.ZERO) < 0) {
+            throw new NomenclatureException("Недостаточно запаса для списания");
+        }
+        inventory.setQuantity(updatedQuantity);
+        inventoryRepository.save(inventory);
+
+        transactionService.addTransaction("WRITE-OFF", ticket.getDocument(), ticket.getInventory().getNomenclature(), ticket.getQuantity(), ticket.getDocument().getDocumentDate(), ticket.getCreatedBy());
     }
 
 }

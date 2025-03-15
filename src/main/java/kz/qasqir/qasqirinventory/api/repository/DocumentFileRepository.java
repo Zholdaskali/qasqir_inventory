@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DocumentFileRepository extends JpaRepository<DocumentFile, Long> {
@@ -18,4 +19,6 @@ public interface DocumentFileRepository extends JpaRepository<DocumentFile, Long
 
     @Query(value = "SELECT * FROM t_documents_files", nativeQuery = true)
     List<DocumentFile> findAllFiles();
+
+    Optional<DocumentFile> findByDocumentIdAndFileName(Long documentId, String fileName);
 }

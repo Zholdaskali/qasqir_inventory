@@ -80,35 +80,19 @@ public class UserService {
     @Transactional
     public UserDTO updateRole(Long userId, UserRoleResetRequest userRoleResetRequest) {
         List<Long> newRoles = userRoleResetRequest.getNewRoles();
-
-        // Получаем текущие роли пользователя
         List<Role> currentRoles = roleService.getAllForUserId(userId);
-
-        // Получаем идентификаторы текущих ролей
         List<Long> currentRoleIds = currentRoles.stream()
                 .map(Role::getId)
                 .toList();
-
-        // Определяем роли, которые нужно удалить (старые роли, которых нет в новых)
         List<Long> rolesToDelete = currentRoleIds.stream()
                 .filter(roleId -> !newRoles.contains(roleId))
                 .toList();
-
-        // Определяем роли, которые нужно добавить (новые роли, которых нет в текущих)
         List<Long> rolesToAdd = newRoles.stream()
                 .filter(roleId -> !currentRoleIds.contains(roleId))
                 .toList();
-
-        // Удаляем лишние роли
         rolesToDelete.forEach(roleId -> roleService.removeRoleFromUser(userId, roleId));
-
-        // Добавляем новые роли
         rolesToAdd.forEach(roleId -> roleService.addForUser(userId, roleId));
-
-        // Получаем обновленного пользователя
         User user = getByUserId(userId);
-
-        // Преобразуем пользователя в DTO
         return convertToUserDTO(user);
     }
 
@@ -131,10 +115,8 @@ public class UserService {
 
 
     public List<UserDTO> getAllUsers() {
-        // Шаг 1: Получить всех пользователей
         List<User> users = userRepository.findAll();
 
-        // Шаг 2: Получить роли для пользователей
         Map<Long, List<String>> userRolesMap = new HashMap<>();
         List<Object[]> rolesData = roleService.getRolesForUsers();
 
@@ -144,7 +126,6 @@ public class UserService {
             userRolesMap.computeIfAbsent(userId, k -> new ArrayList<>()).add(roleName);
         }
 
-        // Шаг 3: Преобразовать пользователей в DTO
         return users.stream()
                 .map(user -> {
                     List<String> roles = userRolesMap.getOrDefault(user.getId(), Collections.emptyList());

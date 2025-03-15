@@ -80,6 +80,7 @@ public class AuthenticationService {
         }
     }
 
+    @Transactional
     public Session login(String email, String password) {
         try {
             User user = userService.getByUserEmail(email);
@@ -95,6 +96,7 @@ public class AuthenticationService {
         }
     }
 
+    @Transactional
     public boolean logout(String token) {
         try {
             return sessionService.invalidate(token);
