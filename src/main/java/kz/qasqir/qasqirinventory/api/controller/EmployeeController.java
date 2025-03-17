@@ -1,10 +1,7 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import kz.qasqir.qasqirinventory.api.model.dto.CategoryDTO;
-import kz.qasqir.qasqirinventory.api.model.dto.NomenclatureDTO;
-import kz.qasqir.qasqirinventory.api.model.dto.WarehouseDTO;
-import kz.qasqir.qasqirinventory.api.model.dto.WarehouseZoneDTO;
+import kz.qasqir.qasqirinventory.api.model.dto.*;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.service.CategoryService;
 import kz.qasqir.qasqirinventory.api.service.NomenclatureService;
@@ -48,9 +45,9 @@ public class EmployeeController {
             summary = "Просмотр зон склада по warehouseId",
             description = "Возвращает зоды определенного склада"
     )
-    @GetMapping("/warehouses/{warehouseId}/zones")
-    public MessageResponse<List<WarehouseZoneDTO>> getZonesByWarehouseId(@PathVariable Long warehouseId) {
-        return MessageResponse.of(warehouseZoneService.getAllWarehouseZoneByWarehouseId(warehouseId));
+    @GetMapping("/warehouses/{warehouseId}")
+    public MessageResponse<WarehouseStructureDTO> getZonesByWarehouseId(@PathVariable Long warehouseId) {
+        return MessageResponse.of(warehouseService.getWarehouseDetails(warehouseId));
     }
 
     @Operation(

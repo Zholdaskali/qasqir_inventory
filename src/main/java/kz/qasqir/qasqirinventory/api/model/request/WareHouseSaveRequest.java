@@ -7,4 +7,6 @@ import lombok.Data;
 public class WareHouseSaveRequest {
     private String name;
     private String location;
+    private Double latitude;
+    private Double longitude;
 }

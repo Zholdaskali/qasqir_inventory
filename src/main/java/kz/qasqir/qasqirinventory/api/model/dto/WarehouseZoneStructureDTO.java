@@ -6,18 +6,24 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class WarehouseContainerDTO {
+public class WarehouseZoneStructureDTO {
     private Long id;
-    private Long warehouseZoneId;
-    private String serialNumber;
-    private BigDecimal capacity;
+    private String name;
+    private Long parentId;
+    private Long createdBy;
+    private Long updatedBy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Double width;
     private Double height;
     private Double length;
+    private BigDecimal capacity;
+    private Boolean canStoreItems;
+    private List<WarehouseZoneStructureDTO> childZones;
+    private List<WarehouseContainerDTO> containers;
 }

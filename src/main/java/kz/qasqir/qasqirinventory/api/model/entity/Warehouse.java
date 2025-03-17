@@ -18,10 +18,20 @@ public class Warehouse {
 
     private String location;
 
+    @Column(name = "latitude")
+    private Double latitude; // Широта
+
+    @Column(name = "longitude")
+    private Double longitude; // Долгота
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
-}
 
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+}

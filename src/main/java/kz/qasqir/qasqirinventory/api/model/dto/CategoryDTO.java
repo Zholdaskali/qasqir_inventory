@@ -3,6 +3,7 @@ package kz.qasqir.qasqirinventory.api.model.dto;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor

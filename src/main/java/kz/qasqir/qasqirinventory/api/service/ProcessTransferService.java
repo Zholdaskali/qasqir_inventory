@@ -25,7 +25,6 @@ public class ProcessTransferService {
     private final TransactionService transactionService;
     private final UserService userService;
 
-    // Перемещение
     @Transactional(rollbackOn = Exception.class)
     public void processTransfer(TransferRequest documentDTO) {
         Document document = documentService.addTransferDocument(documentDTO);
@@ -49,16 +48,22 @@ public class ProcessTransferService {
                         newInventory.setNomenclature(nomenclature);
                         newInventory.setWarehouseZone(toZone);
                         newInventory.setQuantity(BigDecimal.ZERO);
-                        return inventoryRepository.saveAndFlush(newInventory); // Немедленно сохраняем
+                        return inventoryRepository.saveAndFlush(newInventory);
                     });
 
             fromInventory.setQuantity(fromInventory.getQuantity().subtract(item.getQuantity()));
             toInventory.setQuantity(toInventory.getQuantity().add(item.getQuantity()));
 
-            inventoryRepository.save(fromInventory);
             inventoryRepository.save(toInventory);
 
-            transactionService.addTransaction("TRANSFER", document, nomenclature, item.getQuantity(), documentDTO.getDocumentDate(), userService.getByUserId(document.getCreatedBy()));
+            if (fromInventory.getQuantity().compareTo(BigDecimal.ZERO) == 0) {
+                inventoryRepository.delete(fromInventory);
+            } else {
+                inventoryRepository.save(fromInventory);
+            }
+
+            transactionService.addTransaction("TRANSFER", document, nomenclature, item.getQuantity(),
+                    documentDTO.getDocumentDate(), userService.getByUserId(document.getCreatedBy()));
         }
 
         document.setStatus("COMPLETED");

@@ -86,7 +86,7 @@
         }
 
         private WarehouseContainerDTO convertToDto(WarehouseContainer warehouseContainer) {
-            return new WarehouseContainerDTO(warehouseContainer.getId(), warehouseContainer.getSerialNumber(), warehouseContainer.getCapacity(), warehouseContainer.getWidth(), warehouseContainer.getHeight(), warehouseContainer.getLength());
+            return new WarehouseContainerDTO();
         }
 
     }

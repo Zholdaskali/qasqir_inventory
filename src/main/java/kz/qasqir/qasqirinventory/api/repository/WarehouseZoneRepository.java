@@ -11,4 +11,8 @@ public interface WarehouseZoneRepository extends JpaRepository<WarehouseZone, Lo
     List<WarehouseZone> findAllByWarehouseId(Long warehouseId);
 
     boolean existsByParentId(Long id);
+
+    List<WarehouseZone> findByParentId(Long id);
+
+    List<WarehouseZone> findRootZonesByWarehouseId(Long warehouseId);
 }
