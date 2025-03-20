@@ -2,6 +2,7 @@ package kz.qasqir.qasqirinventory.api.service;
 
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.EmailIsAlreadyRegisteredException;
+import kz.qasqir.qasqirinventory.api.model.dto.InventoryAuditDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.*;
 import kz.qasqir.qasqirinventory.api.model.request.InventoryAuditResultRequest;
 import kz.qasqir.qasqirinventory.api.repository.InventoryAuditRepository;
@@ -25,18 +26,18 @@ public class ProcessInventoryCheckService {
     private final WarehouseZoneService warehouseZoneService;
     private final InventoryAuditResultRepository inventoryAuditResultRepository;
     private final TransactionService transactionService;
+    private final InventoryAuditService inventoryAuditService;
 
     // Начало инвентаризации
     @Transactional(rollbackOn = Exception.class)
-    public String startInventoryCheck(Long warehouseId, Long createdBy) {
+    public InventoryAuditDTO startInventoryCheck(Long warehouseId, Long createdBy) {
         Warehouse warehouse = warehouseService.getById(warehouseId);
         InventoryAudit audit = new InventoryAudit();
         audit.setWarehouse(warehouse);
         audit.setAuditDate(LocalDate.now());
         audit.setStatus("IN_PROGRESS");
         audit.setCreatedBy(userService.getByUserId(createdBy));
-        inventoryAuditRepository.save(audit);
-        return "Инвентаризация началось";
+        return inventoryAuditService.convertInventoryAudit(inventoryAuditRepository.save(audit));
     }
 
     @Transactional(rollbackOn = Exception.class)

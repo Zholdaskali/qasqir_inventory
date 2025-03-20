@@ -23,39 +23,39 @@ public class ProcessSalesAndTransferService {
     private final TransactionService transactionService;
 
 
-    @Transactional(rollbackOn = Exception.class)
-    public void processSales(DocumentRequest salesDocument) {
-        processTransaction(salesDocument, "SALES");
-    }
+//    @Transactional(rollbackOn = Exception.class)
+//    public void processSales(Ticket ticket) {
+//        processTransaction(ticket, "SALES");
+//    }
 
-    @Transactional(rollbackOn = Exception.class)
-    public void processProductionTransfer(DocumentRequest productionDocument) {
-        processTransaction(productionDocument, "PRODUCTION");
-    }
-
-    @Transactional(rollbackOn = Exception.class)
-    protected void processTransaction(DocumentRequest documentDTO, String transactionType) {
-        Document document = documentService.addDocument(documentDTO);
-        List<ItemRequest> items = documentDTO.getItems();
-
-        for (ItemRequest item : items) {
-            Nomenclature nomenclature = nomenclatureService.getById(item.getNomenclatureId());
-            WarehouseZone warehouseZone = warehouseZoneService.getById(item.getWarehouseZoneId());
-
-            Inventory inventory = inventoryRepository.findByNomenclatureIdAndWarehouseZoneId(nomenclature.getId(), warehouseZone.getId()).orElseThrow(() -> new InsufficientStockException("Недостаточно запаса для позиции: " + nomenclature.getName()));
-
-            BigDecimal updatedQuantity = inventory.getQuantity().subtract(item.getQuantity());
-            if (updatedQuantity.compareTo(BigDecimal.ZERO) < 0) {
-                throw new InsufficientStockException("Недостаточно запаса для позиции: " + nomenclature.getName());
-            }
-            inventory.setQuantity(updatedQuantity);
-            inventoryRepository.save(inventory);
-
-            transactionService.addTransaction(transactionType, document, nomenclature, item.getQuantity(), documentDTO.getDocumentDate(), userService.getByUserId(document.getCreatedBy()));
-        }
-
-        document.setStatus("COMPLETED");
-        documentService.saveDocument(document);
-    }
+//    @Transactional(rollbackOn = Exception.class)
+//    public void processProductionTransfer(Ticket ticket) {
+//        processTransaction(ticket, "PRODUCTION");
+//    }
+//
+//    @Transactional(rollbackOn = Exception.class)
+//    protected void processTransaction(Ticket ticket, String transactionType) {
+//        Document document = documentService.addDocument(ticket.getDocument());
+//        List<ItemRequest> items = ticket.getItems();
+//
+//        for (ItemRequest item : items) {
+//            Nomenclature nomenclature = nomenclatureService.getById(item.getNomenclatureId());
+//            WarehouseZone warehouseZone = warehouseZoneService.getById(item.getWarehouseZoneId());
+//
+//            Inventory inventory = inventoryRepository.findByNomenclatureIdAndWarehouseZoneId(nomenclature.getId(), warehouseZone.getId()).orElseThrow(() -> new InsufficientStockException("Недостаточно запаса для позиции: " + nomenclature.getName()));
+//
+//            BigDecimal updatedQuantity = inventory.getQuantity().subtract(item.getQuantity());
+//            if (updatedQuantity.compareTo(BigDecimal.ZERO) < 0) {
+//                throw new InsufficientStockException("Недостаточно запаса для позиции: " + nomenclature.getName());
+//            }
+//            inventory.setQuantity(updatedQuantity);
+//            inventoryRepository.save(inventory);
+//
+//            transactionService.addTransaction(transactionType, document, nomenclature, item.getQuantity(), ticket.getDocumentDate(), userService.getByUserId(document.getCreatedBy()));
+//        }
+//
+//        document.setStatus("COMPLETED");
+//        documentService.saveDocument(document);
+//    }
 
 }

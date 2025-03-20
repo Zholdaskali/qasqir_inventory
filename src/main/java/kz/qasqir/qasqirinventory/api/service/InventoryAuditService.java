@@ -47,7 +47,7 @@ public class InventoryAuditService {
         return convertInventoryAudit(inventoryAuditRepository.findById(inventoryId).orElseThrow(() -> new RuntimeException("Инвентаризация не найдена")));
     }
 
-    private InventoryAuditDTO convertInventoryAudit(InventoryAudit inventoryAudit) {
+    protected InventoryAuditDTO convertInventoryAudit(InventoryAudit inventoryAudit) {
         return new InventoryAuditDTO(inventoryAudit.getId(), inventoryAudit.getWarehouse().getId() ,inventoryAudit.getWarehouse().getName(), inventoryAudit.getAuditDate(), inventoryAudit.getStatus(), inventoryAudit.getCreatedBy().getUserName(), inventoryAudit.getCreatedAt());
     }
 }

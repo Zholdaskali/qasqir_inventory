@@ -46,8 +46,13 @@ public class EmployeeController {
             description = "Возвращает зоды определенного склада"
     )
     @GetMapping("/warehouses/{warehouseId}")
-    public MessageResponse<WarehouseStructureDTO> getZonesByWarehouseId(@PathVariable Long warehouseId) {
+    public MessageResponse<WarehouseStructureDTO> getDetailByWarehouseId(@PathVariable Long warehouseId) {
         return MessageResponse.of(warehouseService.getWarehouseDetails(warehouseId));
+    }
+
+    @GetMapping("/warehouses/{warehouseId}/zones")
+    public MessageResponse<List<WarehouseZoneDTO>> getZonesByWarehouseId(@PathVariable Long warehouseId) {
+        return MessageResponse.of(warehouseZoneService.getAllWarehouseZoneByWarehouseId(warehouseId));
     }
 
     @Operation(

@@ -78,26 +78,26 @@ public class StorekeeperController {
     }
 
     // ПРОДАЖА
-    @Operation(
-            summary = "Создание ПРОДАЖА",
-            description = "Возвращает сообщение о создании"
-    )
-    @PostMapping("/sales")
-    public MessageResponse<String> processSales(@RequestBody DocumentRequest salesDocument) {
-        processSalesAndTransferService.processSales(salesDocument);
-        return MessageResponse.empty("Продажи успешно обработаны");
-    }
-
-    // ПРОИЗВОДСТВО И ПЕРЕДАЧА
-    @Operation(
-            summary = "Создание ПРОИЗВОДСТВО И ПЕРЕДАЧА",
-            description = "Возвращает сообщение о создании"
-    )
-    @PostMapping("/production-transfer")
-    public MessageResponse<String> processProductionTransfer(@RequestBody DocumentRequest productionDocument) {
-        processSalesAndTransferService.processProductionTransfer(productionDocument);
-        return MessageResponse.empty("Передача в производство успешно обработана");
-    }
+//    @Operation(
+//            summary = "Создание ПРОДАЖА",
+//            description = "Возвращает сообщение о создании"
+//    )
+//    @PostMapping("/sales")
+//    public MessageResponse<String> processSales(@RequestBody DocumentRequest salesDocument) {
+//        processSalesAndTransferService.processSales(salesDocument);
+//        return MessageResponse.empty("Продажи успешно обработаны");
+//    }
+//
+//    // ПРОИЗВОДСТВО И ПЕРЕДАЧА
+//    @Operation(
+//            summary = "Создание ПРОИЗВОДСТВО И ПЕРЕДАЧА",
+//            description = "Возвращает сообщение о создании"
+//    )
+//    @PostMapping("/production-transfer")
+//    public MessageResponse<String> processProductionTransfer(@RequestBody DocumentRequest productionDocument) {
+//        processSalesAndTransferService.processProductionTransfer(productionDocument);
+//        return MessageResponse.empty("Передача в производство успешно обработана");
+//    }
 
     // СПИСАНИЕ
     @Operation(
@@ -127,8 +127,8 @@ public class StorekeeperController {
             description = "Возвращает сообщение о создании"
     )
     @PostMapping("/inventory-check/start")
-    public MessageResponse<String> startInventoryCheck(@RequestParam Long warehouseId, @RequestParam Long createdBy) {
-        return MessageResponse.empty(processInventoryCheck.startInventoryCheck(warehouseId, createdBy));
+    public MessageResponse<InventoryAuditDTO> startInventoryCheck(@RequestParam Long warehouseId, @RequestParam Long createdBy) {
+        return MessageResponse.of(processInventoryCheck.startInventoryCheck(warehouseId, createdBy));
     }
 
     // ИНВЕНТАРИЗАЦИЯ: Завершение инвентаризации
@@ -192,8 +192,9 @@ public class StorekeeperController {
     }
 
     @GetMapping("/document/transaction")
-    public MessageResponse<List<DocumentWithTransactionsDTO>> getAllDocumentWithTransactions(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                                                                   @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+    public MessageResponse<List<DocumentWithTransactionsDTO>> getAllDocumentWithTransactions(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         return MessageResponse.of(documentService.getDocumentsWithTransactions(startDate, endDate));
     }
 

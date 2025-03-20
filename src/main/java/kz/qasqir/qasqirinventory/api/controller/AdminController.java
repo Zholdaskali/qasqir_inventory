@@ -2,10 +2,7 @@ package kz.qasqir.qasqirinventory.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import kz.qasqir.qasqirinventory.api.model.dto.*;
-import kz.qasqir.qasqirinventory.api.model.request.OrganizationResetRequest;
-import kz.qasqir.qasqirinventory.api.model.request.RegisterInviteRequest;
-import kz.qasqir.qasqirinventory.api.model.request.TicketCompleteRequest;
-import kz.qasqir.qasqirinventory.api.model.request.UserRoleResetRequest;
+import kz.qasqir.qasqirinventory.api.model.request.*;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.service.*;
 import lombok.RequiredArgsConstructor;
@@ -136,6 +133,11 @@ public class AdminController {
     @PutMapping("/ticket/write-off/allowed")
     public MessageResponse<String> allowedTicket(@RequestBody TicketCompleteRequest ticketCompleteRequest) {
         return MessageResponse.of(ticketService.allowedTicket(ticketCompleteRequest.getTicketId(), ticketCompleteRequest.getManaged_id()));
+    }
+
+    @PutMapping("/ticket/write-off/allowed/batch")
+    public MessageResponse<String> allowedBatchTickets(@RequestBody BatchCompleteRequest batchCompleteRequest) {
+        return MessageResponse.of(ticketService.allowedBatchTickets(batchCompleteRequest.getTicketIds(), batchCompleteRequest.getManagedId()));
     }
 
 //        {

@@ -44,7 +44,7 @@ public class DocumentService {
             transferDocument.setCreatedBy(createdBy);
             transferDocument.setCreatedAt(LocalDateTime.now());
             transferDocument.setUpdatedAt(LocalDateTime.now());
-            return transferDocument;
+            return documentRepository.save(transferDocument);
         }
 
         if (supplierId == null && customerId == null) {
@@ -75,7 +75,7 @@ public class DocumentService {
         document.setCreatedAt(LocalDateTime.now());
         document.setUpdatedAt(LocalDateTime.now());
 
-        return document;
+        return documentRepository.save(document);
     }
 
 
@@ -83,14 +83,13 @@ public class DocumentService {
     @Transactional(rollbackOn = Exception.class)
     public Document addTransferDocument(TransferRequest transferRequest) {
         try {
-            return documentRepository.save(
+            return
                     createDocument(
                             transferRequest.getDocumentType(),
                             transferRequest.getDocumentNumber(),
                             null,
                             null,
                             transferRequest.getCreatedBy()
-                    )
             );
         } catch (DocumentException e) {
             throw new DocumentException("Ошибка при создании документа: " + e.getMessage());
@@ -100,14 +99,12 @@ public class DocumentService {
     // Метод для добавления документа на основе DocumentRequest
     public Document addDocument(DocumentRequest documentRequest) {
         try {
-            return documentRepository.save(
-                    createDocument(
+            return createDocument(
                             documentRequest.getDocumentType(),
                             documentRequest.getDocumentNumber(),
                             documentRequest.getSupplierId(),
                             documentRequest.getCustomerId(),
                             documentRequest.getCreatedBy()
-                    )
             );
         } catch (DocumentException e) {
             throw new DocumentException("Ошибка при создании документа: " + e.getMessage());
