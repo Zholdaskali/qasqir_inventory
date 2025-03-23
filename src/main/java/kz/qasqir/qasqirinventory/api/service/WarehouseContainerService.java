@@ -85,7 +85,7 @@
             return warehouseContainerRepository.findAllByWarehouseZoneId(zoneId).stream().map(this::convertToDto).toList();
         }
 
-        private WarehouseContainerDTO convertToDto(WarehouseContainer warehouseContainer) {
+        protected WarehouseContainerDTO convertToDto(WarehouseContainer warehouseContainer) {
             return new WarehouseContainerDTO();
         }
 

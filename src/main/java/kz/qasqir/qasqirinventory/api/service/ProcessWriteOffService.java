@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -49,6 +50,12 @@ public class ProcessWriteOffService {
             throw new NomenclatureException("Недостаточно запаса для списания");
         }
         inventory.setQuantity(updatedQuantity);
+
+        if(Objects.equals(inventory.getQuantity(), BigDecimal.ZERO)) {
+            inventoryRepository.delete(inventory);
+        } else {
+            inventoryRepository.save(inventory);
+        }
         inventoryRepository.save(inventory);
 
         transactionService.addTransaction("WRITE-OFF", document, nomenclature, writeOffRequest.getQuantity(), document.getDocumentDate(), userService.getByUserId(document.getCreatedBy()));
@@ -73,7 +80,12 @@ public class ProcessWriteOffService {
             throw new NomenclatureException("Недостаточно запаса для списания");
         }
         inventory.setQuantity(updatedQuantity);
-        inventoryRepository.save(inventory);
+        if(Objects.equals(inventory.getQuantity(), BigDecimal.ZERO)) {
+            inventoryRepository.delete(inventory);
+        } else {
+            inventoryRepository.save(inventory);
+        }
+
 
         transactionService.addTransaction("WRITE-OFF", ticket.getDocument(), ticket.getInventory().getNomenclature(), ticket.getQuantity(), ticket.getDocument().getDocumentDate(), ticket.getCreatedBy());
     }

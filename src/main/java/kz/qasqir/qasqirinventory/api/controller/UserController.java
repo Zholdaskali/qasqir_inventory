@@ -3,6 +3,7 @@ package kz.qasqir.qasqirinventory.api.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import kz.qasqir.qasqirinventory.api.model.dto.InventoryItemDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.OrganizationDTO;
+import kz.qasqir.qasqirinventory.api.model.dto.WarehouseInventoryDTO;
 import kz.qasqir.qasqirinventory.api.model.request.*;
 import kz.qasqir.qasqirinventory.api.model.dto.UserDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
@@ -149,9 +150,9 @@ public class UserController {
         return MessageResponse.of(organizationService.getOrganization());
     }
 
-    @GetMapping("/inventory/items")
-    public MessageResponse<List<InventoryItemDTO>> getAllInventoryItems() {
-        return MessageResponse.of(inventoryService.getAllInventoryItems());
+    @GetMapping("/warehouse/items/{warehouseId}")
+    public MessageResponse<WarehouseInventoryDTO> getAllInventoryItems(@PathVariable Long warehouseId) {
+        return MessageResponse.of(inventoryService.getAllInventoryItems(warehouseId));
     }
 
     @GetMapping("/inventory/items/{warehouseZoneId}")

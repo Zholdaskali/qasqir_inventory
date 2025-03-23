@@ -7,6 +7,7 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -18,4 +19,5 @@ public class InventoryAuditDTO {
     private String status;
     private String createdBy;
     private LocalDateTime createdAt;
+    private List<InventoryAuditResultDTO> result;
 }

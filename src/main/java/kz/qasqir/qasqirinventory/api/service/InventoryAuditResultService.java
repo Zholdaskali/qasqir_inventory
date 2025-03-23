@@ -17,7 +17,7 @@ public class InventoryAuditResultService {
         return inventoryAuditResultRepository.findByAuditId(auditId).stream().map(this::convertToDTO).toList();
     }
 
-    private InventoryAuditResultDTO convertToDTO(InventoryAuditResult inventoryAuditResult) {
+    protected InventoryAuditResultDTO convertToDTO(InventoryAuditResult inventoryAuditResult) {
         return new InventoryAuditResultDTO(inventoryAuditResult.getId(), inventoryAuditResult.getNomenclature().getId(), inventoryAuditResult.getNomenclature().getName(), inventoryAuditResult.getWarehouseZone().getId(), inventoryAuditResult.getWarehouseZone().getName(), inventoryAuditResult.getExpectedQuantity(), inventoryAuditResult.getActualQuantity(), inventoryAuditResult.getDiscrepancy(), inventoryAuditResult.getCreatedAt());
     }
 }

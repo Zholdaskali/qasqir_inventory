@@ -1,8 +1,12 @@
 package kz.qasqir.qasqirinventory.api.service;
 
 import kz.qasqir.qasqirinventory.api.model.dto.InventoryAuditDTO;
+import kz.qasqir.qasqirinventory.api.model.dto.InventoryAuditResultDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.InventoryAudit;
+import kz.qasqir.qasqirinventory.api.model.entity.InventoryAuditResult;
 import kz.qasqir.qasqirinventory.api.repository.InventoryAuditRepository;
+import kz.qasqir.qasqirinventory.api.repository.InventoryAuditResultRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -12,12 +16,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class InventoryAuditService {
     private final InventoryAuditRepository inventoryAuditRepository;
-
-    public InventoryAuditService(InventoryAuditRepository inventoryAuditRepository) {
-        this.inventoryAuditRepository = inventoryAuditRepository;
-    }
+    private final InventoryAuditResultService inventoryAuditResultService;
+    private final InventoryAuditResultRepository inventoryAuditResultRepository;
 
     public List<InventoryAuditDTO> getAllInventoryAudit() {
         return inventoryAuditRepository.findAll().stream()
@@ -48,6 +51,7 @@ public class InventoryAuditService {
     }
 
     protected InventoryAuditDTO convertInventoryAudit(InventoryAudit inventoryAudit) {
-        return new InventoryAuditDTO(inventoryAudit.getId(), inventoryAudit.getWarehouse().getId() ,inventoryAudit.getWarehouse().getName(), inventoryAudit.getAuditDate(), inventoryAudit.getStatus(), inventoryAudit.getCreatedBy().getUserName(), inventoryAudit.getCreatedAt());
+        List<InventoryAuditResultDTO> result = inventoryAuditResultRepository.findByAuditId(inventoryAudit.getId()).stream().map(inventoryAuditResultService::convertToDTO).toList();
+        return new InventoryAuditDTO(inventoryAudit.getId(), inventoryAudit.getWarehouse().getId() ,inventoryAudit.getWarehouse().getName(), inventoryAudit.getAuditDate(), inventoryAudit.getStatus(), inventoryAudit.getCreatedBy().getUserName(), inventoryAudit.getCreatedAt(), result);
     }
 }

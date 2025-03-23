@@ -75,7 +75,7 @@ public class WarehouseService {
 
     }
 
-    private WarehouseDTO convertToWarehouseDTO(Warehouse warehouse) {
+    protected WarehouseDTO convertToWarehouseDTO(Warehouse warehouse) {
         return new WarehouseDTO(warehouse.getId(), warehouse.getName(), warehouse.getLocation(), warehouse.getCreatedAt(), warehouse.getUpdatedAt(), getZonesCount(warehouse.getId()), getTotalCapacity(warehouse.getId()), warehouse.getLatitude(), warehouse.getLongitude());
     }
 
