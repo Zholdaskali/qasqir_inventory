@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://www.ehcache.org/ehcache.xsd">
+
+    <!-- Кэш для dashboardStats -->
+    <cache name="dashboardStats"
+           maxEntriesLocalHeap="100"  <!-- Максимальное количество записей в кэше -->
+    timeToLiveSeconds="3600"   <!-- Время жизни кэша в секундах (1 час) -->
+    timeToIdleSeconds="1800">  <!-- Время простоя до удаления (30 минут) -->
+    <expiry>
+        <ttl unit="seconds">3600</ttl>
+    </expiry>
+</cache>
+
+        <!-- Кэш для currentDashboardStats -->
+<cache name="currentDashboardStats"
+       maxEntriesLocalHeap="10"
+       timeToLiveSeconds="300"    <!-- 5 минут, так как это "текущие" данные -->
+        timeToIdleSeconds="300">
+<expiry>
+<ttl unit="seconds">300</ttl>
+</expiry>
+        </cache>
+        </ehcache>

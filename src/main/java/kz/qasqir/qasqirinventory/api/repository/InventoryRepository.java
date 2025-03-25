@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,14 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     Optional<Inventory> findByNomenclatureId(Long nomenclatureId);
 
     Optional<Inventory> findByNomenclatureIdAndWarehouseZoneIdAndWarehouseContainerId(Long id, Long id1, Long containerId);
+
+    @Query("SELECT SUM(i.quantity) FROM Inventory i")
+    Optional<BigDecimal> getTotalQuantity();
+
+    @Query("SELECT i.nomenclature.id, i.nomenclature.name, i.quantity " +
+            "FROM Inventory i " +
+            "WHERE i.quantity < :threshold")
+    List<Object[]> findLowStockItems(@Param("threshold") BigDecimal threshold);
 }
 
 

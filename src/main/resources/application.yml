@@ -17,21 +17,28 @@ spring:
       hibernate:
         jdbc:
           lob:
-            non_contextual_creation: true  # Включаем поддержку LOB для Hibernate
+            non_contextual_creation: true
   mail:
-    host: smtp.gmail.com       # SMTP-сервер Gmail
-    port: 587                  # Порт для STARTTLS
-    username: tmqasqirinventory@gmail.com   # Ваш адрес Gmail
-    password: lhvmohlhvtovxykt  # Пароль приложения
+    host: smtp.gmail.com
+    port: 587
+    username: tmqasqirinventory@gmail.com
+    password: lhvmohlhvtovxykt
     from: "Noreply <tmqasqirinventory@gmail.com>"
     properties:
-      mail.smtp.auth: true      # Включение аутентификации
-      mail.smtp.starttls.enable: true  # Включение STARTTLS
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   jackson:
     time-zone: Asia/Aqtobe
-
-
-
+  cache:
+    jcache:
+      config: classpath:ehcache.xml
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 # Конфигурация Flyway
 flyway:
@@ -69,7 +76,7 @@ api:
     storekeeper: /api/v1/storekeeper
     employee: /api/v1/employee
 
-# Ссылка для приглашений
+# Ссылка для приглашений и восстановления пароля
 invite:
   link: http://localhost:5173/recover-password
 
@@ -86,23 +93,14 @@ company:
     support-phone: "+7 708 652 94 60"
     company-contact-info: "TOO ALIOTH, TM QasQir, ул. Торгут Озала 161, г. Алматы"
 
-
 # Логирование
 logging:
   level:
-    org.springframework.mail: ERROR            # Отключение логов для почтовых операций в Spring
-    org.apache.commons.mail: ERROR             # Отключение логов для Apache Commons Mail (если используется)
-    org.hibernate.SQL: DEBUG                # Логирование SQL-запросов (по желанию)
-    org.flywaydb: DEBUG                      # Логирование Flyway миграций (если необходимо)
-
-
+    org.springframework.mail: ERROR
+    org.apache.commons.mail: ERROR
+    org.hibernate.SQL: DEBUG
+    org.flywaydb: DEBUG
+    org.springframework.web: INFO  # Добавлено для уменьшения лишних логов
 
 bitrix24:
   webhook-url: "https://b24-mvtnvt.bitrix24.kz/rest/1/n7jy59tgz5tnu571/"
-
-
-
-servlet:
-  multipart:
-    max-file-size: 10MB
-    max-request-size: 10MB

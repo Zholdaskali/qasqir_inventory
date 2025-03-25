@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -15,4 +15,16 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     @Query("SELECT t FROM Transaction t WHERE t.document.id IN :documentIds")
     List<Transaction> findByDocumentIdIn(@Param("documentIds") List<Long> documentIds);
+
+    // Поиск транзакций за период
+    List<Transaction> findByDateBetween(LocalDate startDate, LocalDate endDate);
+
+    // Подсчет транзакций за период
+    long countByDateBetween(LocalDate startDate, LocalDate endDate);
+
+    // Поиск транзакций по типу и периоду
+    List<Transaction> findByTransactionTypeAndDateBetween(String transactionType, LocalDate startDate, LocalDate endDate);
+
+    // Поиск транзакций по номенклатуре
+    List<Transaction> findByNomenclatureId(Long nomenclatureId);
 }

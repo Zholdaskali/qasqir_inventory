@@ -23,8 +23,8 @@ public class ProcessIncomingService {
     private final InventoryRepository inventoryRepository;
     private final UserService userService;
     private final TransactionService transactionService;
+    private final CapacityControlService capacityControlService;
 
-    // Поступление товара на склад
     @Transactional(rollbackOn = Exception.class)
     public void processIncomingGoods(DocumentRequest documentDTO) {
         if (documentDTO == null || documentDTO.getItems() == null || documentDTO.getItems().isEmpty()) {
@@ -39,20 +39,14 @@ public class ProcessIncomingService {
 
             Nomenclature nomenclature = nomenclatureService.getById(item.getNomenclatureId());
             WarehouseZone warehouseZone = warehouseZoneService.getById(item.getWarehouseZoneId());
-            WarehouseContainer container;
+            WarehouseContainer container = item.getContainerId() != null ? warehouseContainerService.getById(item.getContainerId()) : null;
 
-            if (item.getContainerId() != null) {
-                container = warehouseContainerService.getById(item.getContainerId());
-                validateItemSizeOrVolume(nomenclature, container, item.getQuantity());
+            BigDecimal requiredVolume = capacityControlService.calculateVolume(nomenclature, item.getQuantity());
 
-                if (container.getCapacity().compareTo(BigDecimal.ZERO) > 0) {
-                    containerCapacityControl(nomenclature, container, item.getQuantity().doubleValue());
-                } else {
-                    throw new DocumentException("В контейнере нет места");
-                }
+            if (container != null) {
+                capacityControlService.reserveContainerCapacity(container, nomenclature, item.getQuantity());
             } else {
-                container = null;
-                zoneCapacityControl(nomenclature, warehouseZone, item.getQuantity().doubleValue());
+                capacityControlService.reserveZoneCapacity(warehouseZone, requiredVolume);
             }
 
             Inventory inventory = inventoryRepository.findByNomenclatureIdAndWarehouseZoneIdAndWarehouseContainerId(
@@ -61,35 +55,17 @@ public class ProcessIncomingService {
                         Inventory newInventory = new Inventory();
                         newInventory.setNomenclature(nomenclature);
                         newInventory.setWarehouseZone(warehouseZone);
-                        newInventory.setWarehouseContainer(container); // Сохраняем контейнер в инвентарь
+                        newInventory.setWarehouseContainer(container);
                         newInventory.setQuantity(BigDecimal.ZERO);
                         return newInventory;
                     });
 
-            inventory.setQuantity(inventory.getQuantity().add(item.getQuantity()));
-            if (inventory.getQuantity().compareTo(BigDecimal.ZERO) < 0) {
-                throw new DocumentException("Количество товара не может быть отрицательным");
-            }
-            inventoryRepository.save(inventory);
+            capacityControlService.updateInventory(inventory, inventory.getQuantity().add(item.getQuantity()));
 
             transactionService.addTransaction("INCOMING", document, nomenclature, item.getQuantity(), document.getDocumentDate(), userService.getByUserId(document.getCreatedBy()));
         }
     }
-    @Transactional(rollbackOn = Exception.class)
-    public void processImport(DocumentRequest documentDTO) {
-        if (documentDTO == null || documentDTO.getDocumentType() == null) {
-            throw new DocumentException("Некорректные данные документа импорта");
-        }
 
-        if (!"IMPORT".equals(documentDTO.getDocumentType())) {
-            throw new DocumentException("Тип документа должен быть IMPORT для обработки импорта");
-        }
-
-        documentService.addDocument(documentDTO);
-        processIncomingGoods(documentDTO);
-    }
-
-    // Проверка данных позиции товара
     private void validateItemRequest(ItemRequest item) {
         if (item.getNomenclatureId() == null || item.getWarehouseZoneId() == null || item.getQuantity() == null) {
             throw new DocumentException("Некорректные данные позиции товаров");
@@ -98,81 +74,5 @@ public class ProcessIncomingService {
         if (item.getQuantity().compareTo(BigDecimal.ZERO) <= 0) {
             throw new DocumentException("Количество товара должно быть положительным числом");
         }
-    }
-
-    // Проверка габаритов или объема товара
-    private void validateItemSizeOrVolume(Nomenclature nomenclature, WarehouseContainer container, BigDecimal quantity) {
-        boolean hasDimensions = nomenclature.getHeight() != null
-                && nomenclature.getWidth() != null
-                && nomenclature.getLength() != null;
-        boolean hasVolume = nomenclature.getVolume() != null;
-
-        if (hasDimensions && hasVolume) {
-            throw new DocumentException("Товар не может одновременно иметь габариты и объем.");
-        }
-
-        if (!hasDimensions && !hasVolume) {
-            throw new DocumentException("Товар должен иметь либо габариты, либо объем.");
-        }
-
-        double quantityDouble = quantity.doubleValue();
-
-        if (hasDimensions) {
-            double itemVolume = (nomenclature.getHeight() * nomenclature.getWidth() * nomenclature.getLength()) * quantityDouble;
-            double containerVolume = container.getHeight() * container.getWidth() * container.getLength();
-
-            if (nomenclature.getHeight() > container.getHeight() ||
-                    nomenclature.getWidth() > container.getWidth() ||
-                    nomenclature.getLength() > container.getLength()) {
-                throw new DocumentException("Размеры товара превышают размеры контейнера.");
-            }
-
-            if (itemVolume > containerVolume) {
-                throw new DocumentException("Объем товара превышает объем контейнера.");
-            }
-        }
-
-        if (hasVolume) {
-            double containerVolume = container.getHeight() * container.getWidth() * container.getLength();
-            if (BigDecimal.valueOf(nomenclature.getVolume()).doubleValue() > containerVolume) {
-                throw new DocumentException("Объем товара превышает объем контейнера.");
-            }
-        }
-    }
-
-    // Контроль емкости контейнера
-    private void containerCapacityControl(Nomenclature nomenclature, WarehouseContainer container, double quantity) {
-        BigDecimal remainingCapacity = container.getCapacity();
-
-        if (nomenclature.getVolume() == null) {
-            double itemVolume = (nomenclature.getHeight() * nomenclature.getWidth() * nomenclature.getLength()) * quantity;
-            remainingCapacity = remainingCapacity.subtract(BigDecimal.valueOf(itemVolume));
-        } else {
-            remainingCapacity = remainingCapacity.subtract(BigDecimal.valueOf(nomenclature.getVolume() * quantity));
-        }
-
-        if (remainingCapacity.compareTo(BigDecimal.ZERO) < 0) {
-            throw new DocumentException("Недостаточно места в контейнере");
-        }
-
-        container.setCapacity(remainingCapacity);
-    }
-
-    // Контроль емкости зоны
-    private void zoneCapacityControl(Nomenclature nomenclature, WarehouseZone zone, double quantity) {
-        BigDecimal remainingCapacity = zone.getCapacity();
-
-        if (nomenclature.getVolume() == null) {
-            double itemVolume = (nomenclature.getHeight() * nomenclature.getWidth() * nomenclature.getLength()) * quantity;
-            remainingCapacity = remainingCapacity.subtract(BigDecimal.valueOf(itemVolume));
-        } else {
-            remainingCapacity = remainingCapacity.subtract(BigDecimal.valueOf(nomenclature.getVolume() * quantity));
-        }
-
-        if (remainingCapacity.compareTo(BigDecimal.ZERO) < 0) {
-            throw new DocumentException("Недостаточно места в зоне");
-        }
-
-        zone.setCapacity(remainingCapacity);
     }
 }

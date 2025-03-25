@@ -1,29 +1,21 @@
 package kz.qasqir.qasqirinventory.api.config;
 
 import kz.qasqir.qasqirinventory.api.Interceptor.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
+@RequiredArgsConstructor
 public class  InterceptorConfig implements WebMvcConfigurer {
 
     private final AuthInterceptor authInterceptor;
     private final ActionLogInterceptor actionLogInterceptor;
     private final InviteInterceptor inviteInterceptor;
-    private final UserIdInterceptor userIdInterceptor;
     private final PasswordResetTokenInterceptor passwordResetTokenInterceptor;
     private final Bitrix24Interceptor bitrix24Interceptor;
-
-    public InterceptorConfig(AuthInterceptor authInterceptor, ActionLogInterceptor actionLogInterceptor, InviteInterceptor inviteInterceptor, UserIdInterceptor userIdInterceptor, PasswordResetTokenInterceptor passwordResetTokenInterceptor, Bitrix24Interceptor bitrix24Interceptor) {
-        this.authInterceptor = authInterceptor;
-        this.actionLogInterceptor = actionLogInterceptor;
-        this.inviteInterceptor = inviteInterceptor;
-        this.userIdInterceptor = userIdInterceptor;
-        this.passwordResetTokenInterceptor = passwordResetTokenInterceptor;
-        this.bitrix24Interceptor = bitrix24Interceptor;
-    }
-
 
     private static final String[] COMMON_EXCLUDE_PATTERNS = {
             "/api/v1/user/password/reset-invite",
@@ -42,12 +34,6 @@ public class  InterceptorConfig implements WebMvcConfigurer {
                 .order(1)
                 .excludePathPatterns(COMMON_EXCLUDE_PATTERNS)
                 .excludePathPatterns("/api/v1/bitrix24/**");
-
-        registry.addInterceptor(userIdInterceptor)
-                .order(2)
-                .addPathPatterns("/api/v1/user/profile/{userId}", "/api/v1/user/{userId}")
-                .addPathPatterns("/api/v1/user/password/reset/{userId}")
-                .addPathPatterns("/api/v1/user/{userId}/image");
 
         registry.addInterceptor(actionLogInterceptor)
                 .order(3)

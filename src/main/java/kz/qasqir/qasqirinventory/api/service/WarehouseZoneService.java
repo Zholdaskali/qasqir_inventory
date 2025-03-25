@@ -8,6 +8,7 @@ import kz.qasqir.qasqirinventory.api.model.entity.WarehouseZone;
 import kz.qasqir.qasqirinventory.api.model.request.WarehouseZoneRequest;
 import kz.qasqir.qasqirinventory.api.repository.WarehouseRepository;
 import kz.qasqir.qasqirinventory.api.repository.WarehouseZoneRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
@@ -19,49 +20,43 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class WarehouseZoneService {
+
     private final WarehouseZoneRepository warehouseZoneRepository;
     private final WarehouseRepository warehouseRepository;
-    private final WarehouseZoneMapper warehouseZoneMapper; // Маппер
-
-    public WarehouseZoneService(WarehouseZoneRepository warehouseZoneRepository, WarehouseRepository warehouseRepository, WarehouseZoneMapper warehouseZoneMapper) {
-        this.warehouseZoneRepository = warehouseZoneRepository;
-        this.warehouseRepository = warehouseRepository;
-        this.warehouseZoneMapper = warehouseZoneMapper;
-    }
-
+    private final WarehouseZoneMapper warehouseZoneMapper;
+    private final CapacityControlService capacityControlService;
 
     public String deleteWarehouseZone(Long warehouseZoneId) {
         try {
             WarehouseZone warehouseZone = warehouseZoneRepository.findById(warehouseZoneId)
                     .orElseThrow(() -> new WarehouseZoneException("Зона склада с ID " + warehouseZoneId + " не найдена"));
+
             boolean hasChildren = warehouseZoneRepository.existsByParentId(warehouseZoneId);
             if (hasChildren) {
                 throw new WarehouseZoneException("Невозможно удалить зону, так как она содержит дочерние зоны");
             }
+
             if (warehouseZone.getParent() != null) {
                 WarehouseZone parentZone = warehouseZone.getParent();
                 BigDecimal zoneVolume = warehouseZone.getCapacity();
-                parentZone.setCapacity(parentZone.getCapacity().add(zoneVolume)); // Восстанавливаем объем
-                warehouseZoneRepository.save(parentZone); // Сохраняем обновленную родительскую зону
+                capacityControlService.freeZoneCapacity(parentZone, zoneVolume); // Освобождаем объем в родительской зоне
             }
-            warehouseZoneRepository.deleteById(warehouseZoneId);
 
+            warehouseZoneRepository.deleteById(warehouseZoneId);
             return "Зона склада с ID " + warehouseZoneId + " успешно удалена";
         } catch (DataAccessException e) {
-            String errorMessage = "Ошибка при удалении зоны склада: " + e.getMessage();
-            throw new WarehouseZoneException(errorMessage);
+            throw new WarehouseZoneException("Ошибка при удалении зоны склада: " + e.getMessage());
         } catch (Exception e) {
-            String errorMessage = "Неизвестная ошибка при удалении зоны склада: " + e.getMessage();
-            throw new WarehouseZoneException(errorMessage);
+            throw new WarehouseZoneException("Неизвестная ошибка при удалении зоны склада: " + e.getMessage());
         }
     }
-
 
     public List<WarehouseZoneDTO> getAllWarehouseZoneByWarehouseId(Long warehouseId) {
         return warehouseZoneRepository.findAllByWarehouseId(warehouseId)
                 .stream()
-                .map(warehouseZoneMapper::toDto) // Используем MapStruct для преобразования
+                .map(warehouseZoneMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -71,24 +66,18 @@ public class WarehouseZoneService {
             WarehouseZone parentZone = Optional.ofNullable(warehouseZoneRequest.getParentId())
                     .map(this::getById)
                     .orElse(null);
-            if (warehouseZoneRequest.getParentId() != null) {
-                if (parentZone == null) {
-                    throw new RuntimeException("Родительская зона не найдена");
-                }
 
+            BigDecimal newZoneVolume = BigDecimal.valueOf(
+                    warehouseZoneRequest.getHeight() * warehouseZoneRequest.getWidth() * warehouseZoneRequest.getLength()
+            );
+
+            if (parentZone != null) {
                 if (warehouseZoneRequest.getWidth() > parentZone.getWidth() ||
                         warehouseZoneRequest.getLength() > parentZone.getLength() ||
                         warehouseZoneRequest.getHeight() > parentZone.getHeight()) {
                     throw new RuntimeException("Размеры дочерней зоны превышают размеры родительской зоны");
                 }
-
-                double newZoneVolume = warehouseZoneRequest.getHeight() * warehouseZoneRequest.getWidth() * warehouseZoneRequest.getLength();
-
-                if (parentZone.getCapacity().compareTo(BigDecimal.valueOf(newZoneVolume)) < 0) {
-                    throw new RuntimeException("Зона переполнена: недостаточно места для новой зоны");
-                }
-
-                parentZone.setCapacity(parentZone.getCapacity().subtract(BigDecimal.valueOf(newZoneVolume)));
+                capacityControlService.reserveZoneCapacity(parentZone, newZoneVolume); // Резервируем объем в родительской зоне
             }
 
             WarehouseZone warehouseZone = new WarehouseZone();
@@ -102,9 +91,9 @@ public class WarehouseZoneService {
             warehouseZone.setUpdatedBy(userId);
             warehouseZone.setCreatedAt(Timestamp.from(Instant.now()).toLocalDateTime());
             warehouseZone.setUpdatedAt(Timestamp.from(Instant.now()).toLocalDateTime());
-            warehouseZone.setCapacity(BigDecimal.valueOf(warehouseZoneRequest.getWidth() * warehouseZoneRequest.getHeight() * warehouseZoneRequest.getLength()));
-            warehouseZoneRepository.save(warehouseZone);
+            warehouseZone.setCapacity(newZoneVolume); // Устанавливаем емкость новой зоны
 
+            warehouseZoneRepository.save(warehouseZone);
             updateCanStoreItems(warehouseZone);
 
             return "Зона на складе успешно инициализирована";
@@ -129,18 +118,40 @@ public class WarehouseZoneService {
         }
     }
 
-    public WarehouseZoneDTO updateWarehouseZone(Long warehouseId ,WarehouseZoneRequest warehouseZoneRequest, Long userId) {
+    public WarehouseZoneDTO updateWarehouseZone(Long warehouseId, WarehouseZoneRequest warehouseZoneRequest, Long userId) {
         try {
             WarehouseZone warehouseZone = warehouseZoneRepository.findById(warehouseZoneRequest.getId())
                     .orElseThrow(() -> new WarehouseZoneException("Зона склада не найдена с id: " + warehouseZoneRequest.getId()));
 
+            // Вычисляем старую и новую емкость для обновления родительской зоны
+            BigDecimal oldVolume = BigDecimal.valueOf(
+                    warehouseZone.getHeight() * warehouseZone.getWidth() * warehouseZone.getLength()
+            );
+            BigDecimal newVolume = BigDecimal.valueOf(
+                    warehouseZoneRequest.getHeight() * warehouseZoneRequest.getWidth() * warehouseZoneRequest.getLength()
+            );
+
+            WarehouseZone parentZone = warehouseZone.getParent();
+            if (parentZone != null) {
+                // Освобождаем старый объем и резервируем новый
+                capacityControlService.freeZoneCapacity(parentZone, oldVolume);
+                if (warehouseZoneRequest.getWidth() > parentZone.getWidth() ||
+                        warehouseZoneRequest.getLength() > parentZone.getLength() ||
+                        warehouseZoneRequest.getHeight() > parentZone.getHeight()) {
+                    throw new RuntimeException("Размеры дочерней зоны превышают размеры родительской зоны");
+                }
+                capacityControlService.reserveZoneCapacity(parentZone, newVolume);
+            }
+
             updateBasicInfo(warehouseZone, warehouseZoneRequest, userId);
             updateRelations(warehouseZone, warehouseZoneRequest, warehouseId);
 
+            warehouseZone.setCapacity(newVolume); // Обновляем емкость зоны
             warehouseZoneRepository.save(warehouseZone);
-            return warehouseZoneMapper.toDto(warehouseZone); // Используем MapStruct для преобразования
+
+            return warehouseZoneMapper.toDto(warehouseZone);
         } catch (Exception e) {
-            throw new WarehouseZoneException("Ошибка при изменении зоны склада: " + e.getMessage() + e);
+            throw new WarehouseZoneException("Ошибка при изменении зоны склада: " + e.getMessage());
         }
     }
 
@@ -170,6 +181,6 @@ public class WarehouseZoneService {
 
     public WarehouseZone getById(Long warehouseZoneId) {
         return warehouseZoneRepository.findById(warehouseZoneId)
-                .orElseThrow(() -> new WarehouseZoneException("Родительская зона не найдена с id: " + warehouseZoneId));
+                .orElseThrow(() -> new WarehouseZoneException("Зона не найдена с id: " + warehouseZoneId));
     }
 }

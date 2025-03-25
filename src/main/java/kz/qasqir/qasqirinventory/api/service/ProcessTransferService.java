@@ -24,6 +24,7 @@ public class ProcessTransferService {
     private final InventoryRepository inventoryRepository;
     private final TransactionService transactionService;
     private final UserService userService;
+    private final CapacityControlService capacityControlService;
 
     @Transactional(rollbackOn = Exception.class)
     public void processTransfer(TransferRequest documentDTO) {
@@ -51,16 +52,12 @@ public class ProcessTransferService {
                         return inventoryRepository.saveAndFlush(newInventory);
                     });
 
-            fromInventory.setQuantity(fromInventory.getQuantity().subtract(item.getQuantity()));
-            toInventory.setQuantity(toInventory.getQuantity().add(item.getQuantity()));
+            BigDecimal transferVolume = capacityControlService.calculateVolume(nomenclature, item.getQuantity());
+            capacityControlService.freeZoneCapacity(fromZone, transferVolume);
+            capacityControlService.reserveZoneCapacity(toZone, transferVolume);
 
-            inventoryRepository.save(toInventory);
-
-            if (fromInventory.getQuantity().compareTo(BigDecimal.ZERO) == 0) {
-                inventoryRepository.delete(fromInventory);
-            } else {
-                inventoryRepository.save(fromInventory);
-            }
+            capacityControlService.updateInventory(fromInventory, fromInventory.getQuantity().subtract(item.getQuantity()));
+            capacityControlService.updateInventory(toInventory, toInventory.getQuantity().add(item.getQuantity()));
 
             transactionService.addTransaction("TRANSFER", document, nomenclature, item.getQuantity(),
                     documentDTO.getDocumentDate(), userService.getByUserId(document.getCreatedBy()));
@@ -69,5 +66,4 @@ public class ProcessTransferService {
         document.setStatus("COMPLETED");
         documentService.saveDocument(document);
     }
-
 }

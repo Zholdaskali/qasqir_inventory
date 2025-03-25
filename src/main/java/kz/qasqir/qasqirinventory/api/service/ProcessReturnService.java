@@ -24,6 +24,7 @@ public class ProcessReturnService {
     private final TransactionService transactionService;
     private final UserService userService;
     private final WarehouseZoneService warehouseZoneService;
+    private final CapacityControlService capacityControlService;
 
     @Transactional(rollbackOn = Exception.class)
     public void processReturn(ReturnRequest returnRequest) {
@@ -54,36 +55,12 @@ public class ProcessReturnService {
         if (warehouseZone == null) {
             throw new RuntimeException("Зона склада не указана в инвентаре");
         }
-        BigDecimal freedVolume = calculateFreedVolume(inventory.getNomenclature(), returnItem.getQuantity());
 
-        inventory.setQuantity(updatedQuantity);
+        BigDecimal freedVolume = capacityControlService.calculateVolume(nomenclature, returnItem.getQuantity());
+        capacityControlService.freeZoneCapacity(warehouseZone, freedVolume);
 
-        if (Objects.equals(inventory.getQuantity(), BigDecimal.ZERO)) {
-            inventoryRepository.delete(inventory);
-        } else {
-            inventoryRepository.save(inventory);
-        }
-
-        updateZoneCapacity(warehouseZone, freedVolume);
-
+        capacityControlService.updateInventory(inventory, updatedQuantity);
 
         transactionService.addTransaction("RETURN", document, nomenclature, returnRequest.getQuantity(), document.getDocumentDate(), userService.getByUserId(document.getCreatedBy()));
-    }
-
-    private BigDecimal calculateFreedVolume(Nomenclature nomenclature, BigDecimal quantity) {
-        if (nomenclature.getVolume() != null) {
-            return BigDecimal.valueOf(nomenclature.getVolume()).multiply(quantity);
-        } else if (nomenclature.getHeight() != null && nomenclature.getWidth() != null && nomenclature.getLength() != null) {
-            double itemVolume = nomenclature.getHeight() * nomenclature.getWidth() * nomenclature.getLength();
-            return BigDecimal.valueOf(itemVolume).multiply(quantity);
-        } else {
-            throw new NomenclatureException("У номенклатуры отсутствуют данные об объеме или габаритах");
-        }
-    }
-
-    private void updateZoneCapacity(WarehouseZone warehouseZone, BigDecimal freedVolume) {
-        BigDecimal newCapacity = warehouseZone.getCapacity().add(freedVolume);
-        warehouseZone.setCapacity(newCapacity);
-        warehouseZoneService.save(warehouseZone);
     }
 }
