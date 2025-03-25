@@ -9,9 +9,7 @@ import org.mapstruct.Mapping;
 public interface InventoryMapper {
 
     @Mapping(source = "warehouseZone.id", target = "warehouseZoneId")
+    @Mapping(source = "nomenclature.id", target = "nomenclatureId")
+    @Mapping(source = "nomenclature.name", target = "nomenclatureName")
     InventoryDTO toDto(Inventory inventory);
-
-    // Преобразование из DTO в сущность
-    @Mapping(source = "warehouseZoneId", target = "warehouseZone.id")
-    Inventory toEntity(InventoryDTO inventoryDTO);
 }

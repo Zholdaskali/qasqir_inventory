@@ -130,7 +130,7 @@ public class AdminController {
         return MessageResponse.of(organizationService.resetOrganization(organizationResetRequest));
     }
 
-    @PutMapping("/ticket/write-off/allowed")
+    @PutMapping("/ticket/allowed")
     public MessageResponse<String> allowedTicket(@RequestBody TicketCompleteRequest ticketCompleteRequest) {
         return MessageResponse.of(ticketService.allowedTicket(ticketCompleteRequest.getTicketId(), ticketCompleteRequest.getManaged_id()));
     }

@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 public class InventoryDTO {
     private Long id;
     private BigDecimal quantity;
+    private Long nomenclatureId;
+    private String nomenclatureName;
     private Long warehouseZoneId;
     private String containerSerial;
     private LocalDateTime createdAt;

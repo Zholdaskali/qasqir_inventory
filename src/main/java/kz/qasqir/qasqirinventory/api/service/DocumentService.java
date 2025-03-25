@@ -8,7 +8,6 @@ import kz.qasqir.qasqirinventory.api.model.dto.TransactionDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.Customer;
 import kz.qasqir.qasqirinventory.api.model.entity.Document;
 import kz.qasqir.qasqirinventory.api.model.entity.Supplier;
-import kz.qasqir.qasqirinventory.api.model.entity.Transaction;
 import kz.qasqir.qasqirinventory.api.model.request.DocumentRequest;
 import kz.qasqir.qasqirinventory.api.model.request.TransferRequest;
 import kz.qasqir.qasqirinventory.api.repository.DocumentRepository;
@@ -34,7 +33,7 @@ public class DocumentService {
     @Transactional(rollbackOn = Exception.class)
     protected Document createDocument(String documentType, String documentNumber, Long supplierId, Long customerId, Long createdBy) {
 
-            if ("TRANSFER".equals(documentType) || "WRITE-OFF".equals(documentType)) {
+            if ("TRANSFER".equals(documentType) || "WRITE-OFF".equals(documentType) || "PRODUCTION".equals(documentType) || "RETURN".equals(documentType)) {
             Document transferDocument = new Document();
             transferDocument.setDocumentType(documentType);
             transferDocument.setDocumentNumber(documentNumber);
@@ -185,7 +184,7 @@ public class DocumentService {
 
     protected DocumentDTO convertToDto(Document document) {
         String supplierName = (document.getSupplier() != null) ? document.getSupplier().getName() : "Не имеется";
-        String customerName = (document.getCustomer() != null) ? document.getSupplier().getName() : "Не имеется";
+        String customerName = (document.getCustomer() != null) ? document.getCustomer().getName() : "Не имеется";
 
         return new DocumentDTO(
                 document.getId(),

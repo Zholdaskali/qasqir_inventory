@@ -1,12 +1,12 @@
 package kz.qasqir.qasqirinventory.api.service;
 
 import jakarta.transaction.Transactional;
-import kz.qasqir.qasqirinventory.api.exception.DocumentException;
 import kz.qasqir.qasqirinventory.api.exception.NomenclatureException;
-import kz.qasqir.qasqirinventory.api.model.entity.*;
-import kz.qasqir.qasqirinventory.api.model.request.ReturnRequest;
+import kz.qasqir.qasqirinventory.api.model.entity.Inventory;
+import kz.qasqir.qasqirinventory.api.model.entity.Nomenclature;
+import kz.qasqir.qasqirinventory.api.model.entity.Ticket;
+import kz.qasqir.qasqirinventory.api.model.entity.WarehouseZone;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
-import kz.qasqir.qasqirinventory.api.repository.ReturnRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,37 +15,18 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-public class ProcessReturnService {
+public class ProcessSalesAndWriteOffAndProductionService {
 
-    private final NomenclatureService nomenclatureService;
-    private final DocumentService documentService;
-    private final ReturnRepository returnRepository;
     private final InventoryRepository inventoryRepository;
     private final TransactionService transactionService;
-    private final UserService userService;
-    private final WarehouseZoneService warehouseZoneService;
+    private final WarehouseZoneService warehouseZoneService; // Добавляем сервис для работы с зонами
 
     @Transactional(rollbackOn = Exception.class)
-    public void processReturn(ReturnRequest returnRequest) {
-        if (returnRequest == null || returnRequest.getNomenclatureId() == null || returnRequest.getQuantity() == null) {
-            throw new DocumentException("Некорректные данные запроса на возврат");
-        }
+    public void processTicket(Ticket ticket) {
+        Inventory inventory = inventoryRepository.findById(ticket.getInventoryId())
+                .orElseThrow(() -> new RuntimeException("Инвентарь не найден"));
 
-        Nomenclature nomenclature = nomenclatureService.getById(returnRequest.getNomenclatureId());
-        Document document = documentService.createDocument("RETURN", returnRequest.getDocumentNumber(), null, null, returnRequest.getCreatedBy());
-
-        Return returnItem = new Return();
-        returnItem.setReturnType(returnRequest.getReturnType());
-        returnItem.setRelatedDocument(document);
-        returnItem.setNomenclature(nomenclature);
-        returnItem.setQuantity(returnRequest.getQuantity());
-        returnItem.setReason(returnRequest.getReason());
-        returnRepository.save(returnItem);
-
-        Inventory inventory = inventoryRepository.findById(returnRequest.getInventoryId())
-                .orElseThrow(() -> new NomenclatureException("Запись инвентаризации не найдена для ID номенклатуры: " + returnRequest.getInventoryId()));
-
-        BigDecimal updatedQuantity = inventory.getQuantity().subtract(returnItem.getQuantity());
+        BigDecimal updatedQuantity = inventory.getQuantity().subtract(ticket.getQuantity());
         if (updatedQuantity.compareTo(BigDecimal.ZERO) < 0) {
             throw new NomenclatureException("Недостаточно запаса для списания");
         }
@@ -54,7 +35,8 @@ public class ProcessReturnService {
         if (warehouseZone == null) {
             throw new RuntimeException("Зона склада не указана в инвентаре");
         }
-        BigDecimal freedVolume = calculateFreedVolume(inventory.getNomenclature(), returnItem.getQuantity());
+
+        BigDecimal freedVolume = calculateFreedVolume(inventory.getNomenclature(), ticket.getQuantity());
 
         inventory.setQuantity(updatedQuantity);
 
@@ -66,8 +48,14 @@ public class ProcessReturnService {
 
         updateZoneCapacity(warehouseZone, freedVolume);
 
-
-        transactionService.addTransaction("RETURN", document, nomenclature, returnRequest.getQuantity(), document.getDocumentDate(), userService.getByUserId(document.getCreatedBy()));
+        transactionService.addTransaction(
+                ticket.getType(),
+                ticket.getDocument(),
+                inventory.getNomenclature(),
+                ticket.getQuantity(),
+                ticket.getDocument().getDocumentDate(),
+                ticket.getCreatedBy()
+        );
     }
 
     private BigDecimal calculateFreedVolume(Nomenclature nomenclature, BigDecimal quantity) {

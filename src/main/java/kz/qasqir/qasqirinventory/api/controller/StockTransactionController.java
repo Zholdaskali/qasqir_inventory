@@ -1,17 +1,20 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import kz.qasqir.qasqirinventory.api.model.dto.InventoryDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.TicketDTO;
 import kz.qasqir.qasqirinventory.api.model.request.BatchCompleteRequest;
-import kz.qasqir.qasqirinventory.api.model.request.BatchWriteOffRequest;
+import kz.qasqir.qasqirinventory.api.model.request.BatchProcessRequest;
 import kz.qasqir.qasqirinventory.api.model.request.InventoryRequest;
 import kz.qasqir.qasqirinventory.api.model.request.TicketRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
 import kz.qasqir.qasqirinventory.api.service.InventoryService;
 import kz.qasqir.qasqirinventory.api.service.TicketService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -47,46 +50,36 @@ public class StockTransactionController {
         return MessageResponse.empty("Инвентарь успешно удален");
     }
 
+
 // Энд-поинты для списания
-    @PostMapping("/ticket/write-off")
-    public MessageResponse<String> addWriteOffTicked(@RequestBody TicketRequest ticketRequest) {
-        return MessageResponse.of(ticketService.addTicket(ticketRequest));
+    @Operation(
+            summary = "Создание групповой заявки ",
+            description = "Возвращает сообщение о создании"
+    )
+    @PostMapping("/ticket/batch")
+    public MessageResponse<String> addBatchWriteOffTickets(@RequestBody BatchProcessRequest batchProcessRequest) {
+        return MessageResponse.of(ticketService.addBatchWriteOffTickets(batchProcessRequest));
     }
 
-    @PostMapping("/ticket/write-off/batch")
-    public MessageResponse<String> addBatchWriteOffTickets(@RequestBody BatchWriteOffRequest batchWriteOffRequest) {
-        return MessageResponse.of(ticketService.addBatchWriteOffTickets(batchWriteOffRequest));
-    }
-
-    @PutMapping("/ticket/write-off/completed/batch")
+    @PutMapping("/ticket/completed/batch")
     public MessageResponse<String> completedBatchTickets(@RequestBody BatchCompleteRequest batchCompleteRequest) {
         return MessageResponse.of(ticketService.completedBatchTickets(batchCompleteRequest.getTicketIds()));
     }
 
-    @PutMapping("/ticket/write-off/{ticketId}")
-    public MessageResponse<String> addWriteOffTicked(@PathVariable Long ticketId) {
+    @PutMapping("/ticket/{ticketId}")
+    public MessageResponse<String> completedWriteOffTicked(@PathVariable Long ticketId) {
         return MessageResponse.of(ticketService.completedTicket(ticketId));
     }
 
-    @GetMapping("ticket/write-off")
-    public MessageResponse<List<TicketDTO>> getWriteOffTickets() {
-        return MessageResponse.of(ticketService.getAllTicked("WRITE-OFF"));
+    @DeleteMapping("/ticket/{ticketId}")
+    public MessageResponse<String> deleteWriteOffTicked(@PathVariable Long ticketId) {
+        return MessageResponse.of(ticketService.delete(ticketId));
     }
 
-
-// Энд-поинт для продажи
-    @PostMapping("/ticket/sales")
-    public MessageResponse<String> addSalesTicked(@RequestBody TicketRequest ticketRequest) {
-        return MessageResponse.of(ticketService.addTicket(ticketRequest));
-    }
-
-    @PutMapping("/ticket/sales/{ticketId}")
-    public MessageResponse<String> addSalesTicked(@PathVariable Long ticketId) {
-        return MessageResponse.of(ticketService.completedTicket(ticketId));
-    }
-
-    @GetMapping("ticket/sales")
-    public MessageResponse<List<TicketDTO>> getSalesTickets() {
-        return MessageResponse.of(ticketService.getAllTicked("SALES"));
+    @GetMapping("ticket/{type}")
+    public MessageResponse<List<TicketDTO>> getWriteOffTickets(@PathVariable String type,
+                                                               @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                               @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        return MessageResponse.of(ticketService.getAllTicked(type, startDate, endDate));
     }
 }

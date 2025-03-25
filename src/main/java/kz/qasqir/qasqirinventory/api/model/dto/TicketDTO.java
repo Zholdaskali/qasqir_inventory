@@ -24,17 +24,3 @@ public class TicketDTO {
     private InventoryDTO inventory;
     private BigDecimal quantity;
 }
-
-
-
-//id           | integer                     |                    | not null          | nextval('t_ticket_id_seq'::regclass)
-//type         | character varying(10)       |                    | not null          |
-//status       | character varying(10)       |                    | not null          |
-//document_id  | bigint                      |                    | not null          |
-//create_by    | bigint                      |                    | not null          |
-//create_at    | timestamp without time zone |                    | not null          |
-//manager_id   | bigint                      |                    | not null          |
-//managed_at   | timestamp without time zone |                    | not null          |
-//comment      | text                        |                    |                   |
-//inventory_id | bigint                      |                    |                   |
-//quantity     | numeric(15,3)

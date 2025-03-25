@@ -11,21 +11,11 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class ReturnRequest {
     private String returnType; // Тип возврата (например, "Возврат поставщику", "Возврат от покупателя")
-    private Long relatedDocumentId; // ID связанного документа (например, накладная или инвойс)
+    private String documentNumber; // ID связанного документа (например, накладная или инвойс)
     private Long inventoryId;
     private Long nomenclatureId; // ID товара
     private BigDecimal quantity; // Количество возвращаемого товара
     private String reason; // Причина возврата
-
-    @Override
-    public String toString() {
-        return "ReturnRequest{" +
-                "returnType='" + returnType + '\'' +
-                ", relatedDocumentId=" + relatedDocumentId +
-                ", nomenclatureId=" + nomenclatureId +
-                ", quantity=" + quantity +
-                ", reason='" + reason + '\'' +
-                '}';
-    }
+    private Long createdBy;
 }
 

@@ -7,7 +7,7 @@ import kz.qasqir.qasqirinventory.api.model.dto.InventoryDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.TicketDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.Document;
 import kz.qasqir.qasqirinventory.api.model.request.BatchTicketRequest;
-import kz.qasqir.qasqirinventory.api.model.request.BatchWriteOffRequest;
+import kz.qasqir.qasqirinventory.api.model.request.BatchProcessRequest;
 import kz.qasqir.qasqirinventory.api.model.request.TicketRequest;
 import kz.qasqir.qasqirinventory.api.model.entity.Ticket;
 import kz.qasqir.qasqirinventory.api.repository.TicketRepository;
@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,8 +27,7 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final InventoryMapper inventoryMapper;
     private final DocumentService documentService;
-    private final ProcessWriteOffService processWriteOffService;
-    private final ProcessSalesAndTransferService processSalesAndTransferService;
+    private final ProcessSalesAndWriteOffAndProductionService processSalesAndWriteOffAndProductionService;
 
     public TicketDTO findById(Long id) {
         Ticket ticket = ticketRepository.findById(id).orElseThrow(() -> new RuntimeException("Заявка не найдена"));
@@ -37,14 +38,13 @@ public class TicketService {
         return ticketRepository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
-
     // Создание заявки
     @Transactional
-    public String addBatchWriteOffTickets(BatchWriteOffRequest batchWriteOffRequest) {
-        Document document = documentService.createDocument(batchWriteOffRequest.getDocumentType(), batchWriteOffRequest.getDocumentNumber(), null, null, batchWriteOffRequest.getCreatedBy());
-        for (int i = 0; i < batchWriteOffRequest.getTicketRequests().size(); i++) {
-            BatchTicketRequest batchTicketRequest = batchWriteOffRequest.getTicketRequests().get(i);
-            createTicket(batchTicketRequest.getComment(), batchTicketRequest.getQuantity(), batchTicketRequest.getInventoryId(), batchWriteOffRequest.getCreatedBy(), batchWriteOffRequest.getDocumentType(), document.getId());
+    public String addBatchWriteOffTickets(BatchProcessRequest batchProcessRequest) {
+        Document document = documentService.createDocument(batchProcessRequest.getDocumentType(), batchProcessRequest.getDocumentNumber(), null, batchProcessRequest.getCustomerId(), batchProcessRequest.getCreatedBy());
+        for (int i = 0; i < batchProcessRequest.getTicketRequests().size(); i++) {
+            BatchTicketRequest batchTicketRequest = batchProcessRequest.getTicketRequests().get(i);
+            createTicket(batchTicketRequest.getComment(), batchTicketRequest.getQuantity(), batchTicketRequest.getInventoryId(), batchProcessRequest.getCreatedBy(), batchProcessRequest.getDocumentType(), document.getId());
         }
         return "Групповое списание успешно выполнено";
     }
@@ -60,18 +60,6 @@ public class TicketService {
         ticket.setDocumentId(documentId);
         ticket.setStatus("ACTIVE");
         return ticketRepository.save(ticket);
-    }
-    @Transactional
-    public String addTicket(TicketRequest ticketRequest) {
-        Document document = documentService.createDocument(ticketRequest.getDocumentType(), ticketRequest.getDocumentNumber(), null, null, ticketRequest.getCreatedBy());
-
-        createTicket(ticketRequest.getComment(),
-                ticketRequest.getQuantity(),
-                ticketRequest.getInventoryId(),
-                ticketRequest.getCreatedBy(),
-                ticketRequest.getDocumentType(),
-                document.getId());
-        return "Заявка успешно подана";
     }
 
     // Подпись заявки
@@ -113,12 +101,7 @@ public class TicketService {
         }
         ticket.setStatus("COMPLETED");
 
-        if (ticket.getType().equals("WRITE-OFF")) {
-            processWriteOffService.processTicketWriteOff(ticket);
-        }
-//        } else if (ticket.getType().equals("PRODUCTION")) {
-//            processSalesAndTransferService.processProductionTransfer(ticket);
-//        }
+        processSalesAndWriteOffAndProductionService.processTicket(ticket);
         ticketRepository.save(ticket);
 
         return "Заявка успешно закрыта";
@@ -153,7 +136,13 @@ public class TicketService {
         );
     }
 
-    public List<TicketDTO> getAllTicked(String type) {
-        return ticketRepository.findAllByType(type).stream().map(this::convertToDTO).toList();
+    public List<TicketDTO> getAllTicked(String type, LocalDate startDate, LocalDate endDate) {
+        return ticketRepository.findAllByTypeAndCreateAtBetween(type, startDate.atStartOfDay(), endDate.atStartOfDay()).stream().map(this::convertToDTO).toList();
+    }
+
+    @Transactional
+    public String delete(Long ticketId) {
+        ticketRepository.deleteById(ticketId);
+        return "Заявка успешно отменена";
     }
 }

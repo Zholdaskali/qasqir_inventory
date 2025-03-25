@@ -27,15 +27,13 @@ import java.util.List;
 public class StorekeeperController {
 
     private final DocumentService documentService;
-    private final ProcessSalesAndTransferService processSalesAndTransferService;
+    private final ProcessSalesAndWriteOffAndProductionService processSalesAndTransferService;
     private final DocumentFileService documentFileService;
     private final InventoryAuditService inventoryAuditService;
-    private final TransactionService transactionService;
     private final ProcessIncomingService processIncomingService;
     private final ProcessInventoryCheckService processInventoryCheck;
     private final ProcessTransferService processTransferService;
     private final ProcessReturnService processReturnService;
-    private final ProcessWriteOffService writeOffService;
     private final InventoryAuditResultService inventoryAuditResultService;
 
     @Transactional
@@ -55,17 +53,6 @@ public class StorekeeperController {
         return MessageResponse.empty("Поступление товаров успешно обработано");
     }
 
-    // ИМПОРТИРОВАНИЕ
-    @Operation(
-            summary = "Создание ИМПОРТИРОВАНИЕ",
-            description = "Возвращает сообщение о создании"
-    )
-    @PostMapping("/import")
-    public MessageResponse<String> processImport(@RequestBody DocumentRequest documentDTO) {
-        processIncomingService.processImport(documentDTO);
-        return MessageResponse.empty("Импорт успешно обработан");
-    }
-
     // ВОЗВРАТ
     @Operation(
             summary = "Создание ВОЗВРАТ",
@@ -77,38 +64,6 @@ public class StorekeeperController {
         return MessageResponse.empty("Возврат успешно обработан");
     }
 
-    // ПРОДАЖА
-//    @Operation(
-//            summary = "Создание ПРОДАЖА",
-//            description = "Возвращает сообщение о создании"
-//    )
-//    @PostMapping("/sales")
-//    public MessageResponse<String> processSales(@RequestBody DocumentRequest salesDocument) {
-//        processSalesAndTransferService.processSales(salesDocument);
-//        return MessageResponse.empty("Продажи успешно обработаны");
-//    }
-//
-//    // ПРОИЗВОДСТВО И ПЕРЕДАЧА
-//    @Operation(
-//            summary = "Создание ПРОИЗВОДСТВО И ПЕРЕДАЧА",
-//            description = "Возвращает сообщение о создании"
-//    )
-//    @PostMapping("/production-transfer")
-//    public MessageResponse<String> processProductionTransfer(@RequestBody DocumentRequest productionDocument) {
-//        processSalesAndTransferService.processProductionTransfer(productionDocument);
-//        return MessageResponse.empty("Передача в производство успешно обработана");
-//    }
-
-    // СПИСАНИЕ
-    @Operation(
-            summary = "Создание ПРОИЗВОДСТВО И СПИСАНИЕ",
-            description = "Возвращает сообщение о создании"
-    )
-    @PostMapping("/write-off")
-    public MessageResponse<String> processWriteOff(@RequestBody ReturnRequest writeOffRequest) {
-        writeOffService.processWriteOff(writeOffRequest);
-        return MessageResponse.empty("Списание успешно обработано");
-    }
 
     // ПЕРЕМЕЩЕНИЕ
     @Operation(
