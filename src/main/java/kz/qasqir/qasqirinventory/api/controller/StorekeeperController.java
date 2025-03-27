@@ -146,13 +146,6 @@ public class StorekeeperController {
         return MessageResponse.of(inventoryAuditService.getById(inventoryId));
     }
 
-    @GetMapping("/document/transaction")
-    public MessageResponse<List<DocumentWithTransactionsDTO>> getAllDocumentWithTransactions(
-            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        return MessageResponse.of(documentService.getDocumentsWithTransactions(startDate, endDate));
-    }
-
     @GetMapping("/file/download/{id}")
     public void downloadDocumentFile(@PathVariable Long id, HttpServletResponse response) throws IOException {
         DocumentFile documentFile = documentFileService.getDocumentFileById(id);
@@ -170,4 +163,8 @@ public class StorekeeperController {
     public MessageResponse<List<InventoryAuditResultDTO>> getInventoryAudit(@PathVariable Long auditId) {
         return MessageResponse.of(inventoryAuditResultService.getAllByAuditId(auditId));
     }
+
+
+
 }
+

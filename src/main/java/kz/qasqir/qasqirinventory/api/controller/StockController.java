@@ -26,17 +26,6 @@ public class StockController {
     }
 
     @Operation(
-            summary = "Получение списка всех категорий",
-            description = "Возвращает список категорий"
-    )
-    // Получение списка всех категорий
-    @GetMapping("/categories")
-    public MessageResponse<List<CategoryDTO>> getAllCategories() {
-        List<CategoryDTO> categories = categoryService.getAllCategory();
-        return MessageResponse.of(categories);
-    }
-
-    @Operation(
             summary = "Создание новой категории",
             description = "Возвращает сообщение о создании"
     )
@@ -79,15 +68,6 @@ public class StockController {
     }
 
     @Operation(
-            summary = "Списка номенклатуры по категориям",
-            description = "Возвращает список номенклатуры"
-    )
-    @GetMapping("/{categoryId}/nomenclatures")
-    public MessageResponse<List<NomenclatureDTO>> getAllByCategoryId(@PathVariable Long categoryId) {
-        return  MessageResponse.of(nomenclatureService.getAllNomenclatureByCategoryId(categoryId));
-    }
-
-    @Operation(
             summary = "Обновление номенклатуры по айди",
             description = "Возвращает список номенклатуры"
     )
@@ -103,10 +83,5 @@ public class StockController {
     @DeleteMapping("/{nomenclatureId}/nomenclatures")
     public MessageResponse<String> deleteNomenclature(@PathVariable Long nomenclatureId) {
         return MessageResponse.of(nomenclatureService.deleteNomenclature(nomenclatureId));
-    }
-
-    @GetMapping("/nomenclatures")
-    public MessageResponse<List<NomenclatureDTO>> getAllNomenclatures() {
-        return MessageResponse.of(nomenclatureService.getAllNomenclature());
     }
 }

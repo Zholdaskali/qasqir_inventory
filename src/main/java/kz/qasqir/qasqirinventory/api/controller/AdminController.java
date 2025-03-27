@@ -130,15 +130,6 @@ public class AdminController {
         return MessageResponse.of(organizationService.resetOrganization(organizationResetRequest));
     }
 
-    @PutMapping("/ticket/allowed")
-    public MessageResponse<String> allowedTicket(@RequestBody TicketCompleteRequest ticketCompleteRequest) {
-        return MessageResponse.of(ticketService.allowedTicket(ticketCompleteRequest.getTicketId(), ticketCompleteRequest.getManaged_id()));
-    }
-
-    @PutMapping("/ticket/write-off/allowed/batch")
-    public MessageResponse<String> allowedBatchTickets(@RequestBody BatchCompleteRequest batchCompleteRequest) {
-        return MessageResponse.of(ticketService.allowedBatchTickets(batchCompleteRequest.getTicketIds(), batchCompleteRequest.getManagedId()));
-    }
 
 //        {
 //            "userName": "superAdmin1@gmail.com",

@@ -18,7 +18,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/warehouse-manager")
+@RequestMapping("/api/v1/storekeeper")
 @RequiredArgsConstructor
 public class StockTransactionController {
 
@@ -69,17 +69,5 @@ public class StockTransactionController {
     @PutMapping("/ticket/{ticketId}")
     public MessageResponse<String> completedWriteOffTicked(@PathVariable Long ticketId) {
         return MessageResponse.of(ticketService.completedTicket(ticketId));
-    }
-
-    @DeleteMapping("/ticket/{ticketId}")
-    public MessageResponse<String> deleteWriteOffTicked(@PathVariable Long ticketId) {
-        return MessageResponse.of(ticketService.delete(ticketId));
-    }
-
-    @GetMapping("ticket/{type}")
-    public MessageResponse<List<TicketDTO>> getWriteOffTickets(@PathVariable String type,
-                                                               @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                                                               @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        return MessageResponse.of(ticketService.getAllTicked(type, startDate, endDate));
     }
 }

@@ -3,32 +3,27 @@ package kz.qasqir.qasqirinventory.api.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import kz.qasqir.qasqirinventory.api.model.dto.*;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.service.CategoryService;
-import kz.qasqir.qasqirinventory.api.service.NomenclatureService;
-import kz.qasqir.qasqirinventory.api.service.WarehouseService;
-import kz.qasqir.qasqirinventory.api.service.WarehouseZoneService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import kz.qasqir.qasqirinventory.api.service.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/employee")
+@RequiredArgsConstructor
 public class EmployeeController {
 
     private final WarehouseService warehouseService;
     private final WarehouseZoneService warehouseZoneService;
     private final NomenclatureService nomenclatureService;
     private final CategoryService categoryService;
-
-    public EmployeeController(WarehouseService warehouseService, WarehouseZoneService warehouseZoneService, NomenclatureService nomenclatureService, CategoryService categoryService) {
-        this.warehouseService = warehouseService;
-        this.warehouseZoneService = warehouseZoneService;
-        this.nomenclatureService = nomenclatureService;
-        this.categoryService = categoryService;
-    }
+    private final SupplierService supplierService;
+    private final CustomerService customerService;
+    private final WarehouseContainerService warehouseContainerService;
+    private final TicketService ticketService;
 
     @Operation(
             summary = "Просмотр всех складов",
@@ -39,7 +34,6 @@ public class EmployeeController {
     public MessageResponse<List<WarehouseDTO>> getAllWarehouses() {
         return MessageResponse.of(warehouseService.getAllWarehouses());
     }
-
 
     @Operation(
             summary = "Просмотр зон склада по warehouseId",
@@ -71,5 +65,41 @@ public class EmployeeController {
     @GetMapping("/categories")
     public MessageResponse<List<CategoryDTO>> getCategories() {
         return MessageResponse.of(categoryService.getAllCategory());
+    }
+
+    @GetMapping("/suppliers")
+    public MessageResponse<List<SupplierDTO>> getAllSupplier() {
+        return MessageResponse.of(supplierService.getAllSuppliers());
+    }
+
+    @GetMapping("/customers")
+    public MessageResponse<List<CustomerDTO>> getAllCustomer() {
+        return MessageResponse.of(customerService.getAllCustomer());
+    }
+
+    @Operation(
+            summary = "Списка номенклатуры по категориям",
+            description = "Возвращает список номенклатуры"
+    )
+    @GetMapping("/{categoryId}/nomenclatures")
+    public MessageResponse<List<NomenclatureDTO>> getAllByCategoryId(@PathVariable Long categoryId) {
+        return  MessageResponse.of(nomenclatureService.getAllNomenclatureByCategoryId(categoryId));
+    }
+
+    @GetMapping("/nomenclatures")
+    public MessageResponse<List<NomenclatureDTO>> getAllNomenclatures() {
+        return MessageResponse.of(nomenclatureService.getAllNomenclature());
+    }
+
+    @GetMapping("warehouse/container/{zoneId}")
+    public MessageResponse<List<WarehouseContainerDTO>> getAllByZoneId(@PathVariable Long zoneId) {
+        return MessageResponse.of(warehouseContainerService.getAllByZoneId(zoneId));
+    }
+
+    @GetMapping("ticket/{type}")
+    public MessageResponse<List<TicketDTO>> getWriteOffTickets(@PathVariable String type,
+                                                               @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                               @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        return MessageResponse.of(ticketService.getAllTicked(type, startDate, endDate));
     }
 }

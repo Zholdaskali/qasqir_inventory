@@ -6,6 +6,7 @@ import kz.qasqir.qasqirinventory.api.model.entity.Nomenclature;
 import kz.qasqir.qasqirinventory.api.model.entity.WarehouseContainer;
 import kz.qasqir.qasqirinventory.api.model.entity.WarehouseZone;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
+import kz.qasqir.qasqirinventory.api.repository.TicketRepository;
 import kz.qasqir.qasqirinventory.api.repository.WarehouseContainerRepository;
 import kz.qasqir.qasqirinventory.api.repository.WarehouseZoneRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class CapacityControlService {
     private final WarehouseZoneRepository warehouseZoneRepository;
     private final WarehouseContainerRepository warehouseContainerRepository; // Заменяем сервис на репозиторий
     private final InventoryRepository inventoryRepository;
+    private final TicketRepository ticketRepository;
 
     // Рассчитать объем для номенклатуры
     public BigDecimal calculateVolume(Nomenclature nomenclature, BigDecimal quantity) {
@@ -85,6 +87,7 @@ public class CapacityControlService {
         }
         inventory.setQuantity(newQuantity);
         if (newQuantity.compareTo(BigDecimal.ZERO) == 0) {
+            ticketRepository.deleteByInventoryId(inventory.getId());
             inventoryRepository.delete(inventory);
         } else {
             inventoryRepository.save(inventory);

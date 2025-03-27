@@ -27,11 +27,6 @@ public class PartnerController {
         return MessageResponse.of(supplierService.addSupplier(supplierRequest));
     }
 
-    @GetMapping("/suppliers")
-    public MessageResponse<List<SupplierDTO>> getAllSupplier() {
-        return MessageResponse.of(supplierService.getAllSuppliers());
-    }
-
     @DeleteMapping("/suppliers/{supplierId}")
     public MessageResponse<String> deleteSupplier(@PathVariable Long supplierId) {
         return MessageResponse.empty(supplierService.deleteSupplier(supplierId));
@@ -40,11 +35,6 @@ public class PartnerController {
     @PutMapping("/suppliers/{supplierId}")
     public MessageResponse<SupplierDTO> updateSupplier(@RequestBody SupplierRequest supplierRequest, @PathVariable Long supplierId) {
         return MessageResponse.of(supplierService.updateSupplier(supplierRequest, supplierId));
-    }
-
-    @GetMapping("/customers")
-    public MessageResponse<List<CustomerDTO>> getAllCustomer() {
-        return MessageResponse.of(customerService.getAllCustomer());
     }
 
     @PostMapping("/customers")

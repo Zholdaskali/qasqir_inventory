@@ -1,32 +1,28 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import kz.qasqir.qasqirinventory.api.model.dto.WarehouseContainerDTO;
-import kz.qasqir.qasqirinventory.api.model.dto.WarehouseDTO;
-import kz.qasqir.qasqirinventory.api.model.dto.WarehouseZoneDTO;
+import kz.qasqir.qasqirinventory.api.model.dto.*;
 import kz.qasqir.qasqirinventory.api.model.request.*;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.service.WarehouseContainerService;
-import kz.qasqir.qasqirinventory.api.service.WarehouseService;
-import kz.qasqir.qasqirinventory.api.service.WarehouseZoneService;
+import kz.qasqir.qasqirinventory.api.service.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
 @RestController
 @RequestMapping("/api/v1/warehouse-manager")
+@RequiredArgsConstructor
 public class WarehouseStructureController {
 
     private final WarehouseService warehouseService;
     private final WarehouseZoneService warehouseZoneService;
     private final WarehouseContainerService warehouseContainersService;
-
-    public WarehouseStructureController(WarehouseService warehouseService, WarehouseZoneService warehouseZoneService, WarehouseContainerService warehouseContainersService) {
-        this.warehouseService = warehouseService;
-        this.warehouseZoneService = warehouseZoneService;
-        this.warehouseContainersService = warehouseContainersService;
-    }
+    private final TicketService ticketService;
+    private final DocumentService documentService;
 
     @Operation(
             summary = "Удаление склада",
@@ -108,9 +104,25 @@ public class WarehouseStructureController {
         return MessageResponse.of(warehouseContainersService.deleteByWarehouseContainerId(warehouseContainerId));
     }
 
-    @GetMapping("warehouse/container/{zoneId}")
-    public MessageResponse<List<WarehouseContainerDTO>> getAllByZoneId(@PathVariable Long zoneId) {
-        return MessageResponse.of(warehouseContainersService.getAllByZoneId(zoneId));
+    @PutMapping("/ticket/allowed")
+    public MessageResponse<String> allowedTicket(@RequestBody TicketCompleteRequest ticketCompleteRequest) {
+        return MessageResponse.of(ticketService.allowedTicket(ticketCompleteRequest.getTicketId(), ticketCompleteRequest.getManaged_id()));
     }
 
+    @PutMapping("/ticket/write-off/allowed/batch")
+    public MessageResponse<String> allowedBatchTickets(@RequestBody BatchCompleteRequest batchCompleteRequest) {
+        return MessageResponse.of(ticketService.allowedBatchTickets(batchCompleteRequest.getTicketIds(), batchCompleteRequest.getManagedId()));
+    }
+
+    @GetMapping("/document/transaction")
+    public MessageResponse<List<DocumentWithTransactionsDTO>> getAllDocumentWithTransactions(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        return MessageResponse.of(documentService.getDocumentsWithTransactions(startDate, endDate));
+    }
+
+    @DeleteMapping("/ticket/{ticketId}")
+    public MessageResponse<String> deleteWriteOffTicked(@PathVariable Long ticketId) {
+        return MessageResponse.of(ticketService.delete(ticketId));
+    }
 }
