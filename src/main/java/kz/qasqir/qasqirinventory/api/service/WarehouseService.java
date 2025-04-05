@@ -28,6 +28,7 @@ public class WarehouseService {
     private final WarehouseZoneService warehouseZoneService;
     private final WarehouseZoneRepository warehouseZoneRepository;
     private final WarehouseContainerRepository warehouseContainerRepository;
+    private final WarehouseContainerService warehouseContainerService;
 
 
     @Transactional
@@ -79,72 +80,10 @@ public class WarehouseService {
         return new WarehouseDTO(warehouse.getId(), warehouse.getName(), warehouse.getLocation(), warehouse.getCreatedAt(), warehouse.getUpdatedAt(), getZonesCount(warehouse.getId()), getTotalCapacity(warehouse.getId()), warehouse.getLatitude(), warehouse.getLongitude());
     }
 
+    // Пиздец
     private int getZonesCount(Long WarehouseId) {
         return warehouseZoneService.getAllWarehouseZoneByWarehouseId(WarehouseId).size();
     }
-
-
-
-    private Double getTotalWarehouseVolume(Long warehouseId) {
-        List<WarehouseZoneDTO> zones = warehouseZoneService.getAllWarehouseZoneByWarehouseId(warehouseId);
-
-        if (zones == null || zones.isEmpty()) {
-            return 0.0;
-        }
-
-        // Фильтруем только корневые зоны (у которых нет родительской зоны)
-        List<WarehouseZoneDTO> rootZones = zones.stream()
-                .filter(zone -> zone.getParentId() == null)
-                .toList();
-
-        // Считаем общий объем корневых зон
-        return rootZones.stream()
-                .mapToDouble(zone -> zone.getWidth() * zone.getHeight() * zone.getLength())
-                .sum();
-    }
-
-
-    private Double getOccupiedVolume(Long warehouseId) {
-        List<WarehouseZoneDTO> zones = warehouseZoneService.getAllWarehouseZoneByWarehouseId(warehouseId);
-
-        if (zones == null || zones.isEmpty()) {
-            return 0.0;
-        }
-
-        // Считаем объем всех дочерних зон и контейнеров
-        double occupiedByZonesAndContainers = zones.stream()
-                .filter(zone -> zone.getParentId() != null) // Берем только дочерние зоны и контейнеры
-                .mapToDouble(zone -> zone.getWidth() * zone.getHeight() * zone.getLength())
-                .sum();
-
-        // Считаем объем, занятый товарами
-        double occupiedByGoods = zones.stream()
-                .mapToDouble(zone -> zone.getCapacity() != null ? zone.getCapacity() : 0.0)
-                .sum();
-
-        return occupiedByZonesAndContainers + occupiedByGoods;
-    }
-
-    public Double getTotalCapacity(Long warehouseId) {
-        double totalVolume = getTotalWarehouseVolume(warehouseId);
-        double occupiedVolume = getOccupiedVolume(warehouseId);
-
-        System.out.println("Общий объем склада: " + totalVolume + " м³");
-        System.out.println("Занятый объем: " + occupiedVolume + " м³");
-        System.out.println("Свободный объем: " + occupiedVolume/totalVolume + " м³");
-
-        return (occupiedVolume/totalVolume) * 100;
-    }
-    public void printWarehouseStatus(Long warehouseId) {
-        double totalVolume = getTotalWarehouseVolume(warehouseId);
-        double freeVolume = getTotalCapacity(warehouseId);
-        double occupiedVolume = getOccupiedVolume(warehouseId);
-
-        System.out.println("Общий объем склада: " + totalVolume + " м³");
-        System.out.println("Занятый объем: " + occupiedVolume + " м³");
-        System.out.println("Свободный объем: " + freeVolume + " м³");
-    }
-
 
     public WarehouseStructureDTO getWarehouseDetails(Long warehouseId) {
         // Находим склад по ID
@@ -216,6 +155,9 @@ public class WarehouseService {
         return containerDTO;
     }
 
+    private Double getTotalCapacity(Long warehouseId) {
+        return warehouseRepository.getUsedVolumePercent(warehouseId);
+    }
 
 
 
@@ -279,7 +221,18 @@ public class WarehouseService {
 //                })
 //                .toList();
 //
-//        double totalVolume = filteredZones.stream()
+//        List<WarehouseZoneDTO> parentZones = zones.stream()
+//                .filter(Objects::nonNull)
+//                .filter(zone -> {
+//                    if (zone.getParentId() == null) {
+//                        return true;
+//                    }
+//                    return zones.stream()
+//                            .noneMatch(childZone -> zone.getId().equals(childZone.getParentId()));
+//                })
+//                .toList();
+//
+//        double totalVolume = parentZones.stream()
 //                .mapToDouble(zone -> zone.getWidth() * zone.getHeight() * zone.getLength())
 //                .sum();
 //
@@ -305,7 +258,7 @@ public class WarehouseService {
 //        }
 //
 //        System.out.println(freeVolume + "/" + totalVolume);
-//        return (freeVolume / totalVolume) * 100;
+//        return 100 - ((freeVolume / totalVolume) * 100);
 //    }
 
     public Warehouse getById(Long warehouseId) {

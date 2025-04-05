@@ -23,7 +23,6 @@ public class CapacityControlService {
     private final InventoryRepository inventoryRepository;
     private final TicketRepository ticketRepository;
 
-    // Рассчитать объем для номенклатуры
     public BigDecimal calculateVolume(Nomenclature nomenclature, BigDecimal quantity) {
         if (nomenclature.getVolume() != null) {
             return BigDecimal.valueOf(nomenclature.getVolume()).multiply(quantity);
@@ -35,7 +34,6 @@ public class CapacityControlService {
         }
     }
 
-    // Проверка и обновление емкости зоны (уменьшение при поступлении)
     public void reserveZoneCapacity(WarehouseZone zone, BigDecimal requiredVolume) {
         BigDecimal remainingCapacity = zone.getCapacity();
         if (remainingCapacity.compareTo(requiredVolume) < 0) {
@@ -45,14 +43,12 @@ public class CapacityControlService {
         warehouseZoneRepository.save(zone);
     }
 
-    // Освобождение емкости зоны (увеличение при списании или возврате)
     public void freeZoneCapacity(WarehouseZone zone, BigDecimal freedVolume) {
         BigDecimal newCapacity = zone.getCapacity().add(freedVolume);
         zone.setCapacity(newCapacity);
         warehouseZoneRepository.save(zone);
     }
 
-    // Проверка и обновление емкости контейнера (уменьшение при поступлении)
     public void reserveContainerCapacity(WarehouseContainer container, Nomenclature nomenclature, BigDecimal quantity) {
         BigDecimal remainingCapacity = container.getCapacity();
         BigDecimal requiredVolume = calculateVolume(nomenclature, quantity);
@@ -73,14 +69,12 @@ public class CapacityControlService {
         warehouseContainerRepository.save(container); // Сохраняем напрямую через репозиторий
     }
 
-    // Освобождение емкости контейнера (увеличение при списании)
     public void freeContainerCapacity(WarehouseContainer container, BigDecimal freedVolume) {
         BigDecimal newCapacity = container.getCapacity().add(freedVolume);
         container.setCapacity(newCapacity);
         warehouseContainerRepository.save(container); // Сохраняем напрямую через репозиторий
     }
 
-    // Обновление инвентаря с учетом количества (удаление при 0)
     public void updateInventory(Inventory inventory, BigDecimal newQuantity) {
         if (newQuantity.compareTo(BigDecimal.ZERO) < 0) {
             throw new DocumentException("Количество инвентаря не может быть отрицательным");

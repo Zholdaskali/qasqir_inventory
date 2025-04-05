@@ -33,8 +33,8 @@ public class DashboardService {
         DashboardDTO dashboard = new DashboardDTO();
 
         // Общая статистика
-        dashboard.setTotalInventoryQuantity(getTotalInventoryQuantity());
-        dashboard.setZoneFillPercentage(getZoneFillPercentage());
+        dashboard.setTotalInventoryQuantity(getTotalInventoryQuantity()); // +
+        dashboard.setZoneFillPercentage(getZoneFillPercentage()); //
         dashboard.setTransactionCount(getTransactionCount(startDate, endDate));
 
         // Анализ движения товаров
@@ -51,20 +51,12 @@ public class DashboardService {
 
     // Общее количество товаров на складе
     private BigDecimal getTotalInventoryQuantity() {
-        List<Inventory> inventoryList = inventoryRepository.findAll();
-        return inventoryList.stream()
-                .map(Inventory::getQuantity)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return inventoryRepository.getTotalQuantity().orElse(BigDecimal.ZERO);
     }
 
     // Процент заполненности зон
     private double getZoneFillPercentage() {
-        List<WarehouseZone> zones = warehouseZoneRepository.findAll();
-
-        // Фильтруем только зоны, где можно хранить товары (can_store_items = true)
-        List<WarehouseZone> storageZones = zones.stream()
-                .filter(WarehouseZone::getCanStoreItems)
-                .toList();
+        List<WarehouseZone> storageZones = warehouseZoneRepository.findAllByCanStoreItemsTrue();
 
         // Рассчитываем общий физический объем только для зон, где можно хранить товары
         BigDecimal totalPhysicalVolume = storageZones.stream()

@@ -40,7 +40,7 @@ public class TransactionService {
         return transactionRepository.findByDocumentIdIn(documentIds).stream().map(this::convertToDto).toList();
     }
 
-    private TransactionDTO convertToDto(Transaction transaction) {
+    protected TransactionDTO convertToDto(Transaction transaction) {
         String userName;
         if (transaction.getCreatedBy().getUserName() == null) {
             userName = "Не определен";

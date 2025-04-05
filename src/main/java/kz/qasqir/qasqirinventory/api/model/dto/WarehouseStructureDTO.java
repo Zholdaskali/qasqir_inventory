@@ -13,4 +13,9 @@ public class WarehouseStructureDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<WarehouseZoneStructureDTO> zones;
+
+    public int compareTo(WarehouseZoneStructureDTO other) {
+        // Определите естественный порядок здесь, например, по имени
+        return this.name.compareTo(other.getName());
+    }
 }

@@ -18,7 +18,6 @@ public class ProcessSalesAndWriteOffAndProductionService {
 
     private final InventoryRepository inventoryRepository;
     private final TransactionService transactionService;
-    private final WarehouseZoneService warehouseZoneService;
     private final CapacityControlService capacityControlService;
 
     @Transactional(rollbackOn = Exception.class)

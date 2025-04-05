@@ -3,13 +3,13 @@ package kz.qasqir.qasqirinventory.api.config;
 import kz.qasqir.qasqirinventory.api.Interceptor.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 @Configuration
 @RequiredArgsConstructor
-public class  InterceptorConfig implements WebMvcConfigurer {
+public class InterceptorConfig implements WebMvcConfigurer {
 
     private final AuthInterceptor authInterceptor;
     private final ActionLogInterceptor actionLogInterceptor;
@@ -37,9 +37,15 @@ public class  InterceptorConfig implements WebMvcConfigurer {
 
         registry.addInterceptor(actionLogInterceptor)
                 .order(3)
-                .excludePathPatterns(COMMON_EXCLUDE_PATTERNS)
-                .excludePathPatterns("/api/v1/admin/log/**", "/api/v1/bitrix24/**");
+                .addPathPatterns(
+                        "/api/v1/warehouse-manager/**",  // Логируем действия с номенклатурами, складами и т.д.
+                        "/api/v1/admin/**",             // Логируем действия администратора
+                        "/api/v1/user/profile/**",      // Логируем изменения профиля пользователя
+                        "/api/v1/storekeeper/**"        // Логируем действия кладовщика
+                )
+                .excludePathPatterns(COMMON_EXCLUDE_PATTERNS); // Исключаем общие пути, если они попадают в паттерны
 
+        // Остальные интерцепторы без изменений
         registry.addInterceptor(inviteInterceptor)
                 .order(4)
                 .addPathPatterns("/api/v1/user/password/reset-invite");
@@ -53,9 +59,6 @@ public class  InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns("/api/v1/bitrix24/**");
     }
 
-
-
-
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
@@ -64,6 +67,4 @@ public class  InterceptorConfig implements WebMvcConfigurer {
                 .exposedHeaders("Auth-token", "auth-token")
                 .allowCredentials(true);
     }
-
 }
-

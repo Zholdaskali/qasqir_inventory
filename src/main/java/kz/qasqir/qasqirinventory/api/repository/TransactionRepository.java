@@ -27,4 +27,11 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     // Поиск транзакций по номенклатуре
     List<Transaction> findByNomenclatureId(Long nomenclatureId);
+
+    @Query("SELECT t FROM Transaction t " +
+            "LEFT JOIN FETCH t.nomenclature " + // Загружаем номенклатуру
+            "LEFT JOIN FETCH t.createdBy " +    // Загружаем пользователя
+            "LEFT JOIN FETCH t.document " +     // Документ (хотя он уже есть в `documentIds`)
+            "WHERE t.document.id IN :documentIds")
+    List<Transaction> findByDocumentIdInWithJoins(@Param("documentIds") List<Long> documentIds);
 }

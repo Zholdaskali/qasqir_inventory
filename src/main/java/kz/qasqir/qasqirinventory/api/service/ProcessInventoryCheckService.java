@@ -3,6 +3,8 @@ package kz.qasqir.qasqirinventory.api.service;
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.EmailIsAlreadyRegisteredException;
 import kz.qasqir.qasqirinventory.api.model.dto.InventoryAuditDTO;
+import kz.qasqir.qasqirinventory.api.model.dto.WarehouseStructureDTO;
+import kz.qasqir.qasqirinventory.api.model.dto.WarehouseZoneStructureDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.*;
 import kz.qasqir.qasqirinventory.api.model.request.InventoryAuditResultRequest;
 import kz.qasqir.qasqirinventory.api.repository.InventoryAuditRepository;
@@ -13,7 +15,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,10 +29,9 @@ public class ProcessInventoryCheckService {
     private final NomenclatureService nomenclatureService;
     private final WarehouseZoneService warehouseZoneService;
     private final InventoryAuditResultRepository inventoryAuditResultRepository;
-    private final TransactionService transactionService;
     private final InventoryAuditService inventoryAuditService;
+    private final CapacityControlService capacityControlService;
 
-    // Начало инвентаризации
     @Transactional(rollbackOn = Exception.class)
     public InventoryAuditDTO startInventoryCheck(Long warehouseId, Long createdBy) {
         Warehouse warehouse = warehouseService.getById(warehouseId);
@@ -48,7 +51,7 @@ public class ProcessInventoryCheckService {
             if (results.isEmpty()) {
                 throw new RuntimeException("Массив товаров пустой");
             }
-
+            long count = 0L;
             for (InventoryAuditResultRequest result : results) {
                 Nomenclature nomenclature = nomenclatureService.getById(result.getNomenclatureId());
                 WarehouseZone warehouseZone = warehouseZoneService.getById(result.getWarehouseZoneId());
@@ -60,6 +63,9 @@ public class ProcessInventoryCheckService {
                 BigDecimal actualQuantity = result.getActualQuantity();
                 BigDecimal discrepancy = actualQuantity.subtract(expectedQuantity);
 
+                // Обновляем только инвентарь без изменения емкости зон
+                capacityControlService.updateInventory(inventory, actualQuantity);
+
                 InventoryAuditResult auditResult = new InventoryAuditResult();
                 auditResult.setAudit(audit);
                 auditResult.setNomenclature(nomenclature);
@@ -67,17 +73,27 @@ public class ProcessInventoryCheckService {
                 auditResult.setExpectedQuantity(expectedQuantity);
                 auditResult.setActualQuantity(actualQuantity);
                 auditResult.setDiscrepancy(discrepancy);
-                inventory.setQuantity(actualQuantity);
                 inventoryRepository.save(inventory);
 
                 inventoryAuditResultRepository.save(auditResult);
+                count++;
             }
-            audit.setStatus("COMPLETED");
-            inventoryAuditRepository.save(audit); // Обновляем статус инвентаризации
+            WarehouseStructureDTO warehouseStructureDTO = warehouseService.getWarehouseDetails(audit.getWarehouse().getId());
+
+            warehouseStructureDTO.getZones()
+                    .stream()
+                    .filter(zone -> zone.getCanStoreItems() == true)
+                    .sorted(Comparator.comparing(WarehouseZoneStructureDTO::getName))
+                    .collect(Collectors.toList());
+
+            long countZones =  warehouseStructureDTO.getZones().size();
+            if (countZones == count) {
+                audit.setStatus("COMPLETED");
+            }
+            inventoryAuditRepository.save(audit);
             return "Инвентаризация успешно завершена!!!";
         } catch (Exception e) {
-            throw e; // Пробрасываем исключение, чтобы транзакция откатилась
+            throw e;
         }
     }
-
 }

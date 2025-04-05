@@ -23,7 +23,7 @@ public class ActionLogInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String methodName = extractMethodName(handler.toString());
         String endpoint = request.getRequestURI();
         Long userId = getCurrentUserId(request.getHeader("Auth-token"));
@@ -33,7 +33,6 @@ public class ActionLogInterceptor implements HandlerInterceptor {
     }
 
     private Long getCurrentUserId(String token) {
-        System.out.println("getCurrentUserId");
         return sessionService.getTokenForUser(token).getId();
     }
 
@@ -56,6 +55,6 @@ public class ActionLogInterceptor implements HandlerInterceptor {
                 return fullMethodName.substring(hashIndex + 1, paramsIndex);
             }
         }
-        return fullMethodName; // Возвращаем строку как есть, если не удалось извлечь
+        return fullMethodName;
     }
 }

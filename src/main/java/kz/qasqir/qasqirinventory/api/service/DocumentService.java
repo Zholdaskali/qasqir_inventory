@@ -8,9 +8,11 @@ import kz.qasqir.qasqirinventory.api.model.dto.TransactionDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.Customer;
 import kz.qasqir.qasqirinventory.api.model.entity.Document;
 import kz.qasqir.qasqirinventory.api.model.entity.Supplier;
+import kz.qasqir.qasqirinventory.api.model.entity.Transaction;
 import kz.qasqir.qasqirinventory.api.model.request.DocumentRequest;
 import kz.qasqir.qasqirinventory.api.model.request.TransferRequest;
 import kz.qasqir.qasqirinventory.api.repository.DocumentRepository;
+import kz.qasqir.qasqirinventory.api.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +30,7 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final SupplierService supplierService;
     private final CustomerService customerService;
+    private final TransactionRepository transactionRepository;
     private final TransactionService transactionService;
 
     @Transactional(rollbackOn = Exception.class)
@@ -166,20 +169,27 @@ public class DocumentService {
     }
 
     public List<DocumentWithTransactionsDTO> getDocumentsWithTransactions(LocalDate startDate, LocalDate endDate) {
-        List<DocumentDTO> documents = documentRepository.findByDocumentDateBetween(startDate, endDate).stream().map(this::convertToDto).toList();
+        // 1. Загружаем документы с поставщиками за 1 запрос
+        List<Document> documents = documentRepository.findByDocumentDateBetweenWithJoins(startDate, endDate);
+        List<Long> documentIds = documents.stream().map(Document::getId).toList();
 
-        List<Long> documentIds = documents.stream().map(DocumentDTO::getId).collect(Collectors.toList());
+        // 2. Загружаем транзакции с номенклатурой и пользователями за 1 запрос
+        List<Transaction> transactions = transactionRepository.findByDocumentIdInWithJoins(documentIds);
 
-        List<TransactionDTO> transactions = transactionService.findByDocumentIdIn(documentIds);
-
+        // 3. Группируем транзакции по ID документа (а не по ID транзакции!)
         Map<Long, List<TransactionDTO>> transactionsMap = transactions.stream()
-                .collect(Collectors.groupingBy(TransactionDTO::getDocumentId));
-        System.out.println("Document IDs: " + documentIds); // Логируем ID документов
-        System.out.println("Transactions found: " + transactions.size()); // Логируем количество транзакций
-        return documents.stream().map(document -> {
-            List<TransactionDTO> docTransactions = transactionsMap.getOrDefault(document.getId(), new ArrayList<>());
-            return new DocumentWithTransactionsDTO(document, docTransactions);
-        }).collect(Collectors.toList());
+                .collect(Collectors.groupingBy(
+                        t -> t.getDocument().getId(),
+                        Collectors.mapping(transactionService::convertToDto, Collectors.toList())
+                ));
+
+        // 4. Собираем итоговый DTO
+        return documents.stream()
+                .map(document -> new DocumentWithTransactionsDTO(
+                        convertToDto(document),
+                        transactionsMap.getOrDefault(document.getId(), new ArrayList<>())
+                ))
+                .collect(Collectors.toList());
     }
 
     protected DocumentDTO convertToDto(Document document) {

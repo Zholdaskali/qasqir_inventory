@@ -1,14 +1,12 @@
 package kz.qasqir.qasqirinventory.api.repository;
 
 import kz.qasqir.qasqirinventory.api.model.entity.Inventory;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,7 +31,6 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     @Query("SELECT i.nomenclature.id, i.nomenclature.name, i.quantity " +
             "FROM Inventory i " +
             "WHERE i.quantity < :threshold")
-    List<Object[]> findLowStockItems(@Param("threshold") BigDecimal threshold);
-}
+    List<Object[]> findLowStockItems(@Param("threshold") BigDecimal threshold);}
 
 

@@ -49,6 +49,7 @@ public class TicketService {
         return "Групповое списание успешно выполнено";
     }
 
+    @Transactional
     public Ticket createTicket(String comment, BigDecimal quantity, Long inventoryId, Long createBy, String type, Long documentId) {
         Ticket ticket = new Ticket();
         ticket.setComment(comment);
@@ -137,7 +138,7 @@ public class TicketService {
     }
 
     public List<TicketDTO> getAllTicked(String type, LocalDate startDate, LocalDate endDate) {
-        return ticketRepository.findAllByTypeAndCreateAtBetween(type, startDate.atStartOfDay(), endDate.atStartOfDay()).stream().map(this::convertToDTO).toList();
+        return ticketRepository.findAllTicketsWithJoins(type, startDate.atStartOfDay(), endDate.atStartOfDay()).stream().map(this::convertToDTO).toList();
     }
 
     @Transactional

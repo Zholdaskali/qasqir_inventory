@@ -23,7 +23,6 @@ public class ProcessReturnService {
     private final InventoryRepository inventoryRepository;
     private final TransactionService transactionService;
     private final UserService userService;
-    private final WarehouseZoneService warehouseZoneService;
     private final CapacityControlService capacityControlService;
 
     @Transactional(rollbackOn = Exception.class)

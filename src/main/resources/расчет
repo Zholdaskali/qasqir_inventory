@@ -1,0 +1,313 @@
+Я предложу альтернативный метод расчета свободного объема склада, который устраняет некоторые недостатки текущего подхода и обеспечивает большую точность и гибкость. Этот метод будет основан на явном указании общей вместимости склада в таблице `t_warehouses`, учете физических объемов всех зон и контейнеров, а также введении концепции "доступного пространства" для каждой зоны. Я опишу его реализацию как на уровне базы данных (БД), так и на уровне бэкенда.
+
+---
+
+### Альтернативный метод: "Общий объем склада с учетом вложенности и доступности"
+
+#### Основная идея:
+- Общий объем склада задается явно в таблице `t_warehouses` через поле `total_capacity` (например, в кубических метрах).
+- Каждая зона и контейнер занимает физический объем (`width * height * length`), который вычитается из общего объема склада.
+- Зоны делятся на "структурные" (`can_store_items = f`) и "хранящие" (`can_store_items = t`). Структурные зоны определяют каркас, а хранящие зоны и контейнеры используют доступное пространство внутри структурных зон.
+- Занятый объем учитывает как физическое пространство (`width * height * length`), так и текущую загрузку (`capacity`) для хранящих зон и контейнеров.
+- Свободный объем = `total_capacity` - (физический объем структурных зон + занятый объем хранящих зон и контейнеров).
+
+#### Преимущества:
+- Учитывает вложенность зон и предотвращает дублирование объемов.
+- Позволяет явно контролировать общий объем склада.
+- Более точен за счет учета физических размеров всех объектов.
+
+#### Недостатки:
+- Требует доработки структуры БД (добавление `total_capacity` в `t_warehouses`).
+- Увеличивает сложность расчетов из-за необходимости проверки вложенности.
+
+---
+
+### Реализация в базе данных (БД)
+
+#### Изменения в структуре таблиц:
+1. **Таблица `t_warehouses`**:
+   - Добавить поле `total_capacity` (тип `numeric`, например, с точностью до 10 знаков и 4 после запятой) для указания общей вместимости склада.
+   - Обновленная структура:
+     ```sql
+     CREATE TABLE t_warehouses (
+         id SERIAL PRIMARY KEY,
+         name VARCHAR(255),
+         location VARCHAR(255),
+         created_at TIMESTAMP,
+         updated_at TIMESTAMP,
+         latitude NUMERIC,
+         longitude NUMERIC,
+         total_capacity NUMERIC(10,4) NOT NULL DEFAULT 0
+     );
+     ```
+
+2. **Таблица `t_warehouse_zones`**:
+   - Поле `capacity` переименовать в `used_capacity` для ясности (опционально), чтобы отличать текущую загрузку от физического объема.
+   - Оставить как есть, если `capacity` уже означает текущую загрузку.
+
+3. **Таблица `t_warehouse_containers`**:
+   - Без изменений, но `capacity` будет трактоваться как текущая загрузка контейнера.
+
+#### Пример заполнения `total_capacity`:
+Предположим, что склады имеют следующие общие объемы:
+- Склад 1: 10 м³.
+- Склад 2: 15 м³.
+- Склад 4: 20 м³.
+Обновим данные:
+```sql
+UPDATE t_warehouses SET total_capacity = 10 WHERE id = 1;
+UPDATE t_warehouses SET total_capacity = 15 WHERE id = 2;
+UPDATE t_warehouses SET total_capacity = 20 WHERE id = 4;
+```
+
+#### SQL-запрос для расчета:
+```sql
+WITH 
+-- Физический объем зон верхнего уровня (can_store_items = f)
+structural_volume AS (
+    SELECT 
+        w.id AS warehouse_id,
+        COALESCE(SUM(wz.width * wz.height * wz.length), 0) AS structural_physical_volume
+    FROM t_warehouses w
+    LEFT JOIN t_warehouse_zones wz 
+        ON w.id = wz.warehouse_id 
+        AND wz.parent_id IS NULL 
+        AND wz.can_store_items = 'f'
+    GROUP BY w.id
+),
+-- Занятый объем хранящих зон (can_store_items = t)
+storage_zone_capacity AS (
+    SELECT 
+        w.id AS warehouse_id,
+        COALESCE(SUM(wz.capacity), 0) AS zone_used_capacity,
+        COALESCE(SUM(wz.width * wz.height * wz.length), 0) AS zone_physical_volume
+    FROM t_warehouses w
+    LEFT JOIN t_warehouse_zones wz 
+        ON w.id = wz.warehouse_id 
+        AND wz.can_store_items = 't'
+    GROUP BY w.id
+),
+-- Занятый объем контейнеров
+container_capacity AS (
+    SELECT 
+        w.id AS warehouse_id,
+        COALESCE(SUM(wc.capacity), 0) AS container_used_capacity,
+        COALESCE(SUM(wc.width * wc.height * wc.length), 0) AS container_physical_volume
+    FROM t_warehouses w
+    LEFT JOIN t_warehouse_zones wz 
+        ON w.id = wz.warehouse_id
+    LEFT JOIN t_warehouse_containers wc 
+        ON wz.id = wc.warehouse_zone_id
+    GROUP BY w.id
+)
+-- Итоговый расчет
+SELECT 
+    w.id AS warehouse_id,
+    w.name AS warehouse_name,
+    w.total_capacity AS total_volume,
+    sv.structural_physical_volume AS structural_volume,
+    (szc.zone_used_capacity + cc.container_used_capacity) AS used_capacity,
+    (szc.zone_physical_volume + cc.container_physical_volume) AS total_physical_volume,
+    (w.total_capacity - sv.structural_physical_volume - szc.zone_used_capacity - cc.container_used_capacity) AS free_capacity,
+    ROUND(
+        CASE 
+            WHEN w.total_capacity = 0 THEN 0 
+            ELSE (sv.structural_physical_volume + szc.zone_used_capacity + cc.container_used_capacity) / w.total_capacity * 100 
+        END, 
+        2
+    ) AS used_percent
+FROM t_warehouses w
+JOIN structural_volume sv ON w.id = sv.warehouse_id
+JOIN storage_zone_capacity szc ON w.id = szc.warehouse_id
+JOIN container_capacity cc ON w.id = cc.warehouse_id
+ORDER BY w.id;
+```
+
+#### Описание запроса:
+1. **`structural_volume`**:
+   - Считает физический объем зон верхнего уровня с `can_store_items = f`.
+
+2. **`storage_zone_capacity`**:
+   - Считает суммарный `capacity` и физический объем зон с `can_store_items = t`.
+
+3. **`container_capacity`**:
+   - Считает суммарный `capacity` и физический объем всех контейнеров.
+
+4. **Итоговый расчет**:
+   - `total_volume`: общий объем склада из `t_warehouses.total_capacity`.
+   - `structural_volume`: физический объем структурных зон.
+   - `used_capacity`: текущая загрузка хранящих зон и контейнеров.
+   - `total_physical_volume`: физический объем хранящих зон и контейнеров (для справки).
+   - `free_capacity`: свободный объем = `total_capacity - structural_volume - used_capacity`.
+   - `used_percent`: процент занятого объема.
+
+#### Пример результата:
+Для склада 1 (`total_capacity = 10`):
+- `structural_volume` = 2.0 (Зона А + Зона B).
+- `zone_used_capacity` = 1.1 (Зона С + подзоны).
+- `container_used_capacity` = 0.2.
+- `free_capacity` = 10 - 2.0 - 1.1 - 0.2 = 6.7.
+- `used_percent` = (2.0 + 1.1 + 0.2) / 10 * 100 = 33.00%.
+
+---
+
+### Реализация на бэкенде
+
+Предположим, что бэкенд написан на **Python** с использованием фреймворка **FastAPI** и ORM **SQLAlchemy**.
+
+#### Модель (SQLAlchemy):
+```python
+from sqlalchemy import Column, Integer, String, Numeric, DateTime, Boolean, ForeignKey
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+
+class Warehouse(Base):
+    __tablename__ = "t_warehouses"
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    location = Column(String)
+    created_at = Column(DateTime)
+    updated_at = Column(DateTime)
+    latitude = Column(Numeric)
+    longitude = Column(Numeric)
+    total_capacity = Column(Numeric(10, 4), nullable=False, default=0)
+
+class WarehouseZone(Base):
+    __tablename__ = "t_warehouse_zones"
+    id = Column(Integer, primary_key=True)
+    warehouse_id = Column(Integer, ForeignKey("t_warehouses.id"))
+    name = Column(String)
+    parent_id = Column(Integer, ForeignKey("t_warehouse_zones.id"), nullable=True)
+    width = Column(Numeric(10, 10))
+    height = Column(Numeric(10, 10))
+    length = Column(Numeric(10, 10))
+    capacity = Column(Numeric(10, 10))
+    can_store_items = Column(Boolean)
+
+class WarehouseContainer(Base):
+    __tablename__ = "t_warehouse_containers"
+    id = Column(Integer, primary_key=True)
+    warehouse_zone_id = Column(Integer, ForeignKey("t_warehouse_zones.id"))
+    serial_number = Column(String)
+    capacity = Column(Numeric)
+    width = Column(Numeric(10, 10))
+    height = Column(Numeric(10, 10))
+    length = Column(Numeric(10, 10))
+```
+
+#### Логика бэкенда (FastAPI):
+```python
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
+from sqlalchemy import func, case
+from database import get_db  # Функция для получения сессии БД
+
+app = FastAPI()
+
+@app.get("/warehouses/volume")
+def get_warehouse_volumes(db: Session = Depends(get_db)):
+    # Подзапросы через ORM
+    structural_volume = (
+        db.query(
+            Warehouse.id.label("warehouse_id"),
+            func.coalesce(func.sum(WarehouseZone.width * WarehouseZone.height * WarehouseZone.length), 0).label("structural_volume")
+        )
+        .join(WarehouseZone, Warehouse.id == WarehouseZone.warehouse_id, isouter=True)
+        .filter(WarehouseZone.parent_id.is_(None), WarehouseZone.can_store_items == False)
+        .group_by(Warehouse.id)
+        .subquery()
+    )
+
+    storage_zone_capacity = (
+        db.query(
+            Warehouse.id.label("warehouse_id"),
+            func.coalesce(func.sum(WarehouseZone.capacity), 0).label("zone_used_capacity")
+        )
+        .join(WarehouseZone, Warehouse.id == WarehouseZone.warehouse_id, isouter=True)
+        .filter(WarehouseZone.can_store_items == True)
+        .group_by(Warehouse.id)
+        .subquery()
+    )
+
+    container_capacity = (
+        db.query(
+            Warehouse.id.label("warehouse_id"),
+            func.coalesce(func.sum(WarehouseContainer.capacity), 0).label("container_used_capacity")
+        )
+        .join(WarehouseZone, Warehouse.id == WarehouseZone.warehouse_id, isouter=True)
+        .join(WarehouseContainer, WarehouseZone.id == WarehouseContainer.warehouse_zone_id, isouter=True)
+        .group_by(Warehouse.id)
+        .subquery()
+    )
+
+    # Основной запрос
+    result = (
+        db.query(
+            Warehouse.id,
+            Warehouse.name,
+            Warehouse.total_capacity,
+            structural_volume.c.structural_volume,
+            (storage_zone_capacity.c.zone_used_capacity + container_capacity.c.container_used_capacity).label("used_capacity"),
+            (Warehouse.total_capacity - structural_volume.c.structural_volume - storage_zone_capacity.c.zone_used_capacity - container_capacity.c.container_used_capacity).label("free_capacity"),
+            func.round(
+                case(
+                    (Warehouse.total_capacity == 0, 0),
+                    else_=(structural_volume.c.structural_volume + storage_zone_capacity.c.zone_used_capacity + container_capacity.c.container_used_capacity) / Warehouse.total_capacity * 100
+                ), 2
+            ).label("used_percent")
+        )
+        .join(structural_volume, Warehouse.id == structural_volume.c.warehouse_id)
+        .join(storage_zone_capacity, Warehouse.id == storage_zone_capacity.c.warehouse_id)
+        .join(container_capacity, Warehouse.id == container_capacity.c.warehouse_id)
+        .all()
+    )
+
+    # Форматирование ответа
+    return [
+        {
+            "warehouse_id": row[0],
+            "warehouse_name": row[1],
+            "total_volume": float(row[2]),
+            "structural_volume": float(row[3]),
+            "used_capacity": float(row[4]),
+            "free_capacity": float(row[5]),
+            "used_percent": float(row[6])
+        }
+        for row in result
+    ]
+```
+
+#### Описание бэкенда:
+1. **Модель**: Определяет структуру таблиц через SQLAlchemy.
+2. **Эндпоинт**: `/warehouses/volume` возвращает данные о свободном объеме всех складов.
+3. **Логика**:
+   - Использует подзапросы для разделения расчетов.
+   - Возвращает результат в формате JSON с преобразованием чисел в `float` для удобства.
+
+#### Пример ответа API:
+```json
+[
+    {
+        "warehouse_id": 1,
+        "warehouse_name": "Main склад",
+        "total_volume": 10.0,
+        "structural_volume": 2.0,
+        "used_capacity": 1.3,
+        "free_capacity": 6.7,
+        "used_percent": 33.0
+    },
+    ...
+]
+```
+
+---
+
+### Итог:
+Этот альтернативный метод:
+- Устраняет зависимость от предположений о суммарном объеме зон.
+- Учитывает физическое пространство и текущую загрузку.
+- Требует минимальных изменений в БД (добавление `total_capacity`).
+- Подходит для сложных складов с явной структурой.
+
+Если нужно что-то уточнить или адаптировать под конкретный случай, дайте знать!

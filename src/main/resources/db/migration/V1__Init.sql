@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS t_invites
     expiration      TIMESTAMP           NOT NULL,
     user_id         BIGINT              NOT NULL,
     PRIMARY KEY(id),
-    FOREIGN KEY (user_id) REFERENCES t_users (id) ON DELETE SET NULL -- Убираем CASCADE
+    FOREIGN KEY (user_id) REFERENCES t_users (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS t_exception_log

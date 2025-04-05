@@ -29,4 +29,7 @@ public interface WarehouseZoneRepository extends JpaRepository<WarehouseZone, Lo
             "LEFT JOIN Warehouse w ON w.id = wz.warehouse.id " +
             "GROUP BY wz.id, wz.name, wz.canStoreItems, wz.length, wz.width, wz.height, w.id, w.name")
     List<Object[]> getZoneCapacitiesAndUsedVolumes();
+
+    List<WarehouseZone> findAllByCanStoreItemsTrue();
+
 }

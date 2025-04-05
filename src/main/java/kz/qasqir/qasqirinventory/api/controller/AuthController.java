@@ -26,7 +26,6 @@ public class AuthController {
     )
     @PostMapping("/sign-in")
     public ResponseEntity<MessageResponse<?>> login(@RequestBody LoginRequest loginRequest) {
-//        return MessageResponse.of(authenticationService.login(registerRequest.getUserName(), registerRequest.getPassword()));
         Session session = authenticationService.login(loginRequest.getUserEmail(), loginRequest.getPassword());
         String token = session.getToken();
         return ResponseEntity.ok().header("auth-token", token).body(MessageResponse.empty("Успешный вход!!!"));
