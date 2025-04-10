@@ -44,5 +44,12 @@ public class Inventory {
         this.quantity = quantity;
         this.warehouseZone = warehouseZone;
     }
+
+    public Inventory(Nomenclature nomenclature, BigDecimal zero, WarehouseZone warehouseZone, WarehouseContainer container) {
+        this.nomenclature = nomenclature;
+        this.quantity = zero;
+        this.warehouseZone = warehouseZone;
+        this.warehouseContainer = container;
+    }
 }
 

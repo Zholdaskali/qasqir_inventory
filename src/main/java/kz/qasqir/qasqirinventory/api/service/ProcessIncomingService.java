@@ -44,11 +44,14 @@ public class ProcessIncomingService {
             BigDecimal requiredVolume = capacityControlService.calculateVolume(nomenclature, item.getQuantity());
 
             if (container != null) {
+                // Проверяем и резервируем емкость контейнера с учетом габаритов и объема
                 capacityControlService.reserveContainerCapacity(container, nomenclature, item.getQuantity());
             } else {
+                // Резервируем емкость зоны, если контейнер не указан
                 capacityControlService.reserveZoneCapacity(warehouseZone, requiredVolume);
             }
 
+            // Поиск или создание записи инвентаря
             Inventory inventory = inventoryRepository.findByNomenclatureIdAndWarehouseZoneIdAndWarehouseContainerId(
                             nomenclature.getId(), warehouseZone.getId(), item.getContainerId())
                     .orElseGet(() -> {
@@ -60,8 +63,10 @@ public class ProcessIncomingService {
                         return newInventory;
                     });
 
+            // Обновляем количество в инвентаре
             capacityControlService.updateInventory(inventory, inventory.getQuantity().add(item.getQuantity()));
 
+            // Добавляем транзакцию
             transactionService.addTransaction("INCOMING", document, nomenclature, item.getQuantity(), document.getDocumentDate(), userService.getByUserId(document.getCreatedBy()));
         }
     }

@@ -56,6 +56,7 @@ public class WarehouseZoneService {
     public List<WarehouseZoneDTO> getAllWarehouseZoneByWarehouseId(Long warehouseId) {
         return warehouseZoneRepository.findAllByWarehouseId(warehouseId)
                 .stream()
+                .filter(warehouseZone -> Boolean.TRUE.equals(warehouseZone.getCanStoreItems()))
                 .map(warehouseZoneMapper::toDto)
                 .collect(Collectors.toList());
     }

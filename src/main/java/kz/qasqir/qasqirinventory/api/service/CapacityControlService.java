@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +33,13 @@ public class CapacityControlService {
         } else {
             throw new DocumentException("У номенклатуры отсутствуют данные об объеме или габаритах");
         }
+    }
+
+    public BigDecimal getContainerOccupiedVolume(WarehouseContainer container) {
+        List<Inventory> inventories = inventoryRepository.findByWarehouseContainerId(container.getId());
+        return inventories.stream()
+                .map(inv -> calculateVolume(inv.getNomenclature(), inv.getQuantity()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public void reserveZoneCapacity(WarehouseZone zone, BigDecimal requiredVolume) {

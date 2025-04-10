@@ -76,7 +76,7 @@ public class NomenclatureService {
         }
     }
 
-    public String updateNomenclature(Long id, NomenclatureRequest nomenclatureRequest) {
+    public String updateNomenclature(Long userId, NomenclatureRequest nomenclatureRequest) {
         try {
             Nomenclature nomenclature = nomenclatureRepository.findById(id)
                     .orElseThrow(() -> new NomenclatureException("Номенклатура не найдена"));

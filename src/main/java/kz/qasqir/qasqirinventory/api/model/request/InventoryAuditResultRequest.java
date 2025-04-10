@@ -12,5 +12,6 @@ import java.math.BigDecimal;
 public class InventoryAuditResultRequest {
     private Long nomenclatureId;
     private Long warehouseZoneId;
+    private Long containerId;
     private BigDecimal actualQuantity;
 }

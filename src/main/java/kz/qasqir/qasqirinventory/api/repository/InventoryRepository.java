@@ -31,6 +31,9 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     @Query("SELECT i.nomenclature.id, i.nomenclature.name, i.quantity " +
             "FROM Inventory i " +
             "WHERE i.quantity < :threshold")
-    List<Object[]> findLowStockItems(@Param("threshold") BigDecimal threshold);}
+    List<Object[]> findLowStockItems(@Param("threshold") BigDecimal threshold);
+
+    List<Inventory> findByWarehouseContainerId(@Param("id") Long id);
+}
 
 
