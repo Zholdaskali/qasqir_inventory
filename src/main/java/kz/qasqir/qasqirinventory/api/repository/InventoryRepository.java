@@ -34,6 +34,8 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     List<Object[]> findLowStockItems(@Param("threshold") BigDecimal threshold);
 
     List<Inventory> findByWarehouseContainerId(@Param("id") Long id);
+
+    boolean existsByWarehouseZoneId(Long id);
 }
 
 

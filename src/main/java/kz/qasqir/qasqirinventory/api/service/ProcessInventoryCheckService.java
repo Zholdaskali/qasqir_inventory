@@ -47,7 +47,7 @@ public class ProcessInventoryCheckService {
     @Transactional(rollbackOn = Exception.class)
     public String processInventoryCheck(Long auditId, List<InventoryAuditResultRequest> results) {
         try {
-            // Валидация входных данных
+
             if (auditId == null) {
                 throw new RuntimeException("ID инвентаризации не может быть пустым");
             }
@@ -62,7 +62,7 @@ public class ProcessInventoryCheckService {
                 throw new RuntimeException("Инвентаризация уже завершена или не начата");
             }
 
-            long count = 0L;
+            long count = 0L + inventoryAuditResultRepository.findByAuditId(auditId).size();
             for (InventoryAuditResultRequest result : results) {
                 validateAuditResultRequest(result);
 
@@ -78,7 +78,6 @@ public class ProcessInventoryCheckService {
                 Inventory inventory = inventoryRepository.findByNomenclatureIdAndWarehouseZoneIdAndWarehouseContainerId(
                                 nomenclature.getId(), warehouseZone.getId(), result.getContainerId())
                         .orElse(new Inventory(nomenclature, BigDecimal.ZERO, warehouseZone, container));
-
                 BigDecimal expectedQuantity = inventory.getQuantity();
                 BigDecimal actualQuantity = result.getActualQuantity();
                 BigDecimal discrepancy = actualQuantity.subtract(expectedQuantity);
@@ -90,7 +89,6 @@ public class ProcessInventoryCheckService {
                     BigDecimal totalContainerCapacity = container.getCapacity();
                     BigDecimal availableCapacity = totalContainerCapacity.subtract(currentOccupiedVolume);
 
-                    // Calculate the net volume change
                     BigDecimal currentItemVolume = capacityControlService.calculateVolume(nomenclature, expectedQuantity);
                     BigDecimal netVolumeChange = requiredVolume.subtract(currentItemVolume);
 
@@ -101,7 +99,6 @@ public class ProcessInventoryCheckService {
                                 ". Доступно: " + availableCapacity + ", требуется: " + netVolumeChange);
                     }
 
-                    // Update container capacity
                     if (discrepancy.compareTo(BigDecimal.ZERO) > 0) {
                         capacityControlService.reserveContainerCapacity(container, nomenclature, discrepancy);
                     } else if (discrepancy.compareTo(BigDecimal.ZERO) < 0) {
@@ -109,7 +106,7 @@ public class ProcessInventoryCheckService {
                         capacityControlService.freeContainerCapacity(container, freedVolume);
                     }
                 } else {
-                    BigDecimal remainingZoneCapacity = warehouseZone.getCapacity();
+                    BigDecimal remainingZoneCapacity = BigDecimal.valueOf(warehouseZone.getHeight() * warehouseZone.getLength() * warehouseZone.getWidth());
                     if (remainingZoneCapacity.compareTo(requiredVolume) < 0) {
                         throw new RuntimeException("Недостаточно места в зоне " + warehouseZone.getName() + " для размещения " +
                                 actualQuantity + " единиц товара " + nomenclature.getName());
@@ -138,6 +135,7 @@ public class ProcessInventoryCheckService {
                 count++;
             }
 
+// Получаем зоны, пригодные для хранения
             WarehouseStructureDTO warehouseStructureDTO = warehouseService.getWarehouseDetails(audit.getWarehouse().getId());
             List<WarehouseZoneStructureDTO> zones = warehouseStructureDTO.getZones()
                     .stream()
@@ -145,13 +143,17 @@ public class ProcessInventoryCheckService {
                     .sorted(Comparator.comparing(WarehouseZoneStructureDTO::getName))
                     .collect(Collectors.toList());
 
-            long countZones = zones.size();
-            if (countZones == count) {
+// Считаем зоны, где есть товары
+            long countZonesWithItems = zones.stream()
+                    .filter(zone -> inventoryRepository.existsByWarehouseZoneId(zone.getId()))
+                    .count();
+
+            if (countZonesWithItems == count) {
                 audit.setStatus("COMPLETED");
                 inventoryAuditRepository.save(audit);
                 return "Инвентаризация успешно завершена!!!";
             } else {
-                return "Inventory processed partially: processed " + count + " out of " + countZones + " zones";
+                return "Инвентаризация обработана частично: " + count + " из " + countZonesWithItems + " зон с товарами";
             }
         } catch (Exception e) {
             throw e;
@@ -160,10 +162,10 @@ public class ProcessInventoryCheckService {
 
     private void validateAuditResultRequest(InventoryAuditResultRequest result) {
         if (result.getNomenclatureId() == null || result.getWarehouseZoneId() == null || result.getActualQuantity() == null) {
-            throw new RuntimeException("Invalid inventory audit result data: all fields must be filled");
+            throw new RuntimeException("Неверные данные о результатах инвентаризационного аудита: все поля должны быть заполнены");
         }
         if (result.getActualQuantity().compareTo(BigDecimal.ZERO) < 0) {
-            throw new RuntimeException("Actual quantity cannot be negative");
+            throw new RuntimeException("Фактическое количество не может быть отрицательным");
         }
     }
 }
