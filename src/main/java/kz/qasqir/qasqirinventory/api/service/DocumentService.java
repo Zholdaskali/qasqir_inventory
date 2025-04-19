@@ -34,9 +34,14 @@ public class DocumentService {
     private final TransactionService transactionService;
 
     @Transactional(rollbackOn = Exception.class)
-    protected Document createDocument(String documentType, String documentNumber, Long supplierId, Long customerId, Long createdBy) {
+    public Document createDocument(String documentType, String documentNumber, Long supplierId, Long customerId, Long createdBy) {
 
-            if ("TRANSFER".equals(documentType) || "WRITE-OFF".equals(documentType) || "PRODUCTION".equals(documentType) || "RETURN".equals(documentType)) {
+            if ("TRANSFER".equals(documentType)
+                    || "WRITE-OFF".equals(documentType)
+                    || "PRODUCTION".equals(documentType)
+                    || "RETURN".equals(documentType)
+                    || "1C-SALES".equals(documentType)
+            ) {
             Document transferDocument = new Document();
             transferDocument.setDocumentType(documentType);
             transferDocument.setDocumentNumber(documentNumber);
@@ -192,7 +197,7 @@ public class DocumentService {
                 .collect(Collectors.toList());
     }
 
-    protected DocumentDTO convertToDto(Document document) {
+    public DocumentDTO convertToDto(Document document) {
         String supplierName = (document.getSupplier() != null) ? document.getSupplier().getName() : "Не имеется";
         String customerName = (document.getCustomer() != null) ? document.getCustomer().getName() : "Не имеется";
 

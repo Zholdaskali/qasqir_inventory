@@ -36,6 +36,8 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     List<Inventory> findByWarehouseContainerId(@Param("id") Long id);
 
     boolean existsByWarehouseZoneId(Long id);
+
+    List<Inventory> findByNomenclatureCode(String nomenclatureCode);
 }
 
 

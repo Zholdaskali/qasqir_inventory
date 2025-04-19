@@ -1,7 +1,6 @@
-package kz.qasqir.qasqirinventory.api.service;
+package kz.qasqir.qasqirinventory.api.service.mainprocessservice;
 
 import jakarta.transaction.Transactional;
-import kz.qasqir.qasqirinventory.api.exception.EmailIsAlreadyRegisteredException;
 import kz.qasqir.qasqirinventory.api.model.dto.InventoryAuditDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.WarehouseStructureDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.WarehouseZoneStructureDTO;
@@ -10,6 +9,7 @@ import kz.qasqir.qasqirinventory.api.model.request.InventoryAuditResultRequest;
 import kz.qasqir.qasqirinventory.api.repository.InventoryAuditRepository;
 import kz.qasqir.qasqirinventory.api.repository.InventoryAuditResultRepository;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
+import kz.qasqir.qasqirinventory.api.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

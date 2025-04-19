@@ -68,6 +68,7 @@ userRoles:
   warehouse_manager: warehouse_manager
   storekeeper: storekeeper
   employee: employee
+  oneC: one_c
 
 api:
   path:
@@ -75,6 +76,7 @@ api:
     warehouse_manager: /api/v1/warehouse-manager
     storekeeper: /api/v1/storekeeper
     employee: /api/v1/employee
+    oneC: /api/v1/1C
 
 # Ссылка для приглашений и восстановления пароля
 invite:

@@ -1,4 +1,4 @@
-package kz.qasqir.qasqirinventory.api.service;
+package kz.qasqir.qasqirinventory.api.service.mainprocessservice;
 
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.DocumentException;
@@ -6,6 +6,7 @@ import kz.qasqir.qasqirinventory.api.model.entity.*;
 import kz.qasqir.qasqirinventory.api.model.request.DocumentRequest;
 import kz.qasqir.qasqirinventory.api.model.request.ItemRequest;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
+import kz.qasqir.qasqirinventory.api.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

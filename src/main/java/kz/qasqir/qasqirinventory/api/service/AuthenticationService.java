@@ -22,7 +22,7 @@ public class AuthenticationService {
     private final InviteService inviteService;
     private final LoginLogService loginLogService;
     private final InviteMailService inviteMailService;
-    private final ValidateDataService validateDataService;
+    private final ValidateUserDataService validateUserDataService;
 
     @Value("${invite.link}")
     private String INVITE_LINK;
@@ -44,7 +44,7 @@ public class AuthenticationService {
                                  InviteService inviteService,
                                  LoginLogService loginLogService,
                                  InviteMailService inviteMailService,
-                                 ValidateDataService validateDataService)
+                                 ValidateUserDataService validateUserDataService)
     {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
@@ -53,14 +53,14 @@ public class AuthenticationService {
         this.inviteService = inviteService;
         this.loginLogService = loginLogService;
         this.inviteMailService = inviteMailService;
-        this.validateDataService = validateDataService;
+        this.validateUserDataService = validateUserDataService;
     }
 
     @Transactional
     public String registerInvite(RegisterInviteRequest registerInviteRequest) {
         try {
-            validateDataService.ensureEmailIsUnique(registerInviteRequest.getEmail());
-            validateDataService.ensurePhoneNumberIsUnique(registerInviteRequest.getUserNumber());
+            validateUserDataService.ensureEmailIsUnique(registerInviteRequest.getEmail());
+            validateUserDataService.ensurePhoneNumberIsUnique(registerInviteRequest.getUserNumber());
             User savedUser = createUser(registerInviteRequest.getUserName(), registerInviteRequest.getEmail(), registerInviteRequest.getUserNumber(), registerInviteRequest.getPassword());
             userService.saveUser(savedUser);
             List<Long> userRoles = registerInviteRequest.getUserRoles();
@@ -84,7 +84,7 @@ public class AuthenticationService {
     public Session login(String email, String password) {
         try {
             User user = userService.getByUserEmail(email);
-            validateDataService.validatePassword(password, user.getPassword());
+            validateUserDataService.validatePassword(password, user.getPassword());
 
             loginLogService.save(user.getId());
             sessionService.manageCountSession(user.getId());

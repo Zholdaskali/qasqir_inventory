@@ -1,4 +1,4 @@
-package kz.qasqir.qasqirinventory.api.service;
+package kz.qasqir.qasqirinventory.api.service.mainprocessservice;
 
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.DocumentException;
@@ -7,11 +7,11 @@ import kz.qasqir.qasqirinventory.api.model.entity.*;
 import kz.qasqir.qasqirinventory.api.model.request.ReturnRequest;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
 import kz.qasqir.qasqirinventory.api.repository.ReturnRepository;
+import kz.qasqir.qasqirinventory.api.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor

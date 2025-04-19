@@ -1,4 +1,4 @@
-package kz.qasqir.qasqirinventory.api.service;
+package kz.qasqir.qasqirinventory.api.service.mainprocessservice;
 
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.NomenclatureException;
@@ -6,11 +6,12 @@ import kz.qasqir.qasqirinventory.api.model.entity.Inventory;
 import kz.qasqir.qasqirinventory.api.model.entity.Ticket;
 import kz.qasqir.qasqirinventory.api.model.entity.WarehouseZone;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
+import kz.qasqir.qasqirinventory.api.service.CapacityControlService;
+import kz.qasqir.qasqirinventory.api.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor

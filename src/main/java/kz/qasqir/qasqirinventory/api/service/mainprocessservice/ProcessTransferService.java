@@ -1,4 +1,4 @@
-package kz.qasqir.qasqirinventory.api.service;
+package kz.qasqir.qasqirinventory.api.service.mainprocessservice;
 
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.InsufficientStockException;
@@ -9,6 +9,7 @@ import kz.qasqir.qasqirinventory.api.model.entity.WarehouseZone;
 import kz.qasqir.qasqirinventory.api.model.request.TransferItemsRequest;
 import kz.qasqir.qasqirinventory.api.model.request.TransferRequest;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
+import kz.qasqir.qasqirinventory.api.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

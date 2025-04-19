@@ -37,7 +37,6 @@ public class AuthInterceptor implements HandlerInterceptor {
         this.sessionService = sessionService;
     }
 
-
     //roles
     @Value("${userRoles.warehouse_manager}")
     private String ROLE_WAREHOUSE_MANAGER;
@@ -50,6 +49,9 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     @Value("${userRoles.storekeeper}")
     private String ROLE_STOREKEEPER;
+
+    @Value("${userRoles.oneC}")
+    private String ROLE_1C;
 
 
     //api
@@ -65,6 +67,8 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Value("${api.path.storekeeper}")
     private String PATH_STOREKEEPER_API;
 
+    @Value("${api.path.oneC}")
+    private String PATH_1C_API;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -121,6 +125,9 @@ public class AuthInterceptor implements HandlerInterceptor {
         if (PATH_STOREKEEPER_API != null && ROLE_STOREKEEPER != null) {
             rolePathMap.put(PATH_STOREKEEPER_API, ROLE_STOREKEEPER);
         }
+        if (PATH_1C_API != null && ROLE_1C != null) {
+            rolePathMap.put(PATH_1C_API, ROLE_1C);
+        }
 
         System.out.println("Initialized rolePathMap: " + rolePathMap);
     }
@@ -131,8 +138,9 @@ public class AuthInterceptor implements HandlerInterceptor {
         if (!requestPath.startsWith(PATH_WAREHOUSE_MANAGER_API)
                 && !requestPath.startsWith(PATH_ADMIN_API)
                 && !requestPath.startsWith(PATH_EMPLOYEE_API)
-                && !requestPath.startsWith(PATH_STOREKEEPER_API)) {
-            return true;  // Пропускаем проверку и разрешаем доступ
+                && !requestPath.startsWith(PATH_STOREKEEPER_API)
+                && !requestPath.startsWith(PATH_1C_API)) {
+            return true;
         }
 
         // Проверяем доступ для различных путей
@@ -155,6 +163,11 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         // Проверка для пути storekeeper
         if (requestPath.startsWith(PATH_STOREKEEPER_API) && roleNames.contains(ROLE_STOREKEEPER)) {
+            return true;
+        }
+
+        // Проверка для пути 1C
+        if (requestPath.startsWith(PATH_1C_API) && roleNames.contains(ROLE_1C)) {
             return true;
         }
 

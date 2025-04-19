@@ -1,15 +1,13 @@
-package kz.qasqir.qasqirinventory.api.service;
+package kz.qasqir.qasqirinventory.api.service.mainprocessservice;
 
 import kz.qasqir.qasqirinventory.api.model.dto.InventoryAuditDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.InventoryAuditResultDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.InventoryAudit;
-import kz.qasqir.qasqirinventory.api.model.entity.InventoryAuditResult;
 import kz.qasqir.qasqirinventory.api.repository.InventoryAuditRepository;
 import kz.qasqir.qasqirinventory.api.repository.InventoryAuditResultRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;

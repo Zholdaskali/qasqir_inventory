@@ -41,7 +41,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
                         "/api/v1/warehouse-manager/**",
                         "/api/v1/admin/**",
                         "/api/v1/user/profile/**",
-                        "/api/v1/storekeeper/**"
+                        "/api/v1/storekeeper/**",
+                        "/api/v1/1C"
                 )
                 .excludePathPatterns(COMMON_EXCLUDE_PATTERNS)
                 .excludePathPatterns("**/log/**");

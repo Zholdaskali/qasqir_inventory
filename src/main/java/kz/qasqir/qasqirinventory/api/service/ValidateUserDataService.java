@@ -13,12 +13,12 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 @Service
-public class ValidateDataService {
+public class ValidateUserDataService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public ValidateDataService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public ValidateUserDataService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }

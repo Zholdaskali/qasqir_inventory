@@ -1,4 +1,4 @@
-package kz.qasqir.qasqirinventory.api.service;
+package kz.qasqir.qasqirinventory.api.service.mainprocessservice;
 
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.mapper.InventoryMapper;
@@ -8,14 +8,13 @@ import kz.qasqir.qasqirinventory.api.model.dto.TicketDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.Document;
 import kz.qasqir.qasqirinventory.api.model.request.BatchTicketRequest;
 import kz.qasqir.qasqirinventory.api.model.request.BatchProcessRequest;
-import kz.qasqir.qasqirinventory.api.model.request.TicketRequest;
 import kz.qasqir.qasqirinventory.api.model.entity.Ticket;
 import kz.qasqir.qasqirinventory.api.repository.TicketRepository;
+import kz.qasqir.qasqirinventory.api.service.DocumentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;

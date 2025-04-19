@@ -5,6 +5,7 @@ import kz.qasqir.qasqirinventory.api.mapper.WarehouseZoneMapper;
 import kz.qasqir.qasqirinventory.api.model.dto.*;
 import kz.qasqir.qasqirinventory.api.model.entity.*;
 import kz.qasqir.qasqirinventory.api.model.request.InventoryRequest;
+import kz.qasqir.qasqirinventory.api.model.request.OneC.OneCWriteOffItemRequest;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -149,17 +150,8 @@ public class InventoryService {
         inventory.getNomenclature().getCode(), inventory.getQuantity(), warehouseZoneDTO, warehouseContainerDTO);
     }
 
-
-//    public class InventoryItemDTO {
-//        private Long id;
-//        private Long nomenclatureId;
-//        private String nomenclatureName;
-//        private String measurementUnit;
-//        private String code;
-//        private BigDecimal quantity;
-//        private WarehouseZoneDTO warehouseZone;
-//        private Long containerId;
-//        private String containerName;
-//    }
+    public List<Inventory> getInventoryByNomenclatureCodeAndQuantity(String nomenclatureCode) {
+        return inventoryRepository.findByNomenclatureCode(nomenclatureCode);
+    }
 }
 

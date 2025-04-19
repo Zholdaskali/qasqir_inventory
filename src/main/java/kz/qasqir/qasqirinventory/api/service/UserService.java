@@ -20,15 +20,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleService roleService;
     private final ImageService imageService;
-    private final ValidateDataService validateDataService;
+    private final ValidateUserDataService validateUserDataService;
 
     @Autowired
-    public UserService(UserRepository userRepository, RoleService roleService, ImageService imageService, ValidateDataService validateDataService)
+    public UserService(UserRepository userRepository, RoleService roleService, ImageService imageService, ValidateUserDataService validateUserDataService)
     {
         this.userRepository = userRepository;
         this.roleService = roleService;
         this.imageService = imageService;
-        this.validateDataService = validateDataService;
+        this.validateUserDataService = validateUserDataService;
     }
 
     @Transactional
@@ -66,10 +66,10 @@ public class UserService {
 
         updateUser.setUserName(updateUserRequest.getUserName());
 
-        validateDataService.validateUserEmail(updateUserRequest.getUserEmail(), userId);
+        validateUserDataService.validateUserEmail(updateUserRequest.getUserEmail(), userId);
         updateUser.setEmail(updateUserRequest.getUserEmail());
 
-        validateDataService.validateUserPhoneNumber(updateUserRequest.getUserNumber(), userId);
+        validateUserDataService.validateUserPhoneNumber(updateUserRequest.getUserNumber(), userId);
         updateUser.setPhoneNumber(updateUserRequest.getUserNumber());
 
         userRepository.save(updateUser);

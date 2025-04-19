@@ -1,4 +1,4 @@
-package kz.qasqir.qasqirinventory.api.service;
+package kz.qasqir.qasqirinventory.api.service.mainprocessservice;
 
 import kz.qasqir.qasqirinventory.api.model.dto.InventoryAuditResultDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.InventoryAuditResult;
