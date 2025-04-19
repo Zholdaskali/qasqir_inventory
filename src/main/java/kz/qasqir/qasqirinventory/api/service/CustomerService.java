@@ -27,7 +27,7 @@ public class CustomerService {
         return customerRepository.findAll().stream().map(customerMapper::toDto).toList();
     }
 
-    public CustomerDTO saveCustomer(CustomerRequest customerRequest) {
+    public CustomerDTO addCustomer(CustomerRequest customerRequest) {
         try {
             Customer customer = new Customer();
             customer.setName(customerRequest.getName());

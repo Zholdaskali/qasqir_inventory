@@ -38,14 +38,14 @@ public class InterceptorConfig implements WebMvcConfigurer {
         registry.addInterceptor(actionLogInterceptor)
                 .order(3)
                 .addPathPatterns(
-                        "/api/v1/warehouse-manager/**",  // Логируем действия с номенклатурами, складами и т.д.
-                        "/api/v1/admin/**",             // Логируем действия администратора
-                        "/api/v1/user/profile/**",      // Логируем изменения профиля пользователя
-                        "/api/v1/storekeeper/**"        // Логируем действия кладовщика
+                        "/api/v1/warehouse-manager/**",
+                        "/api/v1/admin/**",
+                        "/api/v1/user/profile/**",
+                        "/api/v1/storekeeper/**"
                 )
-                .excludePathPatterns(COMMON_EXCLUDE_PATTERNS); // Исключаем общие пути, если они попадают в паттерны
+                .excludePathPatterns(COMMON_EXCLUDE_PATTERNS)
+                .excludePathPatterns("**/log/**");
 
-        // Остальные интерцепторы без изменений
         registry.addInterceptor(inviteInterceptor)
                 .order(4)
                 .addPathPatterns("/api/v1/user/password/reset-invite");

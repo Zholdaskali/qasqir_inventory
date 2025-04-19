@@ -1,15 +1,20 @@
 package kz.qasqir.qasqirinventory.api.service;
 
+import kz.qasqir.qasqirinventory.api.exception.CustomerException;
 import kz.qasqir.qasqirinventory.api.exception.SupplierException;
 import kz.qasqir.qasqirinventory.api.mapper.SupplierMapper;
+import kz.qasqir.qasqirinventory.api.model.dto.CustomerDTO;
 import kz.qasqir.qasqirinventory.api.model.dto.SupplierDTO;
+import kz.qasqir.qasqirinventory.api.model.entity.Customer;
 import kz.qasqir.qasqirinventory.api.model.entity.Supplier;
+import kz.qasqir.qasqirinventory.api.model.request.CustomerRequest;
 import kz.qasqir.qasqirinventory.api.model.request.SupplierRequest;
 import kz.qasqir.qasqirinventory.api.repository.SupplierRepository;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -57,7 +62,7 @@ public class SupplierService {
         try {
             Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(() -> new SupplierException("Поставщик не найден"));
             supplier.setName(supplierRequest.getName());
-            supplier.setUpdatedAt(Timestamp.from(Instant.now()).toLocalDateTime());
+            supplier.setUpdatedAt(LocalDateTime.now());
             supplier.setContactInfo(supplierRequest.getContactInfo());
             supplierRepository.save(supplier);
             return supplierMapper.toDto(supplier);

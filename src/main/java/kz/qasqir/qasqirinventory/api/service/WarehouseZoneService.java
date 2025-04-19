@@ -124,30 +124,8 @@ public class WarehouseZoneService {
             WarehouseZone warehouseZone = warehouseZoneRepository.findById(warehouseZoneRequest.getId())
                     .orElseThrow(() -> new WarehouseZoneException("Зона склада не найдена с id: " + warehouseZoneRequest.getId()));
 
-            // Вычисляем старую и новую емкость для обновления родительской зоны
-            BigDecimal oldVolume = BigDecimal.valueOf(
-                    warehouseZone.getHeight() * warehouseZone.getWidth() * warehouseZone.getLength()
-            );
-            BigDecimal newVolume = BigDecimal.valueOf(
-                    warehouseZoneRequest.getHeight() * warehouseZoneRequest.getWidth() * warehouseZoneRequest.getLength()
-            );
-
-            WarehouseZone parentZone = warehouseZone.getParent();
-            if (parentZone != null) {
-                // Освобождаем старый объем и резервируем новый
-                capacityControlService.freeZoneCapacity(parentZone, oldVolume);
-                if (warehouseZoneRequest.getWidth() > parentZone.getWidth() ||
-                        warehouseZoneRequest.getLength() > parentZone.getLength() ||
-                        warehouseZoneRequest.getHeight() > parentZone.getHeight()) {
-                    throw new RuntimeException("Размеры дочерней зоны превышают размеры родительской зоны");
-                }
-                capacityControlService.reserveZoneCapacity(parentZone, newVolume);
-            }
-
             updateBasicInfo(warehouseZone, warehouseZoneRequest, userId);
             updateRelations(warehouseZone, warehouseZoneRequest, warehouseId);
-
-            warehouseZone.setCapacity(newVolume); // Обновляем емкость зоны
             warehouseZoneRepository.save(warehouseZone);
 
             return warehouseZoneMapper.toDto(warehouseZone);
@@ -159,9 +137,6 @@ public class WarehouseZoneService {
     private void updateBasicInfo(WarehouseZone zone, WarehouseZoneRequest request, Long userId) {
         zone.setName(request.getName());
         zone.setUpdatedBy(userId);
-        zone.setLength(request.getLength());
-        zone.setWidth(request.getWidth());
-        zone.setHeight(request.getHeight());
         zone.setUpdatedAt(Timestamp.from(Instant.now()).toLocalDateTime());
     }
 

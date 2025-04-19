@@ -38,12 +38,12 @@ public class PartnerController {
     }
 
     @PostMapping("/customers")
-    public MessageResponse<CustomerDTO> saveCustomer(@RequestBody CustomerRequest customerRequest) {
-        return MessageResponse.of(customerService.saveCustomer(customerRequest));
+    public MessageResponse<CustomerDTO> addCustomer(@RequestBody CustomerRequest customerRequest) {
+        return MessageResponse.of(customerService.addCustomer(customerRequest));
     }
 
     @PutMapping("/customers/{customerId}")
-    public MessageResponse<CustomerDTO> updateCustomer(@RequestBody CustomerRequest customerRequest, Long customerId) {
+    public MessageResponse<CustomerDTO> updateCustomer(@RequestBody CustomerRequest customerRequest, @PathVariable Long customerId) {
         return MessageResponse.of(customerService.updateCustomer(customerRequest, customerId));
     }
 
