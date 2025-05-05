@@ -9,7 +9,7 @@ import kz.qasqir.qasqirinventory.api.model.entity.WarehouseZone;
 import kz.qasqir.qasqirinventory.api.model.request.TransferItemsRequest;
 import kz.qasqir.qasqirinventory.api.model.request.TransferRequest;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
-import kz.qasqir.qasqirinventory.api.service.*;
+import kz.qasqir.qasqirinventory.api.service.defaultservice.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

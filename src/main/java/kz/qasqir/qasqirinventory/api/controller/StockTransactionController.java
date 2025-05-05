@@ -6,7 +6,7 @@ import kz.qasqir.qasqirinventory.api.model.request.BatchCompleteRequest;
 import kz.qasqir.qasqirinventory.api.model.request.BatchProcessRequest;
 import kz.qasqir.qasqirinventory.api.model.request.InventoryRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.service.InventoryService;
+import kz.qasqir.qasqirinventory.api.service.defaultservice.InventoryService;
 import kz.qasqir.qasqirinventory.api.service.mainprocessservice.TicketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

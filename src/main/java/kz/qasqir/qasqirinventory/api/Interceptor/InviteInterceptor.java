@@ -2,7 +2,7 @@ package kz.qasqir.qasqirinventory.api.Interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import kz.qasqir.qasqirinventory.api.service.InviteService;
+import kz.qasqir.qasqirinventory.api.service.defaultservice.InviteService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 

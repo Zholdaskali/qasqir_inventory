@@ -1,4 +1,0 @@
-ALTER TABLE t_warehouse_containers
-ADD COLUMN width DECIMAL(20,10),
-ADD COLUMN height DECIMAL(20,10),
-ADD COLUMN length DECIMAL(20,10);

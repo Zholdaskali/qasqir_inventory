@@ -8,7 +8,7 @@ import kz.qasqir.qasqirinventory.api.model.request.*;
 import kz.qasqir.qasqirinventory.api.model.dto.UserDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.service.*;
+import kz.qasqir.qasqirinventory.api.service.defaultservice.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;

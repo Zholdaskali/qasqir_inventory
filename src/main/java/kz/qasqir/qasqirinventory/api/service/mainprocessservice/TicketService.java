@@ -10,7 +10,7 @@ import kz.qasqir.qasqirinventory.api.model.request.BatchTicketRequest;
 import kz.qasqir.qasqirinventory.api.model.request.BatchProcessRequest;
 import kz.qasqir.qasqirinventory.api.model.entity.Ticket;
 import kz.qasqir.qasqirinventory.api.repository.TicketRepository;
-import kz.qasqir.qasqirinventory.api.service.DocumentService;
+import kz.qasqir.qasqirinventory.api.service.defaultservice.DocumentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

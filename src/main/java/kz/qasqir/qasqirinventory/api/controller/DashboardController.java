@@ -2,7 +2,7 @@ package kz.qasqir.qasqirinventory.api.controller;
 
 import kz.qasqir.qasqirinventory.api.model.dto.DashboardDTO;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.service.DashboardService;
+import kz.qasqir.qasqirinventory.api.service.defaultservice.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.format.annotation.DateTimeFormat;

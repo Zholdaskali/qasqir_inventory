@@ -5,11 +5,9 @@ import kz.qasqir.qasqirinventory.api.model.dto.SupplierDTO;
 import kz.qasqir.qasqirinventory.api.model.request.CustomerRequest;
 import kz.qasqir.qasqirinventory.api.model.request.SupplierRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.service.CustomerService;
-import kz.qasqir.qasqirinventory.api.service.SupplierService;
+import kz.qasqir.qasqirinventory.api.service.defaultservice.CustomerService;
+import kz.qasqir.qasqirinventory.api.service.defaultservice.SupplierService;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/warehouse-manager")

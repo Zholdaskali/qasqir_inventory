@@ -6,7 +6,7 @@ import kz.qasqir.qasqirinventory.api.model.entity.*;
 import kz.qasqir.qasqirinventory.api.model.request.DocumentRequest;
 import kz.qasqir.qasqirinventory.api.model.request.ItemRequest;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
-import kz.qasqir.qasqirinventory.api.service.*;
+import kz.qasqir.qasqirinventory.api.service.defaultservice.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -26,5 +26,6 @@ public class NomenclatureDTO {
     private Double height;
     private Double volume;
     private Double length;
+    private LocalDateTime syncDate;
 }
 

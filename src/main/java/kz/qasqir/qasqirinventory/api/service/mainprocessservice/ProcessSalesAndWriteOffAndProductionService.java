@@ -6,8 +6,8 @@ import kz.qasqir.qasqirinventory.api.model.entity.Inventory;
 import kz.qasqir.qasqirinventory.api.model.entity.Ticket;
 import kz.qasqir.qasqirinventory.api.model.entity.WarehouseZone;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
-import kz.qasqir.qasqirinventory.api.service.CapacityControlService;
-import kz.qasqir.qasqirinventory.api.service.TransactionService;
+import kz.qasqir.qasqirinventory.api.service.defaultservice.CapacityControlService;
+import kz.qasqir.qasqirinventory.api.service.defaultservice.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

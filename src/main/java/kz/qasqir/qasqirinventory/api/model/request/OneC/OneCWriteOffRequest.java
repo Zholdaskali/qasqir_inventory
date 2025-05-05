@@ -8,7 +8,6 @@ import java.util.List;
 public class OneCWriteOffRequest {
     private List<OneCWriteOffItemRequest> items;
     private String comment;
-    private Long createBy;
     private String documentNumber;
     private String type;
 }

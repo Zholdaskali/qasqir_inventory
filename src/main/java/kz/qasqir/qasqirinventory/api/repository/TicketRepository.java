@@ -36,4 +36,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
     );
+
+    List<Ticket> findAllByDocumentId(Long documentId);
 }

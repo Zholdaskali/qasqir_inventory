@@ -42,7 +42,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
                         "/api/v1/admin/**",
                         "/api/v1/user/profile/**",
                         "/api/v1/storekeeper/**",
-                        "/api/v1/1C"
+                        "/api/v1/1C/**"
                 )
                 .excludePathPatterns(COMMON_EXCLUDE_PATTERNS)
                 .excludePathPatterns("**/log/**");
@@ -63,9 +63,18 @@ public class InterceptorConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173") // или "*" для разрешения всех
+                .allowedOriginPatterns("http://localhost:5173", "http://192.168.1.*:5173", "http://172.16.80.*:5173") // Разрешить все IP в подсети 192.168.1.*
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .exposedHeaders("Auth-token", "auth-token")
                 .allowCredentials(true);
     }
+
+//    @Override
+//    public void addCorsMappings(CorsRegistry registry) {
+//        registry.addMapping("/**")
+//                .allowedOrigins("http://localhost:5173", "http://192.168.1.5:5173") // или "*" для разрешения всех
+//                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+//                .exposedHeaders("Auth-token", "auth-token")
+//                .allowCredentials(true);
+//    }
 }

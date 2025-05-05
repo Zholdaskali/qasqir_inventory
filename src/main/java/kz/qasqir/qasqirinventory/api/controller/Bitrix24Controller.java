@@ -1,7 +1,7 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
 import kz.qasqir.qasqirinventory.api.model.dto.UserDTO;
-import kz.qasqir.qasqirinventory.api.service.Bitrix24Service;
+import kz.qasqir.qasqirinventory.api.service.defaultservice.Bitrix24Service;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

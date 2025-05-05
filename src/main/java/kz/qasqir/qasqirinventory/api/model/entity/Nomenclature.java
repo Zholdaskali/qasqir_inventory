@@ -1,11 +1,15 @@
 package kz.qasqir.qasqirinventory.api.model.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "t_nomenclature")
+@Data
+@NoArgsConstructor
 public class Nomenclature {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,133 +60,34 @@ public class Nomenclature {
     @Column(name = "volume")
     private Double volume;
 
+    @Column(name = "sync_date")
+    private LocalDateTime syncDate;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
+    public Nomenclature(String name, String article,
+                        String code, String type,
+                        Category category, String measurementUnit,
+                        String tnvedCode, Long createdBy,
+                        Long updatedBy, LocalDateTime createdAt,
+                        LocalDateTime updatedAt, Double width,
+                        Double height, Double length,
+                        Double volume, LocalDateTime syncDate
+    ) {
         this.name = name;
-    }
-
-    public String getArticle() {
-        return article;
-    }
-
-    public void setArticle(String article) {
         this.article = article;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
         this.code = code;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
         this.type = type;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
         this.category = category;
-    }
-
-    public String getMeasurementUnit() {
-        return measurementUnit;
-    }
-
-    public void setMeasurementUnit(String measurementUnit) {
         this.measurementUnit = measurementUnit;
-    }
-
-    public String getTnvedCode() {
-        return tnvedCode;
-    }
-
-    public void setTnvedCode(String tnvedCode) {
         this.tnvedCode = tnvedCode;
-    }
-
-    public Long getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(Long createdBy) {
         this.createdBy = createdBy;
-    }
-
-    public Long getUpdatedBy() {
-        return updatedBy;
-    }
-
-    public void setUpdatedBy(Long updatedBy) {
         this.updatedBy = updatedBy;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public Double getWidth() {
-        return width;
-    }
-
-    public void setWidth(Double width) {
         this.width = width;
-    }
-
-    public Double getHeight() {
-        return height;
-    }
-
-    public void setHeight(Double height) {
         this.height = height;
-    }
-
-    public Double getLength() {
-        return length;
-    }
-
-    public void setLength(Double length) {
         this.length = length;
-    }
-
-    public Double getVolume() {
-        return volume;
-    }
-
-    public void setVolume(Double volume) {
         this.volume = volume;
+        this.syncDate = syncDate;
     }
 }
 

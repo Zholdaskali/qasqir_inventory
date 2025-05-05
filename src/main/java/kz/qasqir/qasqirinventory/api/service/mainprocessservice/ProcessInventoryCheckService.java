@@ -2,22 +2,18 @@ package kz.qasqir.qasqirinventory.api.service.mainprocessservice;
 
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.model.dto.InventoryAuditDTO;
-import kz.qasqir.qasqirinventory.api.model.dto.WarehouseStructureDTO;
-import kz.qasqir.qasqirinventory.api.model.dto.WarehouseZoneStructureDTO;
 import kz.qasqir.qasqirinventory.api.model.entity.*;
 import kz.qasqir.qasqirinventory.api.model.request.InventoryAuditResultRequest;
 import kz.qasqir.qasqirinventory.api.repository.InventoryAuditRepository;
 import kz.qasqir.qasqirinventory.api.repository.InventoryAuditResultRepository;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
-import kz.qasqir.qasqirinventory.api.service.*;
+import kz.qasqir.qasqirinventory.api.service.defaultservice.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +43,6 @@ public class ProcessInventoryCheckService {
     @Transactional(rollbackOn = Exception.class)
     public String processInventoryCheck(Long auditId, List<InventoryAuditResultRequest> results) {
         try {
-
             if (auditId == null) {
                 throw new RuntimeException("ID инвентаризации не может быть пустым");
             }
@@ -135,25 +130,15 @@ public class ProcessInventoryCheckService {
                 count++;
             }
 
-// Получаем зоны, пригодные для хранения
-            WarehouseStructureDTO warehouseStructureDTO = warehouseService.getWarehouseDetails(audit.getWarehouse().getId());
-            List<WarehouseZoneStructureDTO> zones = warehouseStructureDTO.getZones()
-                    .stream()
-                    .filter(zone -> zone.getCanStoreItems())
-                    .sorted(Comparator.comparing(WarehouseZoneStructureDTO::getName))
-                    .collect(Collectors.toList());
+            Long warehouseId = audit.getWarehouse().getId();
+            long totalInventoryCount = inventoryRepository.countByWarehouseZoneWarehouseId(warehouseId);
 
-// Считаем зоны, где есть товары
-            long countZonesWithItems = zones.stream()
-                    .filter(zone -> inventoryRepository.existsByWarehouseZoneId(zone.getId()))
-                    .count();
-
-            if (countZonesWithItems == count) {
+            if (totalInventoryCount == count) {
                 audit.setStatus("COMPLETED");
                 inventoryAuditRepository.save(audit);
                 return "Инвентаризация успешно завершена!!!";
             } else {
-                return "Инвентаризация обработана частично: " + count + " из " + countZonesWithItems + " зон с товарами";
+                return "Инвентаризация обработана частично: " + count + " из " + totalInventoryCount + " инвентарей";
             }
         } catch (Exception e) {
             throw e;

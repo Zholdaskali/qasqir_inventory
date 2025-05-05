@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import kz.qasqir.qasqirinventory.api.model.entity.Session;
 import kz.qasqir.qasqirinventory.api.model.request.LoginRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.service.AuthenticationService;
+import kz.qasqir.qasqirinventory.api.service.defaultservice.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

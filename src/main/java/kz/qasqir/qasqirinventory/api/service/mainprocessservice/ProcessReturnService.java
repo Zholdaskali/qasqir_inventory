@@ -7,7 +7,7 @@ import kz.qasqir.qasqirinventory.api.model.entity.*;
 import kz.qasqir.qasqirinventory.api.model.request.ReturnRequest;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
 import kz.qasqir.qasqirinventory.api.repository.ReturnRepository;
-import kz.qasqir.qasqirinventory.api.service.*;
+import kz.qasqir.qasqirinventory.api.service.defaultservice.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

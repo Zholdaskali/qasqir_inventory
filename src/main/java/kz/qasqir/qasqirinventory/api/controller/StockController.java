@@ -1,17 +1,13 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import kz.qasqir.qasqirinventory.api.model.dto.CategoryDTO;
-import kz.qasqir.qasqirinventory.api.model.dto.NomenclatureDTO;
 import kz.qasqir.qasqirinventory.api.model.request.CategorySaveRequest;
 import kz.qasqir.qasqirinventory.api.model.request.CategoryUpdateRequest;
 import kz.qasqir.qasqirinventory.api.model.request.NomenclatureRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.service.CategoryService;
-import kz.qasqir.qasqirinventory.api.service.NomenclatureService;
+import kz.qasqir.qasqirinventory.api.service.defaultservice.CategoryService;
+import kz.qasqir.qasqirinventory.api.service.defaultservice.NomenclatureService;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/warehouse-manager")

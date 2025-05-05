@@ -38,6 +38,8 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     boolean existsByWarehouseZoneId(Long id);
 
     List<Inventory> findByNomenclatureCode(String nomenclatureCode);
+
+    long countByWarehouseZoneWarehouseId(Long warehouseId);
 }
 
 
