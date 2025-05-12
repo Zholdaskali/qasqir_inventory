@@ -33,6 +33,13 @@ public class OneCController {
     }
 
     @GetMapping("/nomenclatures/synced")
+    public List<Nomenclature> getSyncedNomenclatures(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        return nomenclatureService.findNomenclaturesSyncedSince(startDate, endDate);
+    }
+
+    @GetMapping("/nomenclatures/not-synced")
     public List<Nomenclature> getNotSyncedNomenclatures(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {

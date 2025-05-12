@@ -121,7 +121,13 @@ public class NomenclatureService {
     }
 
 
-    public List<Nomenclature> findNomenclaturesNotSyncedSince(LocalDate startDate, LocalDate endDate) {
+    public List<Nomenclature> findNomenclaturesSyncedSince(LocalDate startDate, LocalDate endDate) {
         return nomenclatureRepository.findBySyncDateBetween(startDate.atStartOfDay(), endDate.atStartOfDay().plusDays(1).minusSeconds(1));
+    }
+
+    public List<Nomenclature> findNomenclaturesNotSyncedSince(LocalDate startDate, LocalDate endDate) {
+        LocalDateTime start = startDate.atStartOfDay();
+        LocalDateTime end = endDate.atStartOfDay().plusDays(1).minusSeconds(1);
+        return nomenclatureRepository.findBySyncDateIsNullOrSyncDateNotBetween(start, end);
     }
 }

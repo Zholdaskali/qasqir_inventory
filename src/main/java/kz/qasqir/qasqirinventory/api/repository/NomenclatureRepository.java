@@ -19,4 +19,7 @@ public interface NomenclatureRepository extends JpaRepository<Nomenclature, Long
     Nomenclature findByCode(String code);
 
     List<Nomenclature> findBySyncDateBetween(LocalDateTime localDateTime, LocalDateTime localDateTime1);
+
+    @Query("SELECT n FROM Nomenclature n WHERE n.syncDate IS NULL OR n.syncDate NOT BETWEEN :start AND :end")
+    List<Nomenclature> findBySyncDateIsNullOrSyncDateNotBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

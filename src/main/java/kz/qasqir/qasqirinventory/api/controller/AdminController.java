@@ -131,16 +131,5 @@ public class AdminController {
         return MessageResponse.of(organizationService.resetOrganization(organizationResetRequest));
     }
 
-
-//        {
-//            "userName": "superAdmin1@gmail.com",
-//            "password": "TorgutOzalaqasqirAdminkz02"
-//        }
-
-//        {
-//            "userName": "erkebulanzholdaskali@gmail.com",
-//            "password": "ErkebulanAdmin0404"
-//        }
-//
 }
     
