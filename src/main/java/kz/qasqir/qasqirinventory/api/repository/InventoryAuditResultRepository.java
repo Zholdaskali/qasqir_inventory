@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface InventoryAuditResultRepository extends JpaRepository<InventoryAuditResult, Long> {
     List<InventoryAuditResult> findByAuditId(Long auditId);
+    long countByAuditId(Long auditId);
 }

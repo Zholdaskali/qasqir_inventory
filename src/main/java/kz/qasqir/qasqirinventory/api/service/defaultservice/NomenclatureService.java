@@ -105,11 +105,11 @@ public class NomenclatureService {
         }
     }
 
-    public List<NomenclatureDTO> getAllNomenclatureByCategoryId(Long categoryId) {
-        return nomenclatureRepository.findByCategoryId(categoryId).stream()
-                .map(nomenclatureMapper::toDto)
-                .collect(Collectors.toList());
-    }
+        public List<NomenclatureDTO> getAllNomenclatureByCategoryId(Long categoryId) {
+            return nomenclatureRepository.findByCategoryId(categoryId).stream()
+                    .map(nomenclatureMapper::toDto)
+                    .collect(Collectors.toList());
+        }
 
     public List<NomenclatureDTO> getAllNomenclature() {
         return nomenclatureRepository.findAll().stream().map(nomenclatureMapper :: toDto).collect(Collectors.toList());

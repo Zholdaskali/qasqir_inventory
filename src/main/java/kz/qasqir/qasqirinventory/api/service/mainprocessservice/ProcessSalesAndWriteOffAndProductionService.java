@@ -4,9 +4,11 @@ import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.NomenclatureException;
 import kz.qasqir.qasqirinventory.api.model.entity.Inventory;
 import kz.qasqir.qasqirinventory.api.model.entity.Ticket;
+import kz.qasqir.qasqirinventory.api.model.entity.Transaction;
 import kz.qasqir.qasqirinventory.api.model.entity.WarehouseZone;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
 import kz.qasqir.qasqirinventory.api.service.defaultservice.CapacityControlService;
+import kz.qasqir.qasqirinventory.api.service.defaultservice.TransactionPlacementService;
 import kz.qasqir.qasqirinventory.api.service.defaultservice.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ public class ProcessSalesAndWriteOffAndProductionService {
     private final InventoryRepository inventoryRepository;
     private final TransactionService transactionService;
     private final CapacityControlService capacityControlService;
+    private final TransactionPlacementService transactionPlacementService;
 
     @Transactional(rollbackOn = Exception.class)
     public void processTicket(Ticket ticket) {
@@ -41,7 +44,7 @@ public class ProcessSalesAndWriteOffAndProductionService {
 
         capacityControlService.updateInventory(inventory, updatedQuantity);
 
-        transactionService.addTransaction(
+        Transaction transaction =  transactionService.addTransaction(
                 ticket.getType(),
                 ticket.getDocument(),
                 inventory.getNomenclature(),
@@ -49,5 +52,6 @@ public class ProcessSalesAndWriteOffAndProductionService {
                 ticket.getDocument().getDocumentDate(),
                 ticket.getCreatedBy()
         );
+        transactionPlacementService.saveTransactionPlacement(transaction, warehouseZone, inventory.getWarehouseContainer(), ticket.getQuantity());
     }
 }

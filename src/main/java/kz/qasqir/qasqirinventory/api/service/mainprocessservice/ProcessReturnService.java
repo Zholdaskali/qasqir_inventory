@@ -24,6 +24,7 @@ public class ProcessReturnService {
     private final TransactionService transactionService;
     private final UserService userService;
     private final CapacityControlService capacityControlService;
+    private final TransactionPlacementService transactionPlacementService;
 
     @Transactional(rollbackOn = Exception.class)
     public void processReturn(ReturnRequest returnRequest) {
@@ -60,6 +61,8 @@ public class ProcessReturnService {
 
         capacityControlService.updateInventory(inventory, updatedQuantity);
 
-        transactionService.addTransaction("RETURN", document, nomenclature, returnRequest.getQuantity(), document.getDocumentDate(), userService.getByUserId(document.getCreatedBy()));
+        Transaction transaction = transactionService.addTransaction("RETURN", document, nomenclature, returnRequest.getQuantity(), document.getDocumentDate(), userService.getByUserId(document.getCreatedBy()));
+
+        transactionPlacementService.saveTransactionPlacement(transaction, warehouseZone, inventory.getWarehouseContainer(), returnItem.getQuantity());
     }
 }

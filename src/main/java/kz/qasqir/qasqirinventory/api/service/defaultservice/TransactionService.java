@@ -1,10 +1,7 @@
 package kz.qasqir.qasqirinventory.api.service.defaultservice;
 
 import kz.qasqir.qasqirinventory.api.model.dto.TransactionDTO;
-import kz.qasqir.qasqirinventory.api.model.entity.Document;
-import kz.qasqir.qasqirinventory.api.model.entity.Nomenclature;
-import kz.qasqir.qasqirinventory.api.model.entity.Transaction;
-import kz.qasqir.qasqirinventory.api.model.entity.User;
+import kz.qasqir.qasqirinventory.api.model.entity.*;
 import kz.qasqir.qasqirinventory.api.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +20,7 @@ public class TransactionService {
         return transactionRepository.findAllByDocumentId(documentId).stream().map(this::convertToDto).toList();
     }
 
-    public void addTransaction(String typeTransaction, Document document, Nomenclature nomenclature, BigDecimal itemQuantity, LocalDate date, User user) {
+    public Transaction addTransaction(String typeTransaction, Document document, Nomenclature nomenclature, BigDecimal itemQuantity, LocalDate date, User user) {
         Transaction transaction = new Transaction();
         transaction.setTransactionType(typeTransaction);
         transaction.setDocument(document);
@@ -32,7 +29,7 @@ public class TransactionService {
         transaction.setDate(date);
         transaction.setCreatedBy(user);
 
-        transactionRepository.save(transaction);
+        return transactionRepository.save(transaction);
     }
 
     public List<TransactionDTO> findByDocumentIdIn(List<Long> documentIds) {

@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: qasqir_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: qasqir_inventory
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: erke
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - qasqir-net
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: qasqir_backend
+    depends_on:
+      - postgres
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/qasqir_inventory
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: erke
+    networks:
+      - qasqir-net
+
+  frontend:
+    build:
+      context: ./frontend  # Путь к директории с Dockerfile для фронтенда
+    container_name: qasqir_frontend
+    depends_on:
+      - backend
+    ports:
+      - "80:80"  # Нginx будет обслуживать фронтенд на порту 80
+    networks:
+      - qasqir-net
+
+volumes:
+  pg_data:
+
+networks:
+  qasqir-net:

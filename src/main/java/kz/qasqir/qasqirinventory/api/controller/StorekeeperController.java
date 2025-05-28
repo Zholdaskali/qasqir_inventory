@@ -37,6 +37,7 @@ public class StorekeeperController {
     private final ProcessTransferService processTransferService;
     private final ProcessReturnService processReturnService;
     private final InventoryAuditResultService inventoryAuditResultService;
+    private final InventoryAuditSystemService inventoryAuditSystemService;
 
     @Transactional
     @PostMapping("/document/add")
@@ -84,8 +85,36 @@ public class StorekeeperController {
             description = "Возвращает сообщение о создании"
     )
     @PostMapping("/inventory-check/start")
-    public MessageResponse<InventoryAuditDTO> startInventoryCheck(@RequestParam Long warehouseId, @RequestParam Long createdBy) {
-        return MessageResponse.of(processInventoryCheck.startInventoryCheck(warehouseId, createdBy));
+    public MessageResponse<InventoryAuditDTO> startInventoryCheck(@RequestParam Long warehouseId, @RequestParam Long createdBy, @RequestParam Long inventoryAuditSystemId) {
+        return MessageResponse.of(processInventoryCheck.startInventoryCheck(warehouseId, createdBy, inventoryAuditSystemId));
+    }
+
+    @Operation(
+            summary = "Создание ИНВЕНТАРИЗАЦИЯ: Начало инвентаризации",
+            description = "Возвращает сообщение о создании"
+    )
+    @PostMapping("/inventory-check-system/start")
+    public MessageResponse<InventoryAuditSystemDTO> startInventoryCheck(@RequestBody InventoryAuditSystemRequest inventoryAuditSystemRequest) {
+        return MessageResponse.of(inventoryAuditSystemService.startInventoryAuditSystem(inventoryAuditSystemRequest));
+    }
+
+    @GetMapping("/inventory-check-system/in-progress")
+    public MessageResponse<List<InventoryAuditSystemDTO>> getInventoryCheckSystemInProgress(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        return MessageResponse.of(inventoryAuditSystemService.getInventoryResultsInProgress(startDate, endDate));
+    }
+
+    @GetMapping("/inventory-check-system/{inventoryId}")
+    public MessageResponse<InventoryAuditSystemDTO> getByInventoryAuditSystemId(@PathVariable Long inventoryId) {
+        return MessageResponse.of(inventoryAuditSystemService.getByInventoryAuditSystem(inventoryId));
+    }
+
+    @GetMapping("/inventory-check-system/completed")
+    public MessageResponse<List<InventoryAuditSystemDTO>> getInventoryCheckSystemCompleted(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        return MessageResponse.of(inventoryAuditSystemService.getInventoryResultsCompleted(startDate, endDate));
     }
 
     // ИНВЕНТАРИЗАЦИЯ: Завершение инвентаризации

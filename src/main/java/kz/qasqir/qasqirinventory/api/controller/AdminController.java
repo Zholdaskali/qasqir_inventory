@@ -26,7 +26,6 @@ public class AdminController {
     private final LoginLogService loginLogService;
     private final InviteService inviteService;
     private final OrganizationService organizationService;
-    private final TicketService ticketService;
 
 
     @Operation(

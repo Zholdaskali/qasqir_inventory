@@ -21,6 +21,10 @@ public class InventoryAudit {
     @JoinColumn(name = "warehouse_id", nullable = false)
     private Warehouse warehouse;
 
+    @ManyToOne
+    @JoinColumn(name = "inventory_audit_system_id", nullable = false)
+    private InventoryAuditSystem inventoryAuditSystem;
+
     @Column(name = "audit_date", nullable = false)
     private LocalDate auditDate;
 

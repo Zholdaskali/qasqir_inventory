@@ -1,21 +1,22 @@
-FROM openjdk:20-jdk-slim AS build
+# Базовый образ с Java 20 и Maven
+FROM eclipse-temurin:20-jdk
 
+# Устанавливаем рабочую директорию
 WORKDIR /app
 
-COPY mvnw ./
-COPY .mvn ./.mvn
-COPY pom.xml ./
-
-RUN ./mvnw dependency:go-offline
-
+# Копируем файлы проекта (pom.xml и исходный код)
+COPY pom.xml .
 COPY src ./src
 
-RUN ./mvnw clean package -DskipTests
+# Устанавливаем зависимости и собираем проект
+RUN mvn clean package -DskipTests
 
-FROM openjdk:20-jdk-slim
-
-COPY --from=build /app/target/QasqirInventory-0.0.1-SNAPSHOT.jar app.jar
-
+# Открываем порт 8081
 EXPOSE 8081
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Задаем переменные окружения для подключения к БД (можно переопределить при запуске)
+ENV SPRING_DATASOURCE_USERNAME=postgres
+ENV SPRING_DATASOURCE_PASSWORD=erke
+
+# Команда для запуска приложения
+CMD ["java", "-jar", "target/QasqirInventory-0.0.1-SNAPSHOT.jar"]

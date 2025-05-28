@@ -345,9 +345,20 @@ CREATE TABLE t_documents_files (
     FOREIGN KEY (document_id) REFERENCES t_documents (id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS t_inventory_audits_system (
+    id BIGSERIAL PRIMARY KEY, -- Уникальный ID системной инвентаризации
+    audit_date DATE NOT NULL, -- Дата начала общей инвентаризации
+    status VARCHAR(50) NOT NULL, -- Статус ("в процессе", "завершена", и т.д.)
+    created_by BIGINT, -- Кто инициировал
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES t_users (id) ON DELETE SET NULL
+);
+
 CREATE TABLE IF NOT EXISTS t_inventory_audits
 (
     id BIGSERIAL PRIMARY KEY, -- Уникальный идентификатор инвентаризации
+    inventory_audit_system_id BIGINT NOT NULL,
     warehouse_id BIGINT NOT NULL, -- ID склада
     audit_date DATE NOT NULL, -- Дата проведения инвентаризации
     status VARCHAR(50) NOT NULL, -- Статус инвентаризации (например, "в процессе", "завершена")
@@ -355,6 +366,7 @@ CREATE TABLE IF NOT EXISTS t_inventory_audits
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Дата и время создания записи
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Дата и время последнего изменения записи
     FOREIGN KEY (warehouse_id) REFERENCES t_warehouses (id) ON DELETE CASCADE,
+    FOREIGN KEY (inventory_audit_system_id) REFERENCES t_inventory_audits_system (id) ON DELETE CASCADE,
     FOREIGN KEY (created_by) REFERENCES t_users (id) ON DELETE SET NULL
 );
 

@@ -26,6 +26,12 @@ public class InventoryAuditService {
                 .collect(Collectors.toList());
     }
 
+    public List<InventoryAuditDTO> getAllInventoryAuditByAuditSystemId(Long id) {
+        return inventoryAuditRepository.findAllByInventoryAuditSystemId(id).stream()
+                .map(this::convertInventoryAudit)
+                .collect(Collectors.toList());
+    }
+
     public List<InventoryAuditDTO> getAllInventoryAuditByStatus(LocalDate startDate, LocalDate endDate, String status) {
         LocalDateTime startDateTime = startDate.atStartOfDay(); // Начало дня
         LocalDateTime endDateTime = endDate.atStartOfDay().plusDays(1).minusSeconds(1); // Конец дня

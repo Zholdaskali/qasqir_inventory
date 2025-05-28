@@ -15,13 +15,10 @@ import kz.qasqir.qasqirinventory.api.repository.NomenclatureRepository;
 import kz.qasqir.qasqirinventory.api.service.defaultservice.CategoryService;
 import kz.qasqir.qasqirinventory.api.service.defaultservice.DocumentService;
 import kz.qasqir.qasqirinventory.api.service.defaultservice.InventoryService;
-import kz.qasqir.qasqirinventory.api.service.defaultservice.NomenclatureService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +27,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProcessOneCService {
 
+    private static final Long SYSTEM_USER_ID = 6L;
+
     private final InventoryService inventoryService;
     private final TicketService ticketService;
     private final DocumentService documentService;
@@ -37,100 +36,118 @@ public class ProcessOneCService {
     private final NomenclatureRepository nomenclatureRepository;
 
     @Transactional
-    public String createIssueRequest(OneCWriteOffRequest oneCWriteOffRequest) {
-        List<OneCWriteOffItemRequest> items = oneCWriteOffRequest.getItems();
-        if (items == null) {
-            throw new RuntimeException("Массив товаров пусто");
-        }
+    public String createIssueRequest(OneCWriteOffRequest request) {
+        validateWriteOffRequest(request);
+
         Document document = documentService.createDocument(
-                oneCWriteOffRequest.getType(),
-                oneCWriteOffRequest.getDocumentNumber(),
+                request.getType(),
+                request.getDocumentNumber(),
                 null,
                 null,
-                6L);
-        for (OneCWriteOffItemRequest item : items) {
-            List<Inventory> inventories = inventoryService.getInventoryByNomenclatureCodeAndQuantity(item.getNomenclatureCode());
-            BigDecimal totalAvailable = inventories.stream()
-                    .map(Inventory::getQuantity)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                SYSTEM_USER_ID
+        );
 
-            BigDecimal requestedQuantity = item.getQuantity();
+        processWriteOffItems(request.getItems(), document, request.getType(), request.getComment());
+        return "Issue request successfully submitted!";
+    }
 
-            if (totalAvailable.compareTo(requestedQuantity) < 0) {
-                throw new InsufficientStockException(
-                        String.format("Недостаточно товара %s: требуется %s, доступно %s",
-                                item.getNomenclatureCode(), requestedQuantity, totalAvailable));
-            }
-
-            List<StockLocationDTO> locations = new ArrayList<>();
-            BigDecimal remainingQuantity = requestedQuantity;
-            for (Inventory inventory : inventories) {
-                if (remainingQuantity.compareTo(BigDecimal.ZERO) <= 0) break;
-
-                BigDecimal quantityToTake = inventory.getQuantity().min(remainingQuantity);
-
-                Long warehouseId = inventory.getWarehouseZone() != null
-                        ? inventory.getWarehouseZone().getId()
-                        : null;
-
-                Long containerId = inventory.getWarehouseContainer() != null
-                        ? inventory.getWarehouseContainer().getId()
-                        : null;
-
-                locations.add(new StockLocationDTO(
-                        warehouseId,
-                        containerId,
-                        quantityToTake
-                ));
-
-                ticketService.createTicket(oneCWriteOffRequest.getComment(), quantityToTake, inventory.getId(),
-                        6L, oneCWriteOffRequest.getType(), document.getId());
-                remainingQuantity = remainingQuantity.subtract(quantityToTake);
-            }
+    private void validateWriteOffRequest(OneCWriteOffRequest request) {
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            throw new IllegalArgumentException("Items list cannot be empty");
         }
-        return "Заявка успешно отправлена!!!";
+    }
+
+    private void processWriteOffItems(List<OneCWriteOffItemRequest> items, Document document, String documentType, String comment) {
+        for (OneCWriteOffItemRequest item : items) {
+            processSingleWriteOffItem(item, document, documentType, comment);
+        }
+    }
+
+    private void processSingleWriteOffItem(OneCWriteOffItemRequest item, Document document, String documentType, String comment) {
+        List<Inventory> inventories = inventoryService.getInventoryByNomenclatureCodeAndQuantity(item.getNomenclatureCode());
+        validateAvailableQuantity(item.getNomenclatureCode(), item.getQuantity(), inventories);
+
+        List<StockLocationDTO> locations = new ArrayList<>();
+        BigDecimal remainingQuantity = item.getQuantity();
+
+        for (Inventory inventory : inventories) {
+            if (remainingQuantity.compareTo(BigDecimal.ZERO) <= 0) {
+                break;
+            }
+
+            BigDecimal quantityToTake = inventory.getQuantity().min(remainingQuantity);
+            addStockLocation(locations, inventory, quantityToTake);
+            createTicketForInventory(document, documentType, comment, inventory, quantityToTake);
+
+            remainingQuantity = remainingQuantity.subtract(quantityToTake);
+        }
+    }
+
+    private void validateAvailableQuantity(String nomenclatureCode, BigDecimal requestedQuantity, List<Inventory> inventories) {
+        BigDecimal totalAvailable = inventories.stream()
+                .map(Inventory::getQuantity)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        if (totalAvailable.compareTo(requestedQuantity) < 0) {
+            throw new InsufficientStockException(
+                    String.format("Insufficient stock for %s: requested %s, available %s",
+                            nomenclatureCode, requestedQuantity, totalAvailable));
+        }
+    }
+
+    private void addStockLocation(List<StockLocationDTO> locations, Inventory inventory, BigDecimal quantity) {
+        Long warehouseId = inventory.getWarehouseZone() != null ? inventory.getWarehouseZone().getId() : null;
+        Long containerId = inventory.getWarehouseContainer() != null ? inventory.getWarehouseContainer().getId() : null;
+
+        locations.add(new StockLocationDTO(warehouseId, containerId, quantity));
+    }
+
+    private void createTicketForInventory(Document document, String documentType, String comment,
+                                          Inventory inventory, BigDecimal quantity) {
+        ticketService.createTicket(
+                comment,
+                quantity,
+                inventory.getId(),
+                SYSTEM_USER_ID,
+                documentType,
+                document.getId()
+        );
     }
 
     @Transactional
-    public String syncingWith1C(SyncingWith1CRequest syncingWith1CRequest) {
-        List<SyncingWith1CItemRequest> items = syncingWith1CRequest.getItems();
-
-        if (items == null || items.isEmpty()) {
-            throw new RuntimeException("Массив номенклатур пуст");
-        }
+    public String syncingWith1C(SyncingWith1CRequest request) {
+        validateSyncRequest(request);
 
         LocalDateTime now = LocalDateTime.now();
+        processSyncItems(request.getItems(), now);
 
-        for (SyncingWith1CItemRequest item : items) {
-            // Проверяем существование записи по уникальному коду 1С
-            Nomenclature existingNomenclature = nomenclatureRepository.findByCode(item.getCode());
-
-            Category category = categoryService.syncingWith1CByCategoryName(item.getCategoryName());
-
-            if (existingNomenclature == null) {
-                Nomenclature nomenclature = getNomenclature(item, category, now);
-
-                nomenclatureRepository.save(nomenclature);
-            } else {
-                // Обновляем существующую запись
-                existingNomenclature.setName(item.getName());
-                existingNomenclature.setArticle(item.getArticle());
-                existingNomenclature.setType(item.getType());
-                existingNomenclature.setCategory(category);
-                existingNomenclature.setMeasurementUnit(item.getMeasurementUnit());
-                existingNomenclature.setTnvedCode(item.getTnvedCode());
-                existingNomenclature.setUpdatedBy(6L);
-                existingNomenclature.setUpdatedAt(now);
-                existingNomenclature.setSyncDate(now);
-
-                nomenclatureRepository.save(existingNomenclature);
-            }
-        }
-
-        return "Синхронизация выполнена успешно";
+        return "Synchronization completed successfully";
     }
 
-    private static Nomenclature getNomenclature(SyncingWith1CItemRequest item, Category category, LocalDateTime now) {
+    private void validateSyncRequest(SyncingWith1CRequest request) {
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            throw new IllegalArgumentException("Nomenclature list cannot be empty");
+        }
+    }
+
+    private void processSyncItems(List<SyncingWith1CItemRequest> items, LocalDateTime syncTime) {
+        for (SyncingWith1CItemRequest item : items) {
+            Category category = categoryService.syncingWith1CByCategoryName(item.getCategoryName());
+            syncNomenclature(item, category, syncTime);
+        }
+    }
+
+    private void syncNomenclature(SyncingWith1CItemRequest item, Category category, LocalDateTime syncTime) {
+        Nomenclature existingNomenclature = nomenclatureRepository.findByCode(item.getCode());
+
+        if (existingNomenclature == null) {
+            createNewNomenclature(item, category, syncTime);
+        } else {
+            updateExistingNomenclature(existingNomenclature, item, category, syncTime);
+        }
+    }
+
+    private void createNewNomenclature(SyncingWith1CItemRequest item, Category category, LocalDateTime syncTime) {
         Nomenclature nomenclature = new Nomenclature();
         nomenclature.setName(item.getName());
         nomenclature.setArticle(item.getArticle());
@@ -139,16 +156,31 @@ public class ProcessOneCService {
         nomenclature.setCategory(category);
         nomenclature.setMeasurementUnit(item.getMeasurementUnit());
         nomenclature.setTnvedCode(item.getTnvedCode());
-        nomenclature.setCreatedBy(6L);
-        nomenclature.setUpdatedBy(6L);
-        nomenclature.setCreatedAt(now);
-        nomenclature.setUpdatedAt(now);
-        nomenclature.setSyncDate(now);
+        nomenclature.setCreatedBy(SYSTEM_USER_ID);
+        nomenclature.setUpdatedBy(SYSTEM_USER_ID);
+        nomenclature.setCreatedAt(syncTime);
+        nomenclature.setUpdatedAt(syncTime);
+        nomenclature.setSyncDate(syncTime);
         nomenclature.setHeight(0.0);
         nomenclature.setLength(0.0);
         nomenclature.setWidth(0.0);
         nomenclature.setVolume(0.0);
-        return nomenclature;
+
+        nomenclatureRepository.save(nomenclature);
     }
 
+    private void updateExistingNomenclature(Nomenclature nomenclature, SyncingWith1CItemRequest item,
+                                            Category category, LocalDateTime syncTime) {
+        nomenclature.setName(item.getName());
+        nomenclature.setArticle(item.getArticle());
+        nomenclature.setType(item.getType());
+        nomenclature.setCategory(category);
+        nomenclature.setMeasurementUnit(item.getMeasurementUnit());
+        nomenclature.setTnvedCode(item.getTnvedCode());
+        nomenclature.setUpdatedBy(SYSTEM_USER_ID);
+        nomenclature.setUpdatedAt(syncTime);
+        nomenclature.setSyncDate(syncTime);
+
+        nomenclatureRepository.save(nomenclature);
+    }
 }

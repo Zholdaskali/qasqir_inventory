@@ -14,6 +14,7 @@ public interface WarehouseZoneMapper {
     WarehouseZoneMapper INSTANCE = Mappers.getMapper(WarehouseZoneMapper.class);
 
     @Mapping(source = "warehouse.id", target = "warehouseId")
+    @Mapping(source = "warehouse.name", target = "warehouseName")
     @Mapping(source = "parent.id", target = "parentId")
     @Mapping(source = "createdBy", target = "createBy")
     @Mapping(source = "updatedBy", target = "updateBy")
@@ -25,6 +26,7 @@ public interface WarehouseZoneMapper {
     WarehouseZoneDTO toDto(WarehouseZone warehouseZone);
 
     @Mapping(source = "warehouseId", target = "warehouse.id")
+    @Mapping(source = "warehouseName", target = "warehouse.name")
     @Mapping(source = "parentId", target = "parent.id")
     @Mapping(source = "createBy", target = "createdBy")
     @Mapping(source = "updateBy", target = "updatedBy")

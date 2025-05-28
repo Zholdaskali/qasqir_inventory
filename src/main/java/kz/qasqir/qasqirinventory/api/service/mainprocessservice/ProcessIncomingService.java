@@ -25,60 +25,86 @@ public class ProcessIncomingService {
     private final UserService userService;
     private final TransactionService transactionService;
     private final CapacityControlService capacityControlService;
+    private final TransactionPlacementService transactionPlacementService;
 
     @Transactional(rollbackOn = Exception.class)
-    public void processIncomingGoods(DocumentRequest documentDTO) {
-        if (documentDTO == null || documentDTO.getItems() == null || documentDTO.getItems().isEmpty()) {
-            throw new DocumentException("Документ или позиции документа не могут быть пустыми");
-        }
+    public void processIncomingGoods(DocumentRequest documentRequest) {
+        validateDocumentRequest(documentRequest);
 
-        Document document = documentService.addDocument(documentDTO);
-        List<ItemRequest> documentItems = documentDTO.getItems();
+        Document document = documentService.addDocument(documentRequest);
+        processDocumentItems(document, documentRequest.getItems());
+    }
 
-        for (ItemRequest item : documentItems) {
-            validateItemRequest(item);
-
-            Nomenclature nomenclature = nomenclatureService.getById(item.getNomenclatureId());
-            WarehouseZone warehouseZone = warehouseZoneService.getById(item.getWarehouseZoneId());
-            WarehouseContainer container = item.getContainerId() != null ? warehouseContainerService.getById(item.getContainerId()) : null;
-
-            BigDecimal requiredVolume = capacityControlService.calculateVolume(nomenclature, item.getQuantity());
-
-            if (container != null) {
-                // Проверяем и резервируем емкость контейнера с учетом габаритов и объема
-                capacityControlService.reserveContainerCapacity(container, nomenclature, item.getQuantity());
-            } else {
-                // Резервируем емкость зоны, если контейнер не указан
-                capacityControlService.reserveZoneCapacity(warehouseZone, requiredVolume);
-            }
-
-            // Поиск или создание записи инвентаря
-            Inventory inventory = inventoryRepository.findByNomenclatureIdAndWarehouseZoneIdAndWarehouseContainerId(
-                            nomenclature.getId(), warehouseZone.getId(), item.getContainerId())
-                    .orElseGet(() -> {
-                        Inventory newInventory = new Inventory();
-                        newInventory.setNomenclature(nomenclature);
-                        newInventory.setWarehouseZone(warehouseZone);
-                        newInventory.setWarehouseContainer(container);
-                        newInventory.setQuantity(BigDecimal.ZERO);
-                        return newInventory;
-                    });
-
-            // Обновляем количество в инвентаре
-            capacityControlService.updateInventory(inventory, inventory.getQuantity().add(item.getQuantity()));
-
-            // Добавляем транзакцию
-            transactionService.addTransaction("INCOMING", document, nomenclature, item.getQuantity(), document.getDocumentDate(), userService.getByUserId(document.getCreatedBy()));
+    private void validateDocumentRequest(DocumentRequest documentRequest) {
+        if (documentRequest == null || documentRequest.getItems() == null || documentRequest.getItems().isEmpty()) {
+            throw new DocumentException("Document or document items cannot be empty");
         }
     }
 
-    private void validateItemRequest(ItemRequest item) {
-        if (item.getNomenclatureId() == null || item.getWarehouseZoneId() == null || item.getQuantity() == null) {
-            throw new DocumentException("Некорректные данные позиции товаров");
+    private void processDocumentItems(Document document, List<ItemRequest> items) {
+        for (ItemRequest item : items) {
+            validateItemRequest(item);
+            processSingleItem(document, item);
         }
+    }
 
+    private void processSingleItem(Document document, ItemRequest item) {
+        Nomenclature nomenclature = nomenclatureService.getById(item.getNomenclatureId());
+        WarehouseZone zone = warehouseZoneService.getById(item.getWarehouseZoneId());
+        WarehouseContainer container = getContainerIfExists(item.getContainerId());
+
+        BigDecimal requiredVolume = capacityControlService.calculateVolume(nomenclature, item.getQuantity());
+        reserveStorageCapacity(zone, container, nomenclature, item.getQuantity(), requiredVolume);
+
+        Inventory inventory = getOrCreateInventory(nomenclature, zone, container, item.getContainerId());
+        updateInventoryAndRecordTransaction(document, inventory, nomenclature, zone, container, item.getQuantity());
+    }
+
+    private WarehouseContainer getContainerIfExists(Long containerId) {
+        return containerId != null ? warehouseContainerService.getById(containerId) : null;
+    }
+
+    private void reserveStorageCapacity(WarehouseZone zone, WarehouseContainer container,
+                                        Nomenclature nomenclature, BigDecimal quantity, BigDecimal requiredVolume) {
+        if (container != null) {
+            capacityControlService.reserveContainerCapacity(container, nomenclature, quantity);
+        } else {
+            capacityControlService.reserveZoneCapacity(zone, requiredVolume);
+        }
+    }
+
+    private Inventory getOrCreateInventory(Nomenclature nomenclature, WarehouseZone zone,
+                                           WarehouseContainer container, Long containerId) {
+        return inventoryRepository.findByNomenclatureIdAndWarehouseZoneIdAndWarehouseContainerId(
+                        nomenclature.getId(), zone.getId(), containerId)
+                .orElseGet(() -> new Inventory(nomenclature, BigDecimal.ZERO, zone, container));
+    }
+
+    private void updateInventoryAndRecordTransaction(Document document, Inventory inventory,
+                                                     Nomenclature nomenclature, WarehouseZone zone,
+                                                     WarehouseContainer container, BigDecimal quantity) {
+        capacityControlService.updateInventory(inventory, inventory.getQuantity().add(quantity));
+
+        Transaction transaction = transactionService.addTransaction(
+                "INCOMING",
+                document,
+                nomenclature,
+                quantity,
+                document.getDocumentDate(),
+                userService.getByUserId(document.getCreatedBy())
+        );
+
+        transactionPlacementService.saveTransactionPlacement(transaction, zone, container, quantity);
+    }
+
+    private void validateItemRequest(ItemRequest item) {
+        if (item.getNomenclatureId() == null ||
+                item.getWarehouseZoneId() == null ||
+                item.getQuantity() == null) {
+            throw new DocumentException("Invalid item data: all required fields must be provided");
+        }
         if (item.getQuantity().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new DocumentException("Количество товара должно быть положительным числом");
+            throw new DocumentException("Item quantity must be positive");
         }
     }
 }

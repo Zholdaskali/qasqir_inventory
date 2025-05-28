@@ -9,6 +9,11 @@ spring:
     url: jdbc:postgresql://localhost:5432/qasqir_inventory?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC+5
     username: postgres
     password: erke
+#  spring:
+#    datasource:
+#      url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/qasqir_inventory}
+#      username: ${SPRING_DATASOURCE_USERNAME:postgres}
+#      password: ${SPRING_DATASOURCE_PASSWORD:erke}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

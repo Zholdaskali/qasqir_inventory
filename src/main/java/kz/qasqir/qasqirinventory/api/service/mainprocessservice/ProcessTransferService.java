@@ -2,10 +2,7 @@ package kz.qasqir.qasqirinventory.api.service.mainprocessservice;
 
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.InsufficientStockException;
-import kz.qasqir.qasqirinventory.api.model.entity.Document;
-import kz.qasqir.qasqirinventory.api.model.entity.Inventory;
-import kz.qasqir.qasqirinventory.api.model.entity.Nomenclature;
-import kz.qasqir.qasqirinventory.api.model.entity.WarehouseZone;
+import kz.qasqir.qasqirinventory.api.model.entity.*;
 import kz.qasqir.qasqirinventory.api.model.request.TransferItemsRequest;
 import kz.qasqir.qasqirinventory.api.model.request.TransferRequest;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
@@ -26,6 +23,7 @@ public class ProcessTransferService {
     private final TransactionService transactionService;
     private final UserService userService;
     private final CapacityControlService capacityControlService;
+    private final TransactionPlacementService transactionPlacementService;
 
     @Transactional(rollbackOn = Exception.class)
     public void processTransfer(TransferRequest documentDTO) {
@@ -60,8 +58,10 @@ public class ProcessTransferService {
             capacityControlService.updateInventory(fromInventory, fromInventory.getQuantity().subtract(item.getQuantity()));
             capacityControlService.updateInventory(toInventory, toInventory.getQuantity().add(item.getQuantity()));
 
-            transactionService.addTransaction("TRANSFER", document, nomenclature, item.getQuantity(),
+            Transaction transaction =  transactionService.addTransaction("TRANSFER", document, nomenclature, item.getQuantity(),
                     documentDTO.getDocumentDate(), userService.getByUserId(document.getCreatedBy()));
+
+            transactionPlacementService.saveTransactionPlacement(transaction, toZone, fromInventory.getWarehouseContainer(), item.getQuantity());
         }
 
         document.setStatus("COMPLETED");

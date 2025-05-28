@@ -2,12 +2,10 @@ package kz.qasqir.qasqirinventory.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import kz.qasqir.qasqirinventory.api.model.dto.*;
+import kz.qasqir.qasqirinventory.api.model.entity.TransactionPlacement;
 import kz.qasqir.qasqirinventory.api.model.request.*;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.service.defaultservice.DocumentService;
-import kz.qasqir.qasqirinventory.api.service.defaultservice.WarehouseContainerService;
-import kz.qasqir.qasqirinventory.api.service.defaultservice.WarehouseService;
-import kz.qasqir.qasqirinventory.api.service.defaultservice.WarehouseZoneService;
+import kz.qasqir.qasqirinventory.api.service.defaultservice.*;
 import kz.qasqir.qasqirinventory.api.service.mainprocessservice.TicketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -27,6 +25,7 @@ public class WarehouseStructureController {
     private final WarehouseContainerService warehouseContainersService;
     private final TicketService ticketService;
     private final DocumentService documentService;
+    private final TransactionPlacementService transactionPlacementService;
 
     @Operation(
             summary = "Удаление склада",
@@ -128,5 +127,10 @@ public class WarehouseStructureController {
     @DeleteMapping("/ticket/{ticketId}")
     public MessageResponse<String> deleteWriteOffTicked(@PathVariable Long ticketId) {
         return MessageResponse.of(ticketService.delete(ticketId));
+    }
+
+    @GetMapping("/document/transaction/{nomenclatureCode}")
+    public MessageResponse<List<TransactionPlacementDTO>> getAllTransactionPlacementByNomenclatureCode(@PathVariable String nomenclatureCode) {
+        return MessageResponse.of(transactionPlacementService.getAllTransactionPlacementByNomenclatureCode(nomenclatureCode));
     }
 }

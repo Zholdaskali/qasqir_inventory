@@ -40,6 +40,8 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     List<Inventory> findByNomenclatureCode(String nomenclatureCode);
 
     long countByWarehouseZoneWarehouseId(Long warehouseId);
+
+    List<Inventory> findAllByNomenclatureId(Long id);
 }
 
 

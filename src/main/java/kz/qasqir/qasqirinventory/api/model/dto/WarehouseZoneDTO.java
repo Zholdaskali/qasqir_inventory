@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class WarehouseZoneDTO {
     private Long id;
     private Long warehouseId;
+    private String warehouseName;
     private String name;
     private Long parentId;
     private Long createBy;

@@ -1,14 +1,8 @@
 package kz.qasqir.qasqirinventory.api.service.defaultservice;
 
 import kz.qasqir.qasqirinventory.api.exception.DocumentException;
-import kz.qasqir.qasqirinventory.api.model.entity.Inventory;
-import kz.qasqir.qasqirinventory.api.model.entity.Nomenclature;
-import kz.qasqir.qasqirinventory.api.model.entity.WarehouseContainer;
-import kz.qasqir.qasqirinventory.api.model.entity.WarehouseZone;
-import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
-import kz.qasqir.qasqirinventory.api.repository.TicketRepository;
-import kz.qasqir.qasqirinventory.api.repository.WarehouseContainerRepository;
-import kz.qasqir.qasqirinventory.api.repository.WarehouseZoneRepository;
+import kz.qasqir.qasqirinventory.api.model.entity.*;
+import kz.qasqir.qasqirinventory.api.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +17,7 @@ public class CapacityControlService {
     private final WarehouseContainerRepository warehouseContainerRepository; // Заменяем сервис на репозиторий
     private final InventoryRepository inventoryRepository;
     private final TicketRepository ticketRepository;
+    private final DocumentRepository documentRepository;
 
     public BigDecimal calculateVolume(Nomenclature nomenclature, BigDecimal quantity) {
         if (nomenclature.getVolume() != null) {
@@ -93,6 +88,79 @@ public class CapacityControlService {
             inventoryRepository.delete(inventory);
         } else {
             inventoryRepository.save(inventory);
+        }
+    }
+
+    public void validateNomenclatureSizeChange(Nomenclature nomenclature, Double newVolume, Double newHeight, Double newWidth, Double newLength) {
+        List<Inventory> inventories = inventoryRepository.findAllByNomenclatureId(nomenclature.getId());
+
+        for (Inventory inventory : inventories) {
+            BigDecimal requiredVolume = calculateVolumeWithNewSizes(nomenclature, inventory.getQuantity(), newVolume, newHeight, newWidth, newLength);
+
+            // Проверка для контейнеров
+            if (inventory.getWarehouseContainer().getId() != null) {
+                WarehouseContainer container = warehouseContainerRepository.findById(inventory.getWarehouseContainer().getId())
+                        .orElseThrow(() -> new DocumentException("Контейнер не найден"));
+                if (requiredVolume.compareTo(container.getCapacity()) > 0) {
+                    throw new DocumentException("Новый объем превышает вместимость контейнера: " + container.getId());
+                }
+                if (newHeight != null && newHeight > container.getHeight() ||
+                        newWidth != null && newWidth > container.getWidth() ||
+                        newLength != null && newLength > container.getLength()) {
+                    throw new DocumentException("Новые размеры превышают габариты контейнера: " + container.getId());
+                }
+            }
+
+            // Проверка для зон
+            if (inventory.getWarehouseZone().getId() != null) {
+                WarehouseZone zone = warehouseZoneRepository.findById(inventory.getWarehouseZone().getId())
+                        .orElseThrow(() -> new DocumentException("Зона не найдена"));
+                if (requiredVolume.compareTo(zone.getCapacity()) > 0) {
+                    throw new RuntimeException("Новый объем превышает вместимость зоны: " + zone.getId());
+                }
+            }
+        }
+    }
+
+    private BigDecimal calculateVolumeWithNewSizes(Nomenclature nomenclature, BigDecimal quantity,
+                                                   Double newVolume, Double newHeight, Double newWidth, Double newLength) {
+        if (newVolume != null) {
+            return BigDecimal.valueOf(newVolume).multiply(quantity);
+        } else if (newHeight != null && newWidth != null && newLength != null) {
+            return BigDecimal.valueOf(newHeight * newWidth * newLength).multiply(quantity);
+        } else {
+            return calculateVolume(nomenclature, quantity); // Используем текущие размеры
+        }
+    }
+
+    public void updateCapacitiesAfterSizeChange(Nomenclature nomenclature) {
+        List<Inventory> inventories = inventoryRepository.findAllByNomenclatureId(nomenclature.getId());
+        for (Inventory inventory : inventories) {
+            BigDecimal oldVolume = calculateVolume(nomenclature, inventory.getQuantity());
+
+            // Освобождаем старый объем
+            if (inventory.getWarehouseContainer().getId() != null) {
+                WarehouseContainer container = warehouseContainerRepository.findById(inventory.getWarehouseContainer().getId())
+                        .orElseThrow(() -> new DocumentException("Контейнер не найден"));
+                freeContainerCapacity(container, oldVolume);
+            }
+            if (inventory.getWarehouseZone().getId() != null) {
+                WarehouseZone zone = warehouseZoneRepository.findById(inventory.getWarehouseZone().getId())
+                        .orElseThrow(() -> new DocumentException("Зона не найдена"));
+                freeZoneCapacity(zone, oldVolume);
+            }
+
+            // Резервируем новый объем
+            if (inventory.getWarehouseContainer().getId() != null) {
+                WarehouseContainer container = warehouseContainerRepository.findById(inventory.getWarehouseContainer().getId())
+                        .orElseThrow(() -> new DocumentException("Контейнер не найден"));
+                reserveContainerCapacity(container, nomenclature, inventory.getQuantity());
+            }
+            if (inventory.getWarehouseZone().getId() != null) {
+                WarehouseZone zone = warehouseZoneRepository.findById(inventory.getWarehouseZone().getId())
+                        .orElseThrow(() -> new DocumentException("Зона не найдена"));
+                reserveZoneCapacity(zone, calculateVolume(nomenclature, inventory.getQuantity()));
+            }
         }
     }
 }
