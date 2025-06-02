@@ -1,10 +1,10 @@
 package kz.qasqir.qasqirinventory.api.model.request;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
-public class MailVerificationSendRequest {
+public class UpdateEmailGenerateRequest {
+    private Long userId;
     private String email;
+    private String password;
 }

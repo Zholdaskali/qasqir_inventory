@@ -86,14 +86,14 @@ api:
 
 # Ссылка для приглашений и восстановления пароля
 invite:
-  link: http://172.16.80.121:5173//recover-password
+  link: http://localhost:5173/recover-password
 
 password-recovery:
-  link: http://localhost:5173/
+  link: http://localhost:5173/reset-password
 
 image:
   directory:
-    link: "E:/AAAAWORK/Work/imageQasqir/"
+    link: "C:/WORK/image/"
 
 company:
   data:

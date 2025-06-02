@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -47,6 +48,10 @@ public class ImageService {
 //            }
 
             // Сохраняем изображение на диск и в БД
+            String imagePath = getImagePath(user.getImageId());
+            if (imagePath != null) {
+                deleteImageFromDisk(imagePath);
+            }
             String filePath = saveImageToDisk(file);
             Image image = new Image();
             image.setImagePath(filePath);
@@ -89,6 +94,22 @@ public class ImageService {
             throw new FailedToAddImageException("Не удалось сохранить изображение на диск.");
         }
     }
+
+    private void deleteImageFromDisk(String imagePath) {
+        try {
+            Path path = Paths.get(imagePath);
+            if (Files.exists(path)) {
+                Files.delete(path);
+                logger.info("Файл удалён: {}", imagePath);
+            } else {
+                logger.warn("Файл не найден для удаления: {}", imagePath);
+            }
+        } catch (IOException e) {
+            logger.error("Ошибка при удалении изображения с диска: {}", e.getMessage(), e);
+            throw new RuntimeException("Не удалось удалить изображение с диска.");
+        }
+    }
+
 
     public String getImagePath(Long imageId) {
         try {

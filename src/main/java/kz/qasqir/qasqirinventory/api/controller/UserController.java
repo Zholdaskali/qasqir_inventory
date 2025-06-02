@@ -60,6 +60,24 @@ public class UserController {
     }
 
     @Operation(
+            summary = "Изменение профиля(данных) пользователя",
+            description = "Возвращает измененный профиль пользователя"
+    )
+    @PutMapping("/profile/email/generate")
+    public MessageResponse<String> resetUserEmailGenerate(@RequestBody UpdateEmailGenerateRequest updateEmailRequest) {
+        return MessageResponse.of(userService.updateEmailGenerate(updateEmailRequest));
+    }
+
+    @Operation(
+            summary = "Изменение профиля(данных) пользователя",
+            description = "Возвращает измененный профиль пользователя"
+    )
+    @PutMapping("/profile/email/verify/{userId}")
+    public MessageResponse<UserDTO> resetUserEmailVerify(@PathVariable Long userId ,@RequestBody MailVerificationCheckRequest mailVerificationSendRequest) {
+        return MessageResponse.of(userService.updateEmailCheck(mailVerificationSendRequest, userId));
+    }
+
+    @Operation(
             summary = "Изменение пароля приглашенного пользователя",
             description = "Возвращает ответ изменения пароля"
     )

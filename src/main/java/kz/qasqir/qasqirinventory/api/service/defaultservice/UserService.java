@@ -3,33 +3,26 @@ package kz.qasqir.qasqirinventory.api.service.defaultservice;
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.UserNotFoundException;
 import kz.qasqir.qasqirinventory.api.model.dto.UserDTO;
-import kz.qasqir.qasqirinventory.api.model.request.UpdateUserRequest;
+import kz.qasqir.qasqirinventory.api.model.entity.MailVerification;
+import kz.qasqir.qasqirinventory.api.model.request.*;
 import kz.qasqir.qasqirinventory.api.model.entity.Role;
 import kz.qasqir.qasqirinventory.api.model.entity.User;
-import kz.qasqir.qasqirinventory.api.model.request.UserRoleResetRequest;
 import kz.qasqir.qasqirinventory.api.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final RoleService roleService;
     private final ImageService imageService;
     private final ValidateUserDataService validateUserDataService;
-
-    @Autowired
-    public UserService(UserRepository userRepository, RoleService roleService, ImageService imageService, ValidateUserDataService validateUserDataService)
-    {
-        this.userRepository = userRepository;
-        this.roleService = roleService;
-        this.imageService = imageService;
-        this.validateUserDataService = validateUserDataService;
-    }
+    private final MailVerificationService mailVerificationService;
 
     @Transactional
     public void saveUser(User user) {
@@ -60,14 +53,7 @@ public class UserService {
     public UserDTO updateUser(UpdateUserRequest updateUserRequest, Long userId) {
         User updateUser = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
-        if (!Objects.equals(updateUser.getEmail(), updateUserRequest.getUserEmail())) {
-            updateUser.setEmailVerified(false);
-        }
-
         updateUser.setUserName(updateUserRequest.getUserName());
-
-        validateUserDataService.validateUserEmail(updateUserRequest.getUserEmail(), userId);
-        updateUser.setEmail(updateUserRequest.getUserEmail());
 
         validateUserDataService.validateUserPhoneNumber(updateUserRequest.getUserNumber(), userId);
         updateUser.setPhoneNumber(updateUserRequest.getUserNumber());
@@ -75,6 +61,27 @@ public class UserService {
         userRepository.save(updateUser);
 
         return convertToUserDTO(updateUser);
+    }
+
+    @Transactional
+    public UserDTO updateEmailCheck(MailVerificationCheckRequest mailVerificationCheckRequest, Long userId) {
+        if (mailVerificationService.verifyNewEmail(mailVerificationCheckRequest)) {
+            User user = getByUserId(userId);
+            user.setEmail(mailVerificationCheckRequest.getEmail());
+            userRepository.save(user);
+            return convertToUserDTO(user);
+        } else {
+            throw new RuntimeException("Код не верный");
+        }
+    }
+
+    @Transactional
+    public String updateEmailGenerate(UpdateEmailGenerateRequest updateEmailRequest) {
+        User user = getByUserId(updateEmailRequest.getUserId());
+        validateUserDataService.validatePassword(updateEmailRequest.getPassword(), user.getPassword());
+        MailVerificationSendRequest mailVerificationSendRequest = new MailVerificationSendRequest(updateEmailRequest.getEmail());
+        mailVerificationService.generate(mailVerificationSendRequest);
+        return "Успешно отправлено";
     }
 
     @Transactional

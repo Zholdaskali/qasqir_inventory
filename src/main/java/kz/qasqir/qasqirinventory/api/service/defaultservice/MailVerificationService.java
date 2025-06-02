@@ -32,17 +32,15 @@ public class MailVerificationService {
                 this.userRepository = userRepository;
         }
 
-
-
         @Transactional
         public boolean generate(MailVerificationSendRequest request) {
                 MailVerification mailVerification = new MailVerification(request.getEmail(), codeGenerate.generate());
                 mailVerificationRepository.save(mailVerification);
                 String message = String.format(
                         "Здравствуйте!\n\n" +
-                                "Вы запросили подтверждение регистрации аккаунта. Пожалуйста, используйте указанный ниже код для завершения процесса регистрации:\n\n" +
+                                "Вы запросили подтверждение аккаунта. Пожалуйста, используйте указанный ниже код для завершения:\n\n" +
                                 "Код подтверждения: **%s**\n\n" +
-                                "Если вы не запрашивали регистрацию, просто проигнорируйте это сообщение.\n\n" +
+                                "Если вы не запрашивали подтверждение, просто проигнорируйте это сообщение.\n\n" +
                                 "С уважением,\n" +
                                 "Команда Qasqir Inventory",
                         mailVerification.getCode()
@@ -55,8 +53,6 @@ public class MailVerificationService {
                 return true;
         }
 
-
-
         @Transactional
         public boolean verify(MailVerificationCheckRequest request) {
                 MailVerification mailVerification = mailVerificationRepository.findByCodeAndEmail(request.getCode(), request.getEmail()).orElseThrow(InvalidVerificationCodeException::new);
@@ -64,6 +60,13 @@ public class MailVerificationService {
                 User user = userRepository.findByEmail(request.getEmail()).orElseThrow(UserNotFoundException::new);
                 user.setEmailVerified(true);
                 userRepository.save(user);
+                return true;
+        }
+
+        @Transactional
+        public boolean verifyNewEmail(MailVerificationCheckRequest request) {
+                MailVerification mailVerification = mailVerificationRepository.findByCodeAndEmail(request.getCode(), request.getEmail()).orElseThrow(InvalidVerificationCodeException::new);
+                mailVerificationRepository.delete(mailVerification);
                 return true;
         }
 }
