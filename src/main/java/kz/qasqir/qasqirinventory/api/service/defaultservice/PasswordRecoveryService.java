@@ -37,7 +37,7 @@ public class PasswordRecoveryService {
             userService.getByUserEmail(userEmail);
             String token = tokenGenerator.generate();
             String link = PASSWORD_RESET_LINK + "?Password-reset-token=" + token;
-            passwordRecoveryMailService.sendPasswordRecoveryEmail(userEmail, token, link);
+            passwordRecoveryMailService.sendPasswordRecoveryEmail(userEmail, link);
             PasswordResetToken passwordResetToken = new PasswordResetToken(userEmail, token, link, LocalDateTime.now(), LocalDateTime.now().plusDays(3));
             passwordResetTokenRepository.save(passwordResetToken);
             return "Ссылка на изменение пароля успешно отправлен";
@@ -61,10 +61,13 @@ public class PasswordRecoveryService {
         User user = userService.getByUserEmail(passwordResetToken.getUserEmail());
         user.setPassword(hashNewPassword);
         userService.saveUser(user);
+        passwordResetTokenRepository.delete(passwordResetToken);
         return "Пароль успешно изменен";
     }
 
-    public PasswordResetToken getPasswordTokenByToken(String passwordResetToken) {
-        return passwordResetTokenRepository.findByToken(passwordResetToken).orElseThrow(PasswordResetTokenException::new);
+    public PasswordResetToken getPasswordTokenByToken(String token) {
+        System.out.println(token + "==========================================================");
+        return passwordResetTokenRepository.findByPasswordResetToken(token).orElseThrow(PasswordResetTokenException::new);
     }
+
 }

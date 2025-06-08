@@ -43,6 +43,15 @@ public class DocumentFileService {
         }
     }
 
+    public void saveDocumentFile(String fileName, byte[] fileData, Long documentId) {
+        DocumentFile documentFile = new DocumentFile();
+        documentFile.setDocumentId(documentId);
+        documentFile.setFileName(fileName);
+        documentFile.setFileData(fileData);
+        documentFileRepository.save(documentFile);
+    }
+
+
     public List<DocumentFileDTO> getDocumentFiles() {
         try {
             return documentFileRepository.findAll().stream()

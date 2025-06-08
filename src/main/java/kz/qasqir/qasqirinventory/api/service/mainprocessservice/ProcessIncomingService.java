@@ -3,14 +3,17 @@ package kz.qasqir.qasqirinventory.api.service.mainprocessservice;
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.exception.DocumentException;
 import kz.qasqir.qasqirinventory.api.model.entity.*;
+import kz.qasqir.qasqirinventory.api.model.request.DocumentFileRequest;
 import kz.qasqir.qasqirinventory.api.model.request.DocumentRequest;
 import kz.qasqir.qasqirinventory.api.model.request.ItemRequest;
+import kz.qasqir.qasqirinventory.api.repository.DocumentFileRepository;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
 import kz.qasqir.qasqirinventory.api.service.defaultservice.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -26,12 +29,18 @@ public class ProcessIncomingService {
     private final TransactionService transactionService;
     private final CapacityControlService capacityControlService;
     private final TransactionPlacementService transactionPlacementService;
+    private final DocumentFileService documentFileService;
 
     @Transactional(rollbackOn = Exception.class)
     public void processIncomingGoods(DocumentRequest documentRequest) {
         validateDocumentRequest(documentRequest);
 
         Document document = documentService.addDocument(documentRequest);
+        byte[] fileData = documentRequest.getFileData() != null
+                ? Base64.getDecoder().decode(documentRequest.getFileData())
+                : null;
+
+        addDocumentFile(documentRequest.getFileName(), fileData, document.getId());
         processDocumentItems(document, documentRequest.getItems());
     }
 
@@ -46,6 +55,10 @@ public class ProcessIncomingService {
             validateItemRequest(item);
             processSingleItem(document, item);
         }
+    }
+
+    private void addDocumentFile(String fileName, byte[] fileData, Long documentId) {
+        documentFileService.saveDocumentFile(fileName, fileData, documentId);
     }
 
     private void processSingleItem(Document document, ItemRequest item) {

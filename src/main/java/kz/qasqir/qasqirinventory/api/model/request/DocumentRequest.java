@@ -9,6 +9,8 @@ public class DocumentRequest {
     private String documentType;
     private String documentNumber;
     private LocalDate documentDate;
+    private String fileName;
+    private byte[] fileData;
     private Long supplierId;
     private Long customerId;
     private List<ItemRequest> items;
