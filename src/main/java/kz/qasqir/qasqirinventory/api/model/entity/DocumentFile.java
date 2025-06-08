@@ -1,15 +1,19 @@
 package kz.qasqir.qasqirinventory.api.model.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "t_documents_files")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "t_documents_files")
 public class DocumentFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,21 +22,13 @@ public class DocumentFile {
     @Column(name = "document_id")
     private Long documentId;
 
+    @Column(name = "file_name", nullable = false)
     private String fileName;
 
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    @Column(name = "file_data", nullable = false)
-    private byte[] fileData;
+    @Column(name = "file_path")
+    private String filePath;
 
-
+    @Column(name = "uploaded_at", nullable = false)
     private LocalDateTime uploadedAt = LocalDateTime.now();
-
-    public void setFileData(byte[] fileData) {
-        if (fileData == null) {
-            throw new IllegalArgumentException("fileData не может быть null");
-        }
-        this.fileData = fileData;
-    }
 }
 

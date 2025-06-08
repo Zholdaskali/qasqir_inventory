@@ -10,7 +10,7 @@ public class DocumentRequest {
     private String documentNumber;
     private LocalDate documentDate;
     private String fileName;
-    private byte[] fileData;
+    private String fileData;
     private Long supplierId;
     private Long customerId;
     private List<ItemRequest> items;

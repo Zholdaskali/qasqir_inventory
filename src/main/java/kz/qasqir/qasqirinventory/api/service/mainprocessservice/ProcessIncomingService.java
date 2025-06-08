@@ -6,7 +6,6 @@ import kz.qasqir.qasqirinventory.api.model.entity.*;
 import kz.qasqir.qasqirinventory.api.model.request.DocumentFileRequest;
 import kz.qasqir.qasqirinventory.api.model.request.DocumentRequest;
 import kz.qasqir.qasqirinventory.api.model.request.ItemRequest;
-import kz.qasqir.qasqirinventory.api.repository.DocumentFileRepository;
 import kz.qasqir.qasqirinventory.api.repository.InventoryRepository;
 import kz.qasqir.qasqirinventory.api.service.defaultservice.*;
 import lombok.RequiredArgsConstructor;
@@ -36,11 +35,10 @@ public class ProcessIncomingService {
         validateDocumentRequest(documentRequest);
 
         Document document = documentService.addDocument(documentRequest);
-        byte[] fileData = documentRequest.getFileData() != null
-                ? Base64.getDecoder().decode(documentRequest.getFileData())
-                : null;
-
-        addDocumentFile(documentRequest.getFileName(), fileData, document.getId());
+        if (documentRequest.getFileData() != null) {
+            byte[] fileData = Base64.getDecoder().decode(documentRequest.getFileData());
+            addDocumentFile(documentRequest.getFileName(), fileData, document.getId());
+        }
         processDocumentItems(document, documentRequest.getItems());
     }
 
@@ -58,7 +56,8 @@ public class ProcessIncomingService {
     }
 
     private void addDocumentFile(String fileName, byte[] fileData, Long documentId) {
-        documentFileService.saveDocumentFile(fileName, fileData, documentId);
+        DocumentFileRequest documentFileRequest = new DocumentFileRequest(documentId, fileName, fileData);
+        documentFileService.saveDocumentFile(documentFileRequest);
     }
 
     private void processSingleItem(Document document, ItemRequest item) {

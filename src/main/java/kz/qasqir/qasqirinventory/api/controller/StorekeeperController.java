@@ -1,6 +1,7 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import kz.qasqir.qasqirinventory.api.model.dto.*;
@@ -19,6 +20,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -177,18 +183,30 @@ public class StorekeeperController {
         return MessageResponse.of(inventoryAuditService.getById(inventoryId));
     }
 
-    @GetMapping("/file/download/{id}")
-    public void downloadDocumentFile(@PathVariable Long id, HttpServletResponse response) throws IOException {
-        DocumentFile documentFile = documentFileService.getDocumentFileById(id);
+    @GetMapping("/file/download/by-document/{documentId}")
+    public void downloadByDocumentId(@PathVariable Long documentId, HttpServletResponse response) throws IOException {
+        DocumentFile documentFile = documentFileService.getDocumentFileByDocumentId(documentId);
 
-        // Устанавливаем заголовки для скачивания файла
+        // Путь к файлу на диске
+        Path filePath = Paths.get(documentFile.getFilePath());
+
+        if (!Files.exists(filePath)) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + documentFile.getFileName() + "\"");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + URLEncoder.encode(documentFile.getFileName(), StandardCharsets.UTF_8) + "\"");
+        response.setContentLengthLong(Files.size(filePath));
 
-        // Записываем файл в выходной поток
-        response.getOutputStream().write(documentFile.getFileData());
-        response.getOutputStream().flush();
+        try (ServletOutputStream outputStream = response.getOutputStream()) {
+            Files.copy(filePath, outputStream);
+            outputStream.flush();
+        }
     }
+
+
 
     @GetMapping("/inventory-check/result/{auditId}")
     public MessageResponse<List<InventoryAuditResultDTO>> getInventoryAudit(@PathVariable Long auditId) {

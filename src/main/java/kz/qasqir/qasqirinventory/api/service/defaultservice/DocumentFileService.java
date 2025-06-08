@@ -8,10 +8,16 @@ import kz.qasqir.qasqirinventory.api.repository.DocumentFileRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,35 +28,42 @@ public class DocumentFileService {
 
     private final DocumentFileRepository documentFileRepository;
 
+    @Value("${file.directory.link}")
+    private String uploadDir;
+
     @Transactional
     public String saveDocumentFile(DocumentFileRequest request) {
+        Optional<DocumentFile> existingFile = documentFileRepository.findByDocumentIdAndFileName(request.getDocumentId(), request.getFileName());
+        if (existingFile.isPresent()) {
+            return "Файл с таким именем уже существует для данного документа";
+        }
+
         try {
-            Optional<DocumentFile> existingFile = documentFileRepository.findByDocumentIdAndFileName(request.getDocumentId(), request.getFileName());
-            if (existingFile.isPresent()) {
-                return "Файл с таким именем уже существует для данного документа";
+            Path uploadPath = Paths.get(uploadDir, String.valueOf(request.getDocumentId()));
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
             }
+
+            String uniqueFileName = UUID.randomUUID() + "_" + request.getFileName();
+
+            Path filePath = uploadPath.resolve(uniqueFileName);
+
+            Files.write(filePath, request.getFileData());
 
             DocumentFile documentFile = new DocumentFile();
             documentFile.setDocumentId(request.getDocumentId());
-            documentFile.setFileName(request.getFileName());
-            documentFile.setFileData(request.getFileData());
+            documentFile.setFileName(request.getFileName());  // оригинальное имя
+            documentFile.setFilePath(filePath.toString());
 
             documentFileRepository.save(documentFile);
+
             return "Файл успешно сохранен";
-        } catch (Exception e) {
-            logger.error("Ошибка при сохранении файла", e);
+
+        } catch (IOException e) {
+            logger.error("Ошибка при сохранении файла на диск", e);
             return "Ошибка при сохранении файла";
         }
     }
-
-    public void saveDocumentFile(String fileName, byte[] fileData, Long documentId) {
-        DocumentFile documentFile = new DocumentFile();
-        documentFile.setDocumentId(documentId);
-        documentFile.setFileName(fileName);
-        documentFile.setFileData(fileData);
-        documentFileRepository.save(documentFile);
-    }
-
 
     public List<DocumentFileDTO> getDocumentFiles() {
         try {
@@ -63,22 +76,18 @@ public class DocumentFileService {
         }
     }
 
-    public List<DocumentFile> getAll() {
-        return documentFileRepository.findAll();
-    }
-
     private DocumentFileDTO convertToDto(DocumentFile documentFile) {
         return new DocumentFileDTO(
                 documentFile.getId(),
                 documentFile.getDocumentId(),
                 documentFile.getFileName(),
-                documentFile.getFileData(),
+                documentFile.getFilePath(),
                 documentFile.getUploadedAt()
         );
     }
 
-    public DocumentFile getDocumentFileById(Long id) {
-        return documentFileRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Файл не найден"));
+    public DocumentFile getDocumentFileByDocumentId(Long documentId) {
+        return documentFileRepository.findByDocumentId(documentId)
+                .orElseThrow(() -> new RuntimeException("Файл для документа не найден"));
     }
 }

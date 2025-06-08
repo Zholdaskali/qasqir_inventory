@@ -12,7 +12,6 @@ public class DocumentFileDTO {
     private Long id;
     private Long documentId;
     private String fileName;
-    @Lob
-    private byte[] fileData;
+    private String filePath;
     private LocalDateTime uploadedAt;
 }
