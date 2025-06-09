@@ -15,5 +15,7 @@ public class BatchProcessRequest {
     private LocalDate documentDate;
     private Long customerId;
     private Long createdBy;
+    private String fileName;
+    private String fileData;
     private List<BatchTicketRequest> ticketRequests;
 }
