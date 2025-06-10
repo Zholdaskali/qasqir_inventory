@@ -26,7 +26,7 @@ WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
 
-FROM eclipse-temurin:20-jdk-slim
+FROM eclipse-temurin:20-jdk
 WORKDIR /app
 COPY --from=build /app/target/QasqirInventory-*.jar app.jar
 EXPOSE 8080
