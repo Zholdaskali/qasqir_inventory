@@ -60,10 +60,19 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns("/api/v1/bitrix24/**");
     }
 
+//    @Override
+//    public void addCorsMappings(CorsRegistry registry) {
+//        registry.addMapping("/**")
+//                .allowedOriginPatterns("http://localhost:5173", "http://192.168.1.*:5173", "http://172.16.80.*:5173") // Разрешить все IP в подсети 192.168.1.*
+//                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+//                .exposedHeaders("Auth-token", "auth-token")
+//                .allowCredentials(true);
+//    }
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns("http://localhost:5173", "http://192.168.1.*:5173", "http://172.16.80.*:5173") // Разрешить все IP в подсети 192.168.1.*
+                .allowedOriginPatterns("https://qasqir-inventory-web-client.onrender.com") // Разрешить все IP в подсети 192.168.1.*
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .exposedHeaders("Auth-token", "auth-token")
                 .allowCredentials(true);

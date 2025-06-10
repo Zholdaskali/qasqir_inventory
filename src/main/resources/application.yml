@@ -92,10 +92,10 @@ api:
 
 # Ссылка для приглашений и восстановления пароля
 invite:
-  link: http://localhost:5173/recover-password
+  link: https://qasqir-inventory-web-client.onrender.com/recover-password
 
 password-recovery:
-  link: http://localhost:5173/reset-password
+  link: https://qasqir-inventory-web-client.onrender.com/reset-password
 
 image:
   directory:
