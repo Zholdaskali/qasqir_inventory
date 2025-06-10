@@ -4,11 +4,16 @@ server:
   port: 8081
 
 # Конфигурация Spring Boot
+#spring:
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/qasqir_inventory?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC+5
+#    username: postgres
+#    password: erke
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/qasqir_inventory?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC+5
-    username: postgres
-    password: erke
+    url: jdbc:postgresql://dpg-d1488t15pdvs73cnt8bg-a.oregon-postgres.render.com:5432/qasqir_inventory?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC+5
+    username: qasqir_inventory
+    password: 6pZDQivpQLhULV3awDW6Xo56RiE225S7
 #  spring:
 #    datasource:
 #      url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/qasqir_inventory}
