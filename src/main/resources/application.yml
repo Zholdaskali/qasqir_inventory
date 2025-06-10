@@ -11,9 +11,9 @@ server:
 #    password: erke
 spring:
   datasource:
-    url: jdbc:postgresql://dpg-d1488t15pdvs73cnt8bg-a.oregon-postgres.render.com:5432/qasqir_inventory?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC+5
+    url: jdbc:postgresql://dpg-d149qbvfte5s73ckhqeg-a.oregon-postgres.render.com:5432/qasqir_inventory_4her?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC+5
     username: qasqir_inventory
-    password: 6pZDQivpQLhULV3awDW6Xo56RiE225S7
+    password: rOuEUWmLVahsfyC6iy6kTQBlC4nxTZa5
 #  spring:
 #    datasource:
 #      url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/qasqir_inventory}
