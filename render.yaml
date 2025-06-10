@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: uniAttend
+    env: java
+    plan: free
+    buildCommand: ./mvnw clean package
+    startCommand: java -jar target/uniAttend-1.0-SNAPSHOT.jar
+    envVars:
+      - key: DATABASE_URL
+        value: postgres://uniattend:qWaGEoR4iIHt2Vam4A0VB7h7RzofEQrG@dpg-d1i152nfte5s73980fkg-a/uniattend
