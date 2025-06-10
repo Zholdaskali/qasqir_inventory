@@ -21,12 +21,12 @@
 ## Команда для запуска приложения
 #CMD ["java", "-jar", "target/QasqirInventory-0.0.1-SNAPSHOT.jar"]
 
-FROM maven:3.8.5-openjdk-17 AS build
+FROM eclipse-temurin:20-jdk AS build
 WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
 
-FROM eclipse-temurin:20-jdk
+FROM eclipse-temurin:20-jdk-slim
 WORKDIR /app
 COPY --from=build /app/target/QasqirInventory-*.jar app.jar
 EXPOSE 8080
