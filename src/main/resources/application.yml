@@ -97,9 +97,31 @@ invite:
 password-recovery:
   link: http://localhost:5173/reset-password
 
+#файловый путь для хранения доков и изображений
 image:
   directory:
     link: "C:/WORK/image/"
+
+file:
+  directory:
+    link: "C:/WORK/file/"
+#image:
+#  directory:
+#    link: /var/app/storage/image/
+#file:
+#  directory:
+#    link: /var/app/storage/file/
+
+cloud:
+  aws:
+    credentials:
+      access-key: YOUR_ACCESS_KEY
+      secret-key: YOUR_SECRET_KEY
+    region:
+      static: eu-central-1
+    s3:
+      bucket: your-bucket-name
+
 
 company:
   data:
@@ -118,8 +140,3 @@ logging:
 
 bitrix24:
   webhook-url: "https://b24-mvtnvt.bitrix24.kz/rest/1/n7jy59tgz5tnu571/"
-
-
-file:
-  directory:
-    link: "C:/WORK/file/"

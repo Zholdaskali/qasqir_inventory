@@ -35,6 +35,10 @@ public class ProcessInventoryCheckService {
         Warehouse warehouse = warehouseService.getById(warehouseId);
         InventoryAuditSystem auditSystem = inventoryAuditSystemService.getById(inventoryAuditSystemId);
 
+        if (inventoryAuditRepository.existsByInventoryAuditSystemIdAndWarehouseId(inventoryAuditSystemId, warehouseId)) {
+            throw new RuntimeException("Для этого склада уже инвентаризация начата в этой системной инвентаризации");
+        }
+
         InventoryAudit audit = new InventoryAudit();
         audit.setWarehouse(warehouse);
         audit.setInventoryAuditSystem(auditSystem);

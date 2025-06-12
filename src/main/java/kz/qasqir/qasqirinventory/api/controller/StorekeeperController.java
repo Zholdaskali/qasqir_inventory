@@ -104,6 +104,15 @@ public class StorekeeperController {
         return MessageResponse.of(inventoryAuditSystemService.startInventoryAuditSystem(inventoryAuditSystemRequest));
     }
 
+    @Operation(
+            summary = "Создание ИНВЕНТАРИЗАЦИЯ: Начало инвентаризации",
+            description = "Возвращает сообщение о создании"
+    )
+    @DeleteMapping("/inventory-check-system/{inventoryId}")
+    public MessageResponse<String> startInventoryCheck(@PathVariable Long id) {
+        return MessageResponse.of(inventoryAuditSystemService.deleteById(id));
+    }
+
     @GetMapping("/inventory-check-system/in-progress")
     public MessageResponse<List<InventoryAuditSystemDTO>> getInventoryCheckSystemInProgress(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -113,7 +122,7 @@ public class StorekeeperController {
 
     @GetMapping("/inventory-check-system/{inventoryId}")
     public MessageResponse<InventoryAuditSystemDTO> getByInventoryAuditSystemId(@PathVariable Long inventoryId) {
-        return MessageResponse.of(inventoryAuditSystemService.getByInventoryAuditSystem(inventoryId));
+        return MessageResponse.of(inventoryAuditSystemService.getInventoryAuditSystemDTO(inventoryId));
     }
 
     @GetMapping("/inventory-check-system/completed")

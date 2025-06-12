@@ -57,8 +57,14 @@ public class InventoryAuditSystemService {
         return inventoryAuditSystemRepository.findById(inventoryAuditSystemId).orElseThrow(()-> new RuntimeException("Системная инвентаризация не найдена"));
     }
 
-    public InventoryAuditSystemDTO getByInventoryAuditSystem(Long inventoryId) {
+    public InventoryAuditSystemDTO getInventoryAuditSystemDTO(Long inventoryId) {
         return convertToDTO(getById(inventoryId));
+    }
+
+    @Transactional
+    public String deleteById(Long id) {
+        inventoryAuditSystemRepository.deleteById(id);
+        return "Успешно удалено";
     }
 
 //    private Long id;

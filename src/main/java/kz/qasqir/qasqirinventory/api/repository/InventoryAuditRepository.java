@@ -18,4 +18,6 @@ public interface InventoryAuditRepository extends JpaRepository<InventoryAudit, 
     boolean existsByStatusAndInventoryAuditSystemId(String inProgress, Long id);
 
     long countByInventoryAuditSystemId(Long id);
+
+    boolean existsByInventoryAuditSystemIdAndWarehouseId(Long warehouseId, Long inventoryAuditSystemId);
 }

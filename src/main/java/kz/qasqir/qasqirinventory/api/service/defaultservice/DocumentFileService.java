@@ -10,11 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,9 +27,10 @@ public class DocumentFileService {
     private static final Logger logger = LoggerFactory.getLogger(DocumentFileService.class);
 
     private final DocumentFileRepository documentFileRepository;
+    private final S3Client s3Client;
 
-    @Value("${file.directory.link}")
-    private String uploadDir;
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucketName;
 
     @Transactional
     public String saveDocumentFile(DocumentFileRequest request) {
@@ -39,29 +40,31 @@ public class DocumentFileService {
         }
 
         try {
-            Path uploadPath = Paths.get(uploadDir, String.valueOf(request.getDocumentId()));
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
+            // Генерируем уникальный ключ (можно добавить поддиректории, если нужно)
+            String uniqueKey = "documents/" + request.getDocumentId() + "/" + UUID.randomUUID() + "_" + request.getFileName();
 
-            String uniqueFileName = UUID.randomUUID() + "_" + request.getFileName();
+            // Загружаем в S3
+            PutObjectRequest putRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(uniqueKey)
+                    .build();
 
-            Path filePath = uploadPath.resolve(uniqueFileName);
+            s3Client.putObject(putRequest, RequestBody.fromBytes(request.getFileData()));
 
-            Files.write(filePath, request.getFileData());
-
+            // Сохраняем в базу
             DocumentFile documentFile = new DocumentFile();
             documentFile.setDocumentId(request.getDocumentId());
-            documentFile.setFileName(request.getFileName());  // оригинальное имя
-            documentFile.setFilePath(filePath.toString());
+            documentFile.setFileName(request.getFileName());
+            documentFile.setFilePath(uniqueKey); // теперь это ключ в S3
+            documentFile.setUploadedAt(LocalDateTime.now());
 
             documentFileRepository.save(documentFile);
 
-            return "Файл успешно сохранен";
+            return "Файл успешно загружен в S3";
 
-        } catch (IOException e) {
-            logger.error("Ошибка при сохранении файла на диск", e);
-            return "Ошибка при сохранении файла";
+        } catch (Exception e) {
+            logger.error("Ошибка при загрузке файла в S3", e);
+            return "Ошибка при загрузке файла";
         }
     }
 
