@@ -4,16 +4,16 @@ server:
   port: 8081
 
 # Конфигурация Spring Boot
-#spring:
-#  datasource:
-#    url: jdbc:postgresql://localhost:5432/qasqir_inventory?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC+5
-#    username: postgres
-#    password: erke
 spring:
   datasource:
-    url: jdbc:postgresql://dpg-d149qbvfte5s73ckhqeg-a.oregon-postgres.render.com:5432/qasqir_inventory_4her?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC+5
-    username: qasqir_inventory
-    password: rOuEUWmLVahsfyC6iy6kTQBlC4nxTZa5
+    url: jdbc:postgresql://localhost:5432/qasqir_inventory?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC+5
+    username: postgres
+    password: erke
+#spring:
+#  datasource:
+#    url: jdbc:postgresql://dpg-d149qbvfte5s73ckhqeg-a.oregon-postgres.render.com:5432/qasqir_inventory_4her?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC+5
+#    username: qasqir_inventory
+#    password: rOuEUWmLVahsfyC6iy6kTQBlC4nxTZa5
 #  spring:
 #    datasource:
 #      url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/qasqir_inventory}
@@ -92,10 +92,10 @@ api:
 
 # Ссылка для приглашений и восстановления пароля
 invite:
-  link: https://qasqir-inventory-web-client.onrender.com/recover-password
+  link: http://localhost:5173/recover-password
 
 password-recovery:
-  link: https://qasqir-inventory-web-client.onrender.com/reset-password
+  link: http://localhost:5173/reset-password
 
 image:
   directory:

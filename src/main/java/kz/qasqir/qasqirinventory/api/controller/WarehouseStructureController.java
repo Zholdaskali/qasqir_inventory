@@ -130,7 +130,10 @@ public class WarehouseStructureController {
     }
 
     @GetMapping("/document/transaction/{nomenclatureCode}")
-    public MessageResponse<List<TransactionPlacementDTO>> getAllTransactionPlacementByNomenclatureCode(@PathVariable String nomenclatureCode) {
-        return MessageResponse.of(transactionPlacementService.getAllTransactionPlacementByNomenclatureCode(nomenclatureCode));
+    public MessageResponse<List<TransactionPlacementDTO>> getAllTransactionPlacementByNomenclatureCode(@PathVariable String nomenclatureCode,
+                                                                                                       @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                                                                       @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+                                                                                                       ) {
+        return MessageResponse.of(transactionPlacementService.getAllTransactionPlacementByNomenclatureCode(nomenclatureCode, startDate, endDate));
     }
 }

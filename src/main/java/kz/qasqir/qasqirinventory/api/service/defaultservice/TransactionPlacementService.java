@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,8 +37,16 @@ public class TransactionPlacementService {
         transactionPlacementRepository.save(transactionPlacement);
     }
 
-    public List<TransactionPlacementDTO> getAllTransactionPlacementByNomenclatureCode(String nomenclatureCode) {
-        return transactionPlacementRepository.findAllByTransactionNomenclatureCode(nomenclatureCode).stream().map(this::convertToTransactionPlacementDto).toList();
+    public List<TransactionPlacementDTO> getAllTransactionPlacementByNomenclatureCode(
+            String nomenclatureCode, LocalDate startDate, LocalDate endDate) {
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        // Конец дня включительно, поэтому добавляем 1 день
+        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+        return transactionPlacementRepository
+                .findAllByTransactionNomenclatureCodeAndCreatedAtBetween(nomenclatureCode, startDateTime, endDateTime)
+                .stream()
+                .map(this::convertToTransactionPlacementDto)
+                .toList();
     }
 
     private TransactionPlacementDTO convertToTransactionPlacementDto(TransactionPlacement transactionPlacement) {
