@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kz.qasqir.qasqirinventory.api.model.entity.ActionLog;
 import kz.qasqir.qasqirinventory.api.repository.ActionLogRepository;
-import kz.qasqir.qasqirinventory.api.service.defaultservice.SessionService;
+import kz.qasqir.qasqirinventory.api.service.auth.SessionService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 

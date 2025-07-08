@@ -5,8 +5,8 @@ import kz.qasqir.qasqirinventory.api.model.dto.SupplierDTO;
 import kz.qasqir.qasqirinventory.api.model.request.CustomerRequest;
 import kz.qasqir.qasqirinventory.api.model.request.SupplierRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.service.defaultservice.CustomerService;
-import kz.qasqir.qasqirinventory.api.service.defaultservice.SupplierService;
+import kz.qasqir.qasqirinventory.api.service.partner.CustomerService;
+import kz.qasqir.qasqirinventory.api.service.partner.SupplierService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-public class TransactionDTO {
+    public class TransactionDTO {
     private Long id;
     private String transactionType;
     private Long nomenclatureId;
@@ -19,4 +19,5 @@ public class TransactionDTO {
     private String createdBy;
     private LocalDateTime createdAt;
     private Long documentId;
+    private String nomenclatureCode;
 }

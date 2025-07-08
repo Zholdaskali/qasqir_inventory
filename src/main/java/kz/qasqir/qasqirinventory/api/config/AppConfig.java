@@ -23,6 +23,7 @@ public class AppConfig {
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public MailVerificationCodeGenerate mailVerificationCodeGenerate() {
         return new MailVerificationCodeGenerate();

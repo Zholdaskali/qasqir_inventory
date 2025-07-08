@@ -3,8 +3,14 @@ package kz.qasqir.qasqirinventory.api.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import kz.qasqir.qasqirinventory.api.model.dto.*;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.service.defaultservice.*;
-import kz.qasqir.qasqirinventory.api.service.mainprocessservice.TicketService;
+import kz.qasqir.qasqirinventory.api.service.inventory.InventoryService;
+import kz.qasqir.qasqirinventory.api.service.partner.*;
+import kz.qasqir.qasqirinventory.api.service.process.TicketService;
+import kz.qasqir.qasqirinventory.api.service.product.CategoryService;
+import kz.qasqir.qasqirinventory.api.service.product.NomenclatureService;
+import kz.qasqir.qasqirinventory.api.service.warehouse.WarehouseContainerService;
+import kz.qasqir.qasqirinventory.api.service.warehouse.WarehouseService;
+import kz.qasqir.qasqirinventory.api.service.warehouse.WarehouseZoneService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +31,7 @@ public class EmployeeController {
     private final CustomerService customerService;
     private final WarehouseContainerService warehouseContainerService;
     private final TicketService ticketService;
+    private final InventoryService inventoryService;
 
     @Operation(
             summary = "Просмотр всех складов",
@@ -102,5 +109,15 @@ public class EmployeeController {
                                                                @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
                                                                @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         return MessageResponse.of(ticketService.getAllTicked(type, startDate, endDate));
+    }
+
+    @GetMapping("warehouse/items-code/{code}")
+    public MessageResponse<List<InventoryItemDTO>> getInventory(@PathVariable String code) {
+        return MessageResponse.of(inventoryService.getAllInventoryItemsByNomenclatureCode(code));
+    }
+
+    @GetMapping("warehouse/items-name/{nomenclatureName}")
+    public MessageResponse<List<InventoryItemDTO>> getInventoryByNomenclatureName(@PathVariable String nomenclatureName) {
+        return MessageResponse.of(inventoryService.getAllInventoryItemsByNomenclatureName(nomenclatureName));
     }
 }

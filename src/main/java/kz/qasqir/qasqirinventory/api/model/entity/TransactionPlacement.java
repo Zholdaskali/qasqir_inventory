@@ -38,10 +38,14 @@ public class TransactionPlacement {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public TransactionPlacement(Transaction transaction, WarehouseZone warehouseZone, WarehouseContainer warehouseContainer, BigDecimal quantity) {
+    @Column(name = "placement_type", nullable = false)
+    private String placementType;
+
+    public TransactionPlacement(Transaction transaction, WarehouseZone warehouseZone, WarehouseContainer warehouseContainer, BigDecimal quantity, String placementType) {
         this.transaction = transaction;
         this.warehouseZone = warehouseZone;
         this.warehouseContainer = warehouseContainer;
         this.quantity = quantity;
+        this.placementType = placementType;
     }
 }

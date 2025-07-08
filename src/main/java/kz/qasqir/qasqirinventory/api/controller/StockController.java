@@ -5,8 +5,8 @@ import kz.qasqir.qasqirinventory.api.model.request.CategorySaveRequest;
 import kz.qasqir.qasqirinventory.api.model.request.CategoryUpdateRequest;
 import kz.qasqir.qasqirinventory.api.model.request.NomenclatureRequest;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.service.defaultservice.CategoryService;
-import kz.qasqir.qasqirinventory.api.service.defaultservice.NomenclatureService;
+import kz.qasqir.qasqirinventory.api.service.product.CategoryService;
+import kz.qasqir.qasqirinventory.api.service.product.NomenclatureService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

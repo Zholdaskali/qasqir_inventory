@@ -3,7 +3,7 @@ package kz.qasqir.qasqirinventory.api.Interceptor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kz.qasqir.qasqirinventory.api.model.entity.PasswordResetToken;
-import kz.qasqir.qasqirinventory.api.service.defaultservice.PasswordRecoveryService;
+import kz.qasqir.qasqirinventory.api.service.user.PasswordRecoveryService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 

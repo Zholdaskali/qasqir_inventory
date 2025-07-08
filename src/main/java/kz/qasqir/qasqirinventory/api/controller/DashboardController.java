@@ -1,14 +1,18 @@
 package kz.qasqir.qasqirinventory.api.controller;
 
 import kz.qasqir.qasqirinventory.api.model.dto.DashboardDTO;
-import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.service.defaultservice.DashboardService;
+import kz.qasqir.qasqirinventory.api.model.dto.InventoryDTO;
+import kz.qasqir.qasqirinventory.api.model.dto.TopNomenclatureDTO;
+import kz.qasqir.qasqirinventory.api.model.dto.WarehouseZoneStatsDTO;
+import kz.qasqir.qasqirinventory.api.service.dashboard.DashboardService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("api/v1/employee/dashboard")
@@ -17,34 +21,36 @@ public class DashboardController {
 
     private final DashboardService dashboardService;
 
-    // Получение общей аналитической доски за период
     @GetMapping("/stats")
-    @Cacheable(value = "dashboardStats", key = "{#startDate, #endDate}")
-    public MessageResponse<?> getDashboardStats(
-            @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+    public CompletableFuture<ResponseEntity<DashboardDTO>> getDashboardStats(
+            @RequestParam("startDate") LocalDate startDate,
+            @RequestParam("endDate") LocalDate endDate) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                BigDecimal totalInventory = dashboardService.getTotalInventoryQuantity();
+                double zoneFillPercentage = dashboardService.getZoneFillPercentage();
+                long transactionCount = dashboardService.getTransactionCount(startDate, endDate);
+                List<TopNomenclatureDTO> topNomenclatures = dashboardService.getTopNomenclatures(startDate, endDate, 5);
+                List<InventoryDTO> lowStockItems = dashboardService.getLowStockItems();
+                List<TopNomenclatureDTO> demandForecast = dashboardService.getDemandForecast(startDate, endDate);
+                List<TopNomenclatureDTO> trendingItems = dashboardService.getTrendingItems(startDate, endDate, 5);
+                List<WarehouseZoneStatsDTO> zoneStats = dashboardService.getZoneStats();
 
-        if (startDate == null) {
-            startDate = LocalDate.now().minusMonths(1); // Последний месяц по умолчанию
-        }
-        if (endDate == null) {
-            endDate = LocalDate.now();
-        }
+                DashboardDTO stats = new DashboardDTO(
+                        totalInventory,
+                        zoneFillPercentage,
+                        transactionCount,
+                        topNomenclatures,
+                        lowStockItems,
+                        demandForecast,
+                        trendingItems,
+                        zoneStats
+                );
 
-        // Валидация дат
-        if (startDate.isAfter(endDate)) {
-            return MessageResponse.of("Ошибка в дате");
-        }
-
-        DashboardDTO dashboardDTO = dashboardService.getDashboardStats(startDate, endDate);
-        return MessageResponse.of(dashboardDTO);
-    }
-
-    @GetMapping("/current")
-    @Cacheable(value = "currentDashboardStats")
-    public MessageResponse<DashboardDTO> getCurrentDashboardStats() {
-        LocalDate today = LocalDate.now();
-        DashboardDTO dashboardDTO = dashboardService.getDashboardStats(today, today);
-        return MessageResponse.of(dashboardDTO);
+                return ResponseEntity.ok(stats);
+            } catch (Exception e) {
+                return ResponseEntity.status(500).body(null);
+            }
+        });
     }
 }

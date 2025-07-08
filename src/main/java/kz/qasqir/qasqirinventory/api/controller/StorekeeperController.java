@@ -9,9 +9,9 @@ import kz.qasqir.qasqirinventory.api.model.entity.Document;
 import kz.qasqir.qasqirinventory.api.model.entity.DocumentFile;
 import kz.qasqir.qasqirinventory.api.model.request.*;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.service.defaultservice.DocumentFileService;
-import kz.qasqir.qasqirinventory.api.service.defaultservice.DocumentService;
-import kz.qasqir.qasqirinventory.api.service.mainprocessservice.*;
+import kz.qasqir.qasqirinventory.api.service.media.S3FileStorageService1;
+import kz.qasqir.qasqirinventory.api.service.document.DocumentService;
+import kz.qasqir.qasqirinventory.api.service.process.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -36,7 +37,7 @@ public class StorekeeperController {
 
     private final DocumentService documentService;
     private final ProcessSalesAndWriteOffAndProductionService processSalesAndTransferService;
-    private final DocumentFileService documentFileService;
+    private final S3FileStorageService1 s3FileStorageService1;
     private final InventoryAuditService inventoryAuditService;
     private final ProcessIncomingService processIncomingService;
     private final ProcessInventoryCheckService processInventoryCheck;
@@ -156,7 +157,7 @@ public class StorekeeperController {
             request.setFileName(file.getOriginalFilename());
             request.setFileData(fileData);
 
-            return MessageResponse.of(documentFileService.saveDocumentFile(request));
+            return MessageResponse.of(s3FileStorageService1.saveDocumentFile(request));
         } catch (Exception e) {
             return MessageResponse.empty("Ошибка при сохранении файла: " + e.getMessage());
         }
@@ -194,7 +195,7 @@ public class StorekeeperController {
 
     @GetMapping("/file/download/by-document/{documentId}")
     public void downloadByDocumentId(@PathVariable Long documentId, HttpServletResponse response) throws IOException {
-        DocumentFile documentFile = documentFileService.getDocumentFileByDocumentId(documentId);
+        DocumentFile documentFile = s3FileStorageService1.getDocumentFileByDocumentId(documentId);
 
         // Путь к файлу на диске
         Path filePath = Paths.get(documentFile.getFilePath());
@@ -222,7 +223,9 @@ public class StorekeeperController {
         return MessageResponse.of(inventoryAuditResultService.getAllByAuditId(auditId));
     }
 
-
-
+    @GetMapping("/inventory-check/result-date/{nomenclatureCode}")
+    public MessageResponse<List<LocalDateTime>> getInventoryAudit(@PathVariable String nomenclatureCode) {
+        return MessageResponse.of(inventoryAuditResultService.getLast10AuditDatesByNomenclatureCode(nomenclatureCode));
+    }
 }
 

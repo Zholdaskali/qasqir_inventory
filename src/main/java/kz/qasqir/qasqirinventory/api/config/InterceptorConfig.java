@@ -15,7 +15,6 @@ public class InterceptorConfig implements WebMvcConfigurer {
     private final ActionLogInterceptor actionLogInterceptor;
     private final InviteInterceptor inviteInterceptor;
     private final PasswordResetTokenInterceptor passwordResetTokenInterceptor;
-    private final Bitrix24Interceptor bitrix24Interceptor;
 
     private static final String[] COMMON_EXCLUDE_PATTERNS = {
             "/api/v1/user/password/reset-invite",
@@ -40,12 +39,11 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns(
                         "/api/v1/warehouse-manager/**",
                         "/api/v1/admin/**",
-                        "/api/v1/user/profile/**",
                         "/api/v1/storekeeper/**",
                         "/api/v1/1C/**"
                 )
                 .excludePathPatterns(COMMON_EXCLUDE_PATTERNS)
-                .excludePathPatterns("**/log/**");
+                .excludePathPatterns("/api/v1/admin/log/action-logs", "/api/v1/admin/log/login-logs", "/api/v1/admin/log/login-logs", "/api/v1/user/profile");
 
         registry.addInterceptor(inviteInterceptor)
                 .order(4)
@@ -54,16 +52,12 @@ public class InterceptorConfig implements WebMvcConfigurer {
         registry.addInterceptor(passwordResetTokenInterceptor)
                 .order(5)
                 .addPathPatterns("/api/v1/user/password/reset");
-
-        registry.addInterceptor(bitrix24Interceptor)
-                .order(6)
-                .addPathPatterns("/api/v1/bitrix24/**");
     }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns("http://localhost:5173", "http://192.168.1.*:5173", "http://172.16.80.*:5173") // Разрешить все IP в подсети 192.168.1.*
+                .allowedOriginPatterns("http://localhost:5173", "http://192.168.10.*:5173", "http://172.16.80.*:5173") // Разрешить все IP в подсети 192.168.1.*
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .exposedHeaders("Auth-token", "auth-token")
                 .allowCredentials(true);
