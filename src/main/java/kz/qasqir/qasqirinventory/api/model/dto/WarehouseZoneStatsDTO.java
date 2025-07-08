@@ -8,11 +8,8 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 public class WarehouseZoneStatsDTO {
-    private Long zoneId;
-    private String zoneName;
-    private double fillPercentage;
-    BigDecimal usedCapacity;
-    BigDecimal totalVolume;
-    private Long warehouseId;
-    private String warehouseName;
+    private final Long zoneId;
+    private final String zoneName;
+    private final String warehouseName;
+    private final double fillPercentage;
 }

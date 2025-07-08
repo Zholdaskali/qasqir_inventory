@@ -12,6 +12,7 @@ public class TransactionPlacementDTO {
     private WarehouseZoneDTO warehouseZoneDTO;
     private WarehouseContainerDTO warehouseContainerDTO;
     private BigDecimal quantity;
+    private String placementType;
 }
 //(Transaction transaction,
 //WarehouseZone warehouseZone,

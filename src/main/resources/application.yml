@@ -7,8 +7,8 @@ server:
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/qasqir_inventory?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC+5
-    username: qasqir_inventory_back
-    password: fFVJYFOCJWQ7
+    username: postgres
+    password: erke
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -101,7 +101,6 @@ file:
 #file:
 #  directory:
 #    link: /var/app/storage/file/
-
 
 
 company:

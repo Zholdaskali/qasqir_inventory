@@ -4,10 +4,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PasswordRecoveryMailService {
-    private final MailService mailService;
+    private final MailSenderService mailService;
 
 
-    public PasswordRecoveryMailService(MailService mailService) {
+    public PasswordRecoveryMailService(MailSenderService mailService) {
         this.mailService = mailService;
     }
 

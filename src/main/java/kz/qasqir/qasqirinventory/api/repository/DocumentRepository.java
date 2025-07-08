@@ -14,8 +14,6 @@ import java.util.Optional;
 public interface DocumentRepository extends JpaRepository<Document, Long> {
     Optional<Document> findByDocumentNumber(String documentNumber);
 
-    List<Document> findByDocumentDateBetween(LocalDate startDate, LocalDate endDate);
-
     @Query("SELECT DISTINCT d FROM Document d " +
             "LEFT JOIN FETCH d.supplier " + // Загружаем поставщика сразу
             "LEFT JOIN FETCH d.customer " + // Загружаем клиента (если нужно)
@@ -24,4 +22,6 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    boolean existsByDocumentNumber(String documentNumber);
 }

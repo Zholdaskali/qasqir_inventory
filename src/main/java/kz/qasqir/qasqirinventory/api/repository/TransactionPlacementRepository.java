@@ -14,9 +14,26 @@ import java.util.List;
 @Repository
 public interface TransactionPlacementRepository extends JpaRepository<TransactionPlacement, Long> {
 
-    @Query("SELECT t FROM TransactionPlacement t JOIN t.transaction tr JOIN tr.nomenclature n WHERE n.code = :nomenclatureCode AND t.createdAt >= :startDate AND t.createdAt < :endDate")
+//    @Query("SELECT t FROM TransactionPlacement t JOIN t.transaction tr JOIN tr.nomenclature n WHERE n.code = :nomenclatureCode AND t.createdAt >= :startDate AND t.createdAt < :endDate")
+//    List<TransactionPlacement> findAllByTransactionNomenclatureCodeAndCreatedAtBetween(
+//            @Param("nomenclatureCode") String nomenclatureCode,
+//            @Param("startDate") LocalDateTime startDate,
+//            @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT tp FROM TransactionPlacement tp " +
+            "JOIN FETCH tp.transaction t " +
+            "JOIN FETCH t.document d " +
+            "LEFT JOIN FETCH d.customer c " +
+            "LEFT JOIN FETCH d.supplier s " +
+            "JOIN FETCH t.nomenclature n " +
+            "LEFT JOIN FETCH n.category cat " +
+            "JOIN FETCH tp.warehouseZone wz " +
+            "LEFT JOIN FETCH wz.parent p " +
+            "LEFT JOIN FETCH wz.warehouse w " +
+            "LEFT JOIN FETCH tp.warehouseContainer wc " +
+            "WHERE n.code = :code AND tp.createdAt BETWEEN :startDate AND :endDate")
     List<TransactionPlacement> findAllByTransactionNomenclatureCodeAndCreatedAtBetween(
-            @Param("nomenclatureCode") String nomenclatureCode,
+            @Param("code") String nomenclatureCode,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
 }

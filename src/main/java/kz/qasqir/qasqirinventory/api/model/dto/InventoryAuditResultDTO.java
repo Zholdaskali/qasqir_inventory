@@ -18,4 +18,5 @@ public class InventoryAuditResultDTO {
     private BigDecimal actualQuantity;
     private BigDecimal discrepancy;
     private LocalDateTime createdAt;
+    private String nomenclatureCode;
 }

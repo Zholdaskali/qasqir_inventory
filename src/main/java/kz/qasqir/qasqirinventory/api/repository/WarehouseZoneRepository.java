@@ -5,7 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface WarehouseZoneRepository extends JpaRepository<WarehouseZone, Long> {
@@ -17,19 +20,24 @@ public interface WarehouseZoneRepository extends JpaRepository<WarehouseZone, Lo
 
     List<WarehouseZone> findRootZonesByWarehouseId(Long warehouseId);
 
-    @Query("SELECT wz.canStoreItems, " +
-            "(wz.length * wz.width * wz.height) AS totalVolume, " +
+    @Query("SELECT SUM(wz.length * wz.width * wz.height) " +
+            "FROM WarehouseZone wz WHERE wz.canStoreItems = true")
+    Optional<BigDecimal> calculateTotalVolumeForStorableZones();
+
+    @Query("SELECT wz FROM WarehouseZone wz JOIN FETCH wz.warehouse " +
+            "WHERE wz.canStoreItems = true")
+    List<WarehouseZone> findAllStorableZonesWithWarehouse();
+
+    @Query("SELECT wz.id AS id, wz.name AS name, w.name AS warehouseName, " +
             "SUM(CASE WHEN n.volume IS NOT NULL THEN n.volume * i.quantity " +
-            "        WHEN n.height IS NOT NULL AND n.width IS NOT NULL AND n.length IS NOT NULL THEN n.height * n.width * n.length * i.quantity " +
-            "        ELSE 0 END) AS usedVolume, " +
-            "wz.id, wz.name, w.id, w.name " +
+            "WHEN n.height IS NOT NULL AND n.width IS NOT NULL AND n.length IS NOT NULL " +
+            "THEN (n.height * n.width * n.length) * i.quantity ELSE 0 END) AS usedCapacity, " +
+            "wz.length * wz.width * wz.height AS totalVolume " +
             "FROM WarehouseZone wz " +
+            "JOIN wz.warehouse w " +
             "LEFT JOIN Inventory i ON i.warehouseZone.id = wz.id " +
-            "LEFT JOIN Nomenclature n ON n.id = i.nomenclature.id " +
-            "LEFT JOIN Warehouse w ON w.id = wz.warehouse.id " +
-            "GROUP BY wz.id, wz.name, wz.canStoreItems, wz.length, wz.width, wz.height, w.id, w.name")
-    List<Object[]> getZoneCapacitiesAndUsedVolumes();
-
-    List<WarehouseZone> findAllByCanStoreItemsTrue();
-
+            "LEFT JOIN i.nomenclature n " +
+            "WHERE wz.canStoreItems = true " +
+            "GROUP BY wz.id, wz.name, w.name, wz.length, wz.width, wz.height")
+    List<Object[]> findZoneStats();
 }

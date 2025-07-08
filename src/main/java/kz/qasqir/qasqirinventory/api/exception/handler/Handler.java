@@ -1,7 +1,7 @@
 package kz.qasqir.qasqirinventory.api.exception.handler;
 
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.service.defaultservice.ExceptionLogService;
+import kz.qasqir.qasqirinventory.api.service.log.ExceptionLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

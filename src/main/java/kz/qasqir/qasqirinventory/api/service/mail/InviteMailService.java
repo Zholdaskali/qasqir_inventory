@@ -5,10 +5,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class InviteMailService {
 
-    private final AsyncMailService mailService;
+    private final MailSenderService mailService;
 
 
-    public InviteMailService(AsyncMailService mailService) {
+    public InviteMailService(MailSenderService mailService) {
         this.mailService = mailService;
     }
 

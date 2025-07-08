@@ -2,11 +2,16 @@ package kz.qasqir.qasqirinventory.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import kz.qasqir.qasqirinventory.api.model.dto.*;
-import kz.qasqir.qasqirinventory.api.model.entity.TransactionPlacement;
+import kz.qasqir.qasqirinventory.api.model.entity.Nomenclature;
 import kz.qasqir.qasqirinventory.api.model.request.*;
 import kz.qasqir.qasqirinventory.api.model.response.MessageResponse;
-import kz.qasqir.qasqirinventory.api.service.defaultservice.*;
-import kz.qasqir.qasqirinventory.api.service.mainprocessservice.TicketService;
+import kz.qasqir.qasqirinventory.api.service.document.DocumentService;
+import kz.qasqir.qasqirinventory.api.service.process.TicketService;
+import kz.qasqir.qasqirinventory.api.service.product.NomenclatureService;
+import kz.qasqir.qasqirinventory.api.service.transaction.TransactionPlacementService;
+import kz.qasqir.qasqirinventory.api.service.warehouse.WarehouseContainerService;
+import kz.qasqir.qasqirinventory.api.service.warehouse.WarehouseService;
+import kz.qasqir.qasqirinventory.api.service.warehouse.WarehouseZoneService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +31,7 @@ public class WarehouseStructureController {
     private final TicketService ticketService;
     private final DocumentService documentService;
     private final TransactionPlacementService transactionPlacementService;
+    private final NomenclatureService nomenclatureService;
 
     @Operation(
             summary = "Удаление склада",
@@ -130,10 +136,24 @@ public class WarehouseStructureController {
     }
 
     @GetMapping("/document/transaction/{nomenclatureCode}")
-    public MessageResponse<List<TransactionPlacementDTO>> getAllTransactionPlacementByNomenclatureCode(@PathVariable String nomenclatureCode,
+    public MessageResponse<TransactionPlacementResultDTO> getAllTransactionPlacementByNomenclatureCode(@PathVariable String nomenclatureCode,
                                                                                                        @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
                                                                                                        @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
                                                                                                        ) {
         return MessageResponse.of(transactionPlacementService.getAllTransactionPlacementByNomenclatureCode(nomenclatureCode, startDate, endDate));
+    }
+
+    @GetMapping("/nomenclatures/synced")
+    public List<Nomenclature> getSyncedNomenclatures(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        return nomenclatureService.findNomenclaturesSyncedSince(startDate, endDate);
+    }
+
+    @GetMapping("/nomenclatures/not-synced")
+    public List<Nomenclature> getNotSyncedNomenclatures(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        return nomenclatureService.findNomenclaturesNotSyncedSince(startDate, endDate);
     }
 }

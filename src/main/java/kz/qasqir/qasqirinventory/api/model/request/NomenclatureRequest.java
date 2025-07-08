@@ -12,7 +12,7 @@ public class NomenclatureRequest {
     private String type;
     private Long updated_by;
     private String tnved_code;
-    private String measurement_unit;
+    private String measurement;
     private Long categoryId;
     private Double width;
     private Double height;
